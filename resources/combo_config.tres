@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ComboConfig" format=3 uid="uid://bq4wp8lq3065h"]
+
+[ext_resource type="Script" uid="uid://dgcamwd2q25ql" path="res://resources/ComboConfig.cs" id="1_combo_config"]
+[ext_resource type="Script" uid="uid://l37eowblyeh3" path="res://resources/ComboTierResource.cs" id="2_combo_tier"]
+
+[sub_resource type="Resource" id="Resource_combo_tier_0"]
+script = ExtResource("2_combo_tier")
+MilestoneText = ""
+
+[sub_resource type="Resource" id="Resource_combo_tier_1"]
+script = ExtResource("2_combo_tier")
+RequiredCombo = 5
+DamageMultiplier = 1.1
+
+[sub_resource type="Resource" id="Resource_combo_tier_2"]
+script = ExtResource("2_combo_tier")
+RequiredCombo = 10
+DamageMultiplier = 1.2
+
+[sub_resource type="Resource" id="Resource_combo_tier_3"]
+script = ExtResource("2_combo_tier")
+RequiredCombo = 20
+DamageMultiplier = 1.35
+MilestoneText = "MAX FLOW!"
+
+[resource]
+script = ExtResource("1_combo_config")
+Tiers = Array[ExtResource("2_combo_tier")]([SubResource("Resource_combo_tier_0"), SubResource("Resource_combo_tier_1"), SubResource("Resource_combo_tier_2"), SubResource("Resource_combo_tier_3")])

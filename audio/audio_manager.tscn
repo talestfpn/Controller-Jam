@@ -1,0 +1,77 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://audio/AudioManager.cs" id="1_audio_manager"]
+[ext_resource type="Resource" path="res://resources/audio_feedback_config.tres" id="2_audio_feedback"]
+
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_sfx_1"]
+mix_rate = 44100.0
+buffer_length = 0.5
+
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_sfx_2"]
+mix_rate = 44100.0
+buffer_length = 0.5
+
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_sfx_3"]
+mix_rate = 44100.0
+buffer_length = 0.5
+
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_sfx_4"]
+mix_rate = 44100.0
+buffer_length = 0.5
+
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_sfx_5"]
+mix_rate = 44100.0
+buffer_length = 0.5
+
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_sfx_6"]
+mix_rate = 44100.0
+buffer_length = 0.5
+
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_sfx_7"]
+mix_rate = 44100.0
+buffer_length = 0.5
+
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_sfx_8"]
+mix_rate = 44100.0
+buffer_length = 0.5
+
+[node name="AudioManager" type="Node"]
+script = ExtResource("1_audio_manager")
+FeedbackConfig = ExtResource("2_audio_feedback")
+EnableMetronomeFallback = true
+MasterVolumeDb = 0.0
+MusicVolumeDb = -10.0
+SfxVolumeDb = -3.0
+UiVolumeDb = -3.0
+
+[node name="SfxPlayer01" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamGenerator_sfx_1")
+bus = &"SFX"
+
+[node name="SfxPlayer02" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamGenerator_sfx_2")
+bus = &"SFX"
+
+[node name="SfxPlayer03" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamGenerator_sfx_3")
+bus = &"SFX"
+
+[node name="SfxPlayer04" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamGenerator_sfx_4")
+bus = &"SFX"
+
+[node name="SfxPlayer05" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamGenerator_sfx_5")
+bus = &"SFX"
+
+[node name="SfxPlayer06" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamGenerator_sfx_6")
+bus = &"SFX"
+
+[node name="SfxPlayer07" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamGenerator_sfx_7")
+bus = &"SFX"
+
+[node name="SfxPlayer08" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamGenerator_sfx_8")
+bus = &"SFX"

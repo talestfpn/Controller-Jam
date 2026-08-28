@@ -1,0 +1,33 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://player/PlayerBase.cs" id="1_player_base"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(130, 220)
+
+[node name="PlayerPlaceholder" type="Node2D"]
+script = ExtResource("1_player_base")
+MaxHealth = 100.0
+
+[node name="BodyPlaceholder" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-65, -110, 65, -110, 65, 110, -65, 110)
+color = Color(0.2, 0.4, 0.62, 1)
+
+[node name="CorePlaceholder" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-23, -58, 23, -58, 23, 58, -23, 58)
+color = Color(0.36, 0.7, 0.86, 1)
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("RectangleShape2D_player")
+
+[node name="AttackPoint" type="Marker2D" parent="."]
+position = Vector2(80, 0)
+
+[node name="DamageFlashTimer" type="Timer" parent="."]
+wait_time = 0.18
+one_shot = true

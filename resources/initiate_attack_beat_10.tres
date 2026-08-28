@@ -1,0 +1,10 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/RhythmEventResource.cs" id="1_event"]
+
+[resource]
+script = ExtResource("1_event")
+BeatOffset = 10.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MusicTrackResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/MusicTrackResource.cs" id="1_music_track"]
+[ext_resource type="AudioStream" path="res://songs/jogo.ogg" id="2_music"]
+
+[resource]
+script = ExtResource("1_music_track")
+AudioStream = ExtResource("2_music")
+Bpm = 135.0
+MusicOffsetMs = 435.0
+TimeSignatureNumerator = 4
+TimeSignatureDenominator = 4
+LoopEnabled = true
+TrackName = "Jogo"

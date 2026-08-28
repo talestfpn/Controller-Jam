@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="AudioFeedbackConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/AudioFeedbackConfig.cs" id="1_audio_feedback"]
+
+[resource]
+script = ExtResource("1_audio_feedback")

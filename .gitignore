@@ -1,0 +1,9 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Generated Godot/.NET artifacts and local validation logs
+.vs/
+bin/
+obj/
+*.log

@@ -1,0 +1,115 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://enemies/EnemyBase.cs" id="1_enemy_base"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_enemy"]
+size = Vector2(156, 220)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_enemy_posture_bg"]
+bg_color = Color(0.12, 0.08, 0.12, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_enemy_posture_fill"]
+bg_color = Color(0.86, 0.58, 0.2, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="EnemyBase" type="Node2D"]
+script = ExtResource("1_enemy_base")
+EnemyName = "THE INITIATE"
+MaxHealth = 60.0
+MaxPosture = 40.0
+
+[node name="BodyPlaceholder" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-78, -110, 78, -110, 78, 110, -78, 110)
+color = Color(0.42, 0.2, 0.25, 1)
+
+[node name="CorePlaceholder" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-34, -62, 34, -62, 34, 62, -34, 62)
+color = Color(0.78, 0.31, 0.28, 1)
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("RectangleShape2D_enemy")
+
+[node name="HitPoint" type="Marker2D" parent="."]
+position = Vector2(-86, 0)
+
+[node name="NameLabel" type="Label" parent="."]
+offset_left = -150.0
+offset_top = -166.0
+offset_right = 150.0
+offset_bottom = -136.0
+theme_override_colors/font_color = Color(0.95, 0.83, 0.76, 1)
+theme_override_font_sizes/font_size = 18
+text = "THE INITIATE"
+horizontal_alignment = 1
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+offset_left = -130.0
+offset_top = -142.0
+offset_right = 130.0
+offset_bottom = -124.0
+mouse_filter = 2
+max_value = 60.0
+value = 60.0
+show_percentage = false
+
+[node name="HealthLabel" type="Label" parent="."]
+offset_left = -130.0
+offset_top = -120.0
+offset_right = 130.0
+offset_bottom = -96.0
+theme_override_colors/font_color = Color(0.84, 0.86, 0.94, 1)
+theme_override_font_sizes/font_size = 15
+text = "HP: 60/60"
+horizontal_alignment = 1
+
+[node name="PostureBar" type="ProgressBar" parent="."]
+offset_left = -130.0
+offset_top = -92.0
+offset_right = 130.0
+offset_bottom = -74.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_enemy_posture_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_enemy_posture_fill")
+max_value = 40.0
+value = 40.0
+show_percentage = false
+
+[node name="PostureLabel" type="Label" parent="."]
+offset_left = -130.0
+offset_top = -70.0
+offset_right = 130.0
+offset_bottom = -46.0
+theme_override_colors/font_color = Color(0.94, 0.78, 0.46, 1)
+theme_override_font_sizes/font_size = 15
+text = "POSTURE: 40/40"
+horizontal_alignment = 1
+
+[node name="StateLabel" type="Label" parent="."]
+offset_left = -130.0
+offset_top = -44.0
+offset_right = 130.0
+offset_bottom = -20.0
+theme_override_colors/font_color = Color(0.72, 0.78, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "NORMAL"
+horizontal_alignment = 1
+
+[node name="AttackFeedbackTimer" type="Timer" parent="."]
+wait_time = 0.18
+one_shot = true
+
+[node name="StaggerFeedbackTimer" type="Timer" parent="."]
+wait_time = 0.28
+one_shot = true

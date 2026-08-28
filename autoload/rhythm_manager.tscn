@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://autoload/RhythmManager.cs" id="1_rhythm_manager"]
+[ext_resource type="Resource" path="res://resources/music_track.tres" id="2_music_track"]
+
+[node name="RhythmManager" type="Node"]
+process_mode = 3
+script = ExtResource("1_rhythm_manager")
+MusicTrack = ExtResource("2_music_track")
+Bpm = 120.0
+BeatsPerMeasure = 4
+SubdivisionsPerBeat = 1
+InitialOffsetSeconds = 0.0
+AutoStart = false
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
+volume_db = 0.0
+bus = &"Music"

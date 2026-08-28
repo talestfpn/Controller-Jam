@@ -1,0 +1,386 @@
+[gd_scene format=3 uid="uid://dh7k4eww0frkq"]
+
+[ext_resource type="Script" uid="uid://j1ii3x6qn52m" path="res://combat/CombatController.cs" id="1_combat_controller"]
+[ext_resource type="PackedScene" path="res://combat/rhythm_prompt.tscn" id="2_prompt_scene"]
+[ext_resource type="PackedScene" path="res://enemies/enemy_base.tscn" id="3_enemy_scene"]
+[ext_resource type="Resource" path="res://resources/jogo_generated_pattern.tres" id="4_attack_pattern"]
+[ext_resource type="Resource" uid="uid://b3ec4whns1o85" path="res://resources/timing_config.tres" id="5_timing_config"]
+[ext_resource type="PackedScene" path="res://player/player_placeholder.tscn" id="6_player_scene"]
+[ext_resource type="Script" uid="uid://cyxvyobehvyui" path="res://combat/ComboManager.cs" id="7_combo_manager"]
+[ext_resource type="Resource" uid="uid://bq4wp8lq3065h" path="res://resources/combo_config.tres" id="8_combo_config"]
+[ext_resource type="PackedScene" path="res://audio/audio_manager.tscn" id="9_audio_manager"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_player_health_bg"]
+bg_color = Color(0.12, 0.08, 0.12, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_player_health_fill"]
+bg_color = Color(0.25, 0.62, 0.82, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="CombatTest" type="Node2D" unique_id=1017705345]
+script = ExtResource("1_combat_controller")
+PromptScene = ExtResource("2_prompt_scene")
+EnemyScene = ExtResource("3_enemy_scene")
+AttackPattern = ExtResource("4_attack_pattern")
+TimingConfig = ExtResource("5_timing_config")
+DebugComboTrainingDummy = true
+
+[node name="Background" type="ColorRect" parent="." unique_id=1395778706]
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+color = Color(0.035, 0.047, 0.09, 1)
+
+[node name="TopBand" type="ColorRect" parent="." unique_id=470670989]
+offset_right = 1152.0
+offset_bottom = 92.0
+mouse_filter = 2
+color = Color(0.055, 0.071, 0.13, 1)
+
+[node name="ArenaLine" type="ColorRect" parent="." unique_id=1346346944]
+offset_left = 70.0
+offset_top = 470.0
+offset_right = 1082.0
+offset_bottom = 474.0
+mouse_filter = 2
+color = Color(0.18, 0.22, 0.34, 0.8)
+
+[node name="SceneResources" type="ResourcePreloader" parent="." unique_id=1968776478]
+resources = [PackedStringArray("enemy_base", "initiate_pattern", "rhythm_prompt"), [ExtResource("3_enemy_scene"), ExtResource("4_attack_pattern"), ExtResource("2_prompt_scene")]]
+
+[node name="ComboManager" type="Node" parent="." unique_id=2109085200]
+script = ExtResource("7_combo_manager")
+Config = ExtResource("8_combo_config")
+
+[node name="AudioManager" parent="." unique_id=356684745 instance=ExtResource("9_audio_manager")]
+
+[node name="ExecutionDelayTimer" type="Timer" parent="." unique_id=194212242]
+wait_time = 0.18
+one_shot = true
+
+[node name="ComboFeedbackTimer" type="Timer" parent="." unique_id=1141648532]
+wait_time = 1.1
+one_shot = true
+
+[node name="PromptContainer" type="Node2D" parent="." unique_id=1786169807]
+position = Vector2(576, 330)
+
+[node name="EnemyContainer" type="Node2D" parent="." unique_id=1797179664]
+position = Vector2(900, 355)
+
+[node name="PlayerContainer" type="Node2D" parent="." unique_id=1297877599]
+position = Vector2(235, 355)
+
+[node name="Player" parent="PlayerContainer" unique_id=1702382421 instance=ExtResource("6_player_scene")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1191106375]
+
+[node name="Ui" type="Control" parent="CanvasLayer" unique_id=1521323673]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="CanvasLayer/Ui" unique_id=1623649989]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 20.0
+offset_right = 600.0
+offset_bottom = 52.0
+theme_override_colors/font_color = Color(0.91, 0.93, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "COMBAT FOUNDATION"
+
+[node name="Instructions" type="Label" parent="CanvasLayer/Ui" unique_id=1379523864]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 56.0
+offset_right = 800.0
+offset_bottom = 82.0
+theme_override_colors/font_color = Color(0.6, 0.66, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+text = "Ataque e defesa rítmicos — aguarde a próxima ação e pressione SPACE no timing"
+
+[node name="BeatIndicator" type="Label" parent="CanvasLayer/Ui" unique_id=1917488870]
+layout_mode = 0
+offset_left = 920.0
+offset_top = 28.0
+offset_right = 1120.0
+offset_bottom = 62.0
+theme_override_colors/font_color = Color(0.75, 0.78, 0.88, 0.7)
+theme_override_font_sizes/font_size = 20
+text = "BEAT --"
+horizontal_alignment = 2
+
+[node name="ComboPanel" type="ColorRect" parent="CanvasLayer/Ui" unique_id=102300617]
+layout_mode = 0
+offset_left = 370.0
+offset_top = 102.0
+offset_right = 782.0
+offset_bottom = 160.0
+pivot_offset = Vector2(206, 29)
+mouse_filter = 2
+color = Color(0.07, 0.09, 0.16, 0.92)
+
+[node name="ComboLabel" type="Label" parent="CanvasLayer/Ui/ComboPanel" unique_id=2063344528]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 132.0
+offset_bottom = 34.0
+theme_override_colors/font_color = Color(0.91, 0.93, 1, 1)
+theme_override_font_sizes/font_size = 17
+text = "COMBO x0"
+horizontal_alignment = 1
+
+[node name="ComboMultiplierLabel" type="Label" parent="CanvasLayer/Ui/ComboPanel" unique_id=1155032537]
+layout_mode = 0
+offset_left = 132.0
+offset_top = 8.0
+offset_right = 250.0
+offset_bottom = 34.0
+theme_override_colors/font_color = Color(0.82, 0.86, 0.98, 1)
+theme_override_font_sizes/font_size = 17
+text = "DMG x1.00"
+horizontal_alignment = 1
+
+[node name="PerfectStreakLabel" type="Label" parent="CanvasLayer/Ui/ComboPanel" unique_id=251125992]
+visible = false
+layout_mode = 0
+offset_left = 250.0
+offset_top = 8.0
+offset_right = 408.0
+offset_bottom = 34.0
+theme_override_colors/font_color = Color(1, 0.84, 0.3, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+
+[node name="ComboFeedbackLabel" type="Label" parent="CanvasLayer/Ui/ComboPanel" unique_id=716210452]
+visible = false
+layout_mode = 0
+offset_left = 12.0
+offset_top = 34.0
+offset_right = 408.0
+offset_bottom = 56.0
+theme_override_colors/font_color = Color(1, 0.84, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+
+[node name="PlayerLabel" type="Label" parent="CanvasLayer/Ui" unique_id=503494649]
+layout_mode = 0
+offset_left = 150.0
+offset_top = 205.0
+offset_right = 330.0
+offset_bottom = 235.0
+theme_override_colors/font_color = Color(0.6, 0.84, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "PLAYER"
+horizontal_alignment = 1
+
+[node name="PlayerHealthLabel" type="Label" parent="CanvasLayer/Ui" unique_id=2106373595]
+layout_mode = 0
+offset_left = 150.0
+offset_top = 500.0
+offset_right = 330.0
+offset_bottom = 524.0
+theme_override_colors/font_color = Color(0.7, 0.78, 0.9, 1)
+theme_override_font_sizes/font_size = 16
+text = "HP: 100/100"
+horizontal_alignment = 1
+
+[node name="PlayerHealthBar" type="ProgressBar" parent="CanvasLayer/Ui" unique_id=208437970]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 530.0
+offset_right = 340.0
+offset_bottom = 548.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_player_health_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_player_health_fill")
+value = 100.0
+show_percentage = false
+
+[node name="DebugPanel" type="ColorRect" parent="CanvasLayer/Ui" unique_id=36936538]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 112.0
+offset_right = 345.0
+offset_bottom = 500.0
+mouse_filter = 2
+color = Color(0.07, 0.09, 0.16, 0.92)
+
+[node name="DebugTitle" type="Label" parent="CanvasLayer/Ui/DebugPanel" unique_id=434960116]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 260.0
+offset_bottom = 36.0
+theme_override_colors/font_color = Color(0.7, 0.78, 0.95, 1)
+theme_override_font_sizes/font_size = 15
+text = "RHYTHM DEBUG"
+
+[node name="BpmLabel" type="Label" parent="CanvasLayer/Ui/DebugPanel" unique_id=1890593649]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 46.0
+offset_right = 260.0
+offset_bottom = 68.0
+text = "BPM: --"
+
+[node name="BeatLabel" type="Label" parent="CanvasLayer/Ui/DebugPanel" unique_id=1400881626]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 72.0
+offset_right = 260.0
+offset_bottom = 94.0
+text = "Beat atual: --"
+
+[node name="MusicPositionLabel" type="Label" parent="CanvasLayer/Ui/DebugPanel" unique_id=1993931255]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 98.0
+offset_right = 260.0
+offset_bottom = 120.0
+text = "Music position: --"
+
+[node name="PromptTargetLabel" type="Label" parent="CanvasLayer/Ui/DebugPanel" unique_id=1604210255]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 124.0
+offset_right = 260.0
+offset_bottom = 146.0
+text = "Prompt target: --"
+
+[node name="CircleSizeLabel" type="Label" parent="CanvasLayer/Ui/DebugPanel" unique_id=1345797973]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 150.0
+offset_right = 260.0
+offset_bottom = 172.0
+text = "Circle size: --"
+
+[node name="ClockSourceLabel" type="Label" parent="CanvasLayer/Ui/DebugPanel" unique_id=150263088]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 176.0
+offset_right = 315.0
+offset_bottom = 198.0
+text = "Clock: --"
+
+[node name="CurrentActionLabel" type="Label" parent="CanvasLayer/Ui/DebugPanel" unique_id=1741766748]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 202.0
+offset_right = 315.0
+offset_bottom = 224.0
+text = "Current action: WAITING"
+
+[node name="EnemyBaseDamageLabel" type="Label" parent="CanvasLayer/Ui/DebugPanel" unique_id=1325958700]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 228.0
+offset_right = 315.0
+offset_bottom = 250.0
+text = "Enemy base damage: --"
+
+[node name="LastIncomingDamageLabel" type="Label" parent="CanvasLayer/Ui/DebugPanel" unique_id=1851647776]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 254.0
+offset_right = 315.0
+offset_bottom = 276.0
+text = "Last incoming damage: 0.0"
+
+[node name="PlayerHpLabel" type="Label" parent="CanvasLayer/Ui/DebugPanel" unique_id=1993515019]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 280.0
+offset_right = 315.0
+offset_bottom = 302.0
+text = "Player HP: 100/100"
+
+[node name="CombatDetailsLabel" type="Label" parent="CanvasLayer/Ui/DebugPanel" unique_id=683451415]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 306.0
+offset_right = 315.0
+offset_bottom = 492.0
+theme_override_colors/font_color = Color(0.82, 0.85, 0.94, 1)
+theme_override_font_sizes/font_size = 11
+text = "Enemy HP: --
+Enemy Posture: --
+Enemy State: --
+Combat State: --
+Combo: 0 | Highest: 0
+Perfect Streak: 0
+Combo Tier: 0
+Damage Multiplier: x1.00
+Last Combo Result: --
+Last HP Damage: 0.0
+Last Posture Damage: 0.0
+Execution Active: false"
+
+[node name="ResultLabel" type="Label" parent="CanvasLayer/Ui" unique_id=981644611]
+layout_mode = 0
+offset_left = 390.0
+offset_top = 470.0
+offset_right = 762.0
+offset_bottom = 520.0
+theme_override_colors/font_color = Color(0.95, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 34
+text = "AGUARDANDO AÇÃO"
+horizontal_alignment = 1
+
+[node name="ResultDetailLabel" type="Label" parent="CanvasLayer/Ui" unique_id=98672939]
+layout_mode = 0
+offset_left = 350.0
+offset_top = 524.0
+offset_right = 802.0
+offset_bottom = 552.0
+theme_override_colors/font_color = Color(0.65, 0.7, 0.84, 1)
+theme_override_font_sizes/font_size = 17
+text = "Aperte SPACE para atacar ou defender no timing desejado"
+horizontal_alignment = 1
+
+[node name="DamageLabel" type="Label" parent="CanvasLayer/Ui" unique_id=784350204]
+layout_mode = 0
+offset_left = 410.0
+offset_top = 560.0
+offset_right = 742.0
+offset_bottom = 584.0
+theme_override_colors/font_color = Color(1, 0.72, 0.3, 1)
+theme_override_font_sizes/font_size = 18
+text = "DANO: --"
+horizontal_alignment = 1
+
+[node name="PostureDamageLabel" type="Label" parent="CanvasLayer/Ui" unique_id=1972457473]
+layout_mode = 0
+offset_left = 390.0
+offset_top = 584.0
+offset_right = 762.0
+offset_bottom = 608.0
+theme_override_colors/font_color = Color(0.94, 0.78, 0.46, 1)
+theme_override_font_sizes/font_size = 16
+text = "POSTURE: --"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="CanvasLayer/Ui" unique_id=253686250]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 612.0
+offset_right = 852.0
+offset_bottom = 640.0
+theme_override_colors/font_color = Color(0.76, 0.8, 0.92, 1)
+theme_override_font_sizes/font_size = 15
+text = "Inicializando combate..."
+horizontal_alignment = 1

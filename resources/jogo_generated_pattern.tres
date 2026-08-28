@@ -1,0 +1,704 @@
+[gd_resource type="Resource" script_class="RhythmPatternResource" format=3]
+
+[ext_resource type="Script" path="res://resources/RhythmPatternResource.cs" id="1_pattern"]
+[ext_resource type="Script" path="res://resources/RhythmEventResource.cs" id="2_event"]
+
+[sub_resource type="Resource" id="Resource_jogo_event_001"]
+script = ExtResource("2_event")
+BeatOffset = 3.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_002"]
+script = ExtResource("2_event")
+BeatOffset = 10.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_003"]
+script = ExtResource("2_event")
+BeatOffset = 16.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_004"]
+script = ExtResource("2_event")
+BeatOffset = 25.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_005"]
+script = ExtResource("2_event")
+BeatOffset = 30.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_006"]
+script = ExtResource("2_event")
+BeatOffset = 33.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_007"]
+script = ExtResource("2_event")
+BeatOffset = 37.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_008"]
+script = ExtResource("2_event")
+BeatOffset = 42.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_009"]
+script = ExtResource("2_event")
+BeatOffset = 46.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_010"]
+script = ExtResource("2_event")
+BeatOffset = 49.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_011"]
+script = ExtResource("2_event")
+BeatOffset = 52.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_012"]
+script = ExtResource("2_event")
+BeatOffset = 58.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_013"]
+script = ExtResource("2_event")
+BeatOffset = 62.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_014"]
+script = ExtResource("2_event")
+BeatOffset = 65.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_015"]
+script = ExtResource("2_event")
+BeatOffset = 68.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_016"]
+script = ExtResource("2_event")
+BeatOffset = 74.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_017"]
+script = ExtResource("2_event")
+BeatOffset = 78.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_018"]
+script = ExtResource("2_event")
+BeatOffset = 81.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_019"]
+script = ExtResource("2_event")
+BeatOffset = 87.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_020"]
+script = ExtResource("2_event")
+BeatOffset = 90.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_021"]
+script = ExtResource("2_event")
+BeatOffset = 94.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_022"]
+script = ExtResource("2_event")
+BeatOffset = 99.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_023"]
+script = ExtResource("2_event")
+BeatOffset = 102.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_024"]
+script = ExtResource("2_event")
+BeatOffset = 106.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_025"]
+script = ExtResource("2_event")
+BeatOffset = 110.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_026"]
+script = ExtResource("2_event")
+BeatOffset = 113.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_027"]
+script = ExtResource("2_event")
+BeatOffset = 116.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_028"]
+script = ExtResource("2_event")
+BeatOffset = 120.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_029"]
+script = ExtResource("2_event")
+BeatOffset = 127.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_030"]
+script = ExtResource("2_event")
+BeatOffset = 131.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_031"]
+script = ExtResource("2_event")
+BeatOffset = 135.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_032"]
+script = ExtResource("2_event")
+BeatOffset = 138.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_033"]
+script = ExtResource("2_event")
+BeatOffset = 143.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_034"]
+script = ExtResource("2_event")
+BeatOffset = 147.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_035"]
+script = ExtResource("2_event")
+BeatOffset = 151.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_036"]
+script = ExtResource("2_event")
+BeatOffset = 154.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_037"]
+script = ExtResource("2_event")
+BeatOffset = 158.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_038"]
+script = ExtResource("2_event")
+BeatOffset = 161.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_039"]
+script = ExtResource("2_event")
+BeatOffset = 165.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_040"]
+script = ExtResource("2_event")
+BeatOffset = 170.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_041"]
+script = ExtResource("2_event")
+BeatOffset = 174.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_042"]
+script = ExtResource("2_event")
+BeatOffset = 177.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_043"]
+script = ExtResource("2_event")
+BeatOffset = 183.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_044"]
+script = ExtResource("2_event")
+BeatOffset = 186.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_045"]
+script = ExtResource("2_event")
+BeatOffset = 191.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_046"]
+script = ExtResource("2_event")
+BeatOffset = 195.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_047"]
+script = ExtResource("2_event")
+BeatOffset = 199.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_048"]
+script = ExtResource("2_event")
+BeatOffset = 202.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_049"]
+script = ExtResource("2_event")
+BeatOffset = 206.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_050"]
+script = ExtResource("2_event")
+BeatOffset = 208.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_051"]
+script = ExtResource("2_event")
+BeatOffset = 211.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_052"]
+script = ExtResource("2_event")
+BeatOffset = 214.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_053"]
+script = ExtResource("2_event")
+BeatOffset = 218.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_054"]
+script = ExtResource("2_event")
+BeatOffset = 221.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_055"]
+script = ExtResource("2_event")
+BeatOffset = 223.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_056"]
+script = ExtResource("2_event")
+BeatOffset = 226.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_057"]
+script = ExtResource("2_event")
+BeatOffset = 231.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_058"]
+script = ExtResource("2_event")
+BeatOffset = 234.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_059"]
+script = ExtResource("2_event")
+BeatOffset = 237.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_060"]
+script = ExtResource("2_event")
+BeatOffset = 240.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_061"]
+script = ExtResource("2_event")
+BeatOffset = 247.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_062"]
+script = ExtResource("2_event")
+BeatOffset = 250.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_063"]
+script = ExtResource("2_event")
+BeatOffset = 254.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_064"]
+script = ExtResource("2_event")
+BeatOffset = 258.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_065"]
+script = ExtResource("2_event")
+BeatOffset = 262.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_066"]
+script = ExtResource("2_event")
+BeatOffset = 266.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_067"]
+script = ExtResource("2_event")
+BeatOffset = 270.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_068"]
+script = ExtResource("2_event")
+BeatOffset = 273.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_069"]
+script = ExtResource("2_event")
+BeatOffset = 275.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_070"]
+script = ExtResource("2_event")
+BeatOffset = 278.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_071"]
+script = ExtResource("2_event")
+BeatOffset = 282.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_072"]
+script = ExtResource("2_event")
+BeatOffset = 285.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_073"]
+script = ExtResource("2_event")
+BeatOffset = 287.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_074"]
+script = ExtResource("2_event")
+BeatOffset = 291.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_075"]
+script = ExtResource("2_event")
+BeatOffset = 295.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_076"]
+script = ExtResource("2_event")
+BeatOffset = 298.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_077"]
+script = ExtResource("2_event")
+BeatOffset = 302.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_078"]
+script = ExtResource("2_event")
+BeatOffset = 306.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_079"]
+script = ExtResource("2_event")
+BeatOffset = 309.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_080"]
+script = ExtResource("2_event")
+BeatOffset = 311.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_081"]
+script = ExtResource("2_event")
+BeatOffset = 314.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_082"]
+script = ExtResource("2_event")
+BeatOffset = 319.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_083"]
+script = ExtResource("2_event")
+BeatOffset = 322.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_084"]
+script = ExtResource("2_event")
+BeatOffset = 326.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_085"]
+script = ExtResource("2_event")
+BeatOffset = 330.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_086"]
+script = ExtResource("2_event")
+BeatOffset = 334.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_087"]
+script = ExtResource("2_event")
+BeatOffset = 336.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_088"]
+script = ExtResource("2_event")
+BeatOffset = 339.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_089"]
+script = ExtResource("2_event")
+BeatOffset = 343.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_090"]
+script = ExtResource("2_event")
+BeatOffset = 346.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_091"]
+script = ExtResource("2_event")
+BeatOffset = 350.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_092"]
+script = ExtResource("2_event")
+BeatOffset = 354.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_093"]
+script = ExtResource("2_event")
+BeatOffset = 358.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_094"]
+script = ExtResource("2_event")
+BeatOffset = 362.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_095"]
+script = ExtResource("2_event")
+BeatOffset = 366.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_096"]
+script = ExtResource("2_event")
+BeatOffset = 370.0
+PromptType = 1
+Damage = 20.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_097"]
+script = ExtResource("2_event")
+BeatOffset = 374.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_098"]
+script = ExtResource("2_event")
+BeatOffset = 378.0
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[sub_resource type="Resource" id="Resource_jogo_event_099"]
+script = ExtResource("2_event")
+BeatOffset = 380.50
+PromptType = 0
+Damage = 10.0
+PostureDamage = 0.0
+
+[resource]
+script = ExtResource("1_pattern")
+PatternName = "Jogo Auto Chart"
+LoopLengthBeats = 395.243673
+Events = Array[ExtResource("2_event")]([SubResource("Resource_jogo_event_001"), SubResource("Resource_jogo_event_002"), SubResource("Resource_jogo_event_003"), SubResource("Resource_jogo_event_004"), SubResource("Resource_jogo_event_005"), SubResource("Resource_jogo_event_006"), SubResource("Resource_jogo_event_007"), SubResource("Resource_jogo_event_008"), SubResource("Resource_jogo_event_009"), SubResource("Resource_jogo_event_010"), SubResource("Resource_jogo_event_011"), SubResource("Resource_jogo_event_012"), SubResource("Resource_jogo_event_013"), SubResource("Resource_jogo_event_014"), SubResource("Resource_jogo_event_015"), SubResource("Resource_jogo_event_016"), SubResource("Resource_jogo_event_017"), SubResource("Resource_jogo_event_018"), SubResource("Resource_jogo_event_019"), SubResource("Resource_jogo_event_020"), SubResource("Resource_jogo_event_021"), SubResource("Resource_jogo_event_022"), SubResource("Resource_jogo_event_023"), SubResource("Resource_jogo_event_024"), SubResource("Resource_jogo_event_025"), SubResource("Resource_jogo_event_026"), SubResource("Resource_jogo_event_027"), SubResource("Resource_jogo_event_028"), SubResource("Resource_jogo_event_029"), SubResource("Resource_jogo_event_030"), SubResource("Resource_jogo_event_031"), SubResource("Resource_jogo_event_032"), SubResource("Resource_jogo_event_033"), SubResource("Resource_jogo_event_034"), SubResource("Resource_jogo_event_035"), SubResource("Resource_jogo_event_036"), SubResource("Resource_jogo_event_037"), SubResource("Resource_jogo_event_038"), SubResource("Resource_jogo_event_039"), SubResource("Resource_jogo_event_040"), SubResource("Resource_jogo_event_041"), SubResource("Resource_jogo_event_042"), SubResource("Resource_jogo_event_043"), SubResource("Resource_jogo_event_044"), SubResource("Resource_jogo_event_045"), SubResource("Resource_jogo_event_046"), SubResource("Resource_jogo_event_047"), SubResource("Resource_jogo_event_048"), SubResource("Resource_jogo_event_049"), SubResource("Resource_jogo_event_050"), SubResource("Resource_jogo_event_051"), SubResource("Resource_jogo_event_052"), SubResource("Resource_jogo_event_053"), SubResource("Resource_jogo_event_054"), SubResource("Resource_jogo_event_055"), SubResource("Resource_jogo_event_056"), SubResource("Resource_jogo_event_057"), SubResource("Resource_jogo_event_058"), SubResource("Resource_jogo_event_059"), SubResource("Resource_jogo_event_060"), SubResource("Resource_jogo_event_061"), SubResource("Resource_jogo_event_062"), SubResource("Resource_jogo_event_063"), SubResource("Resource_jogo_event_064"), SubResource("Resource_jogo_event_065"), SubResource("Resource_jogo_event_066"), SubResource("Resource_jogo_event_067"), SubResource("Resource_jogo_event_068"), SubResource("Resource_jogo_event_069"), SubResource("Resource_jogo_event_070"), SubResource("Resource_jogo_event_071"), SubResource("Resource_jogo_event_072"), SubResource("Resource_jogo_event_073"), SubResource("Resource_jogo_event_074"), SubResource("Resource_jogo_event_075"), SubResource("Resource_jogo_event_076"), SubResource("Resource_jogo_event_077"), SubResource("Resource_jogo_event_078"), SubResource("Resource_jogo_event_079"), SubResource("Resource_jogo_event_080"), SubResource("Resource_jogo_event_081"), SubResource("Resource_jogo_event_082"), SubResource("Resource_jogo_event_083"), SubResource("Resource_jogo_event_084"), SubResource("Resource_jogo_event_085"), SubResource("Resource_jogo_event_086"), SubResource("Resource_jogo_event_087"), SubResource("Resource_jogo_event_088"), SubResource("Resource_jogo_event_089"), SubResource("Resource_jogo_event_090"), SubResource("Resource_jogo_event_091"), SubResource("Resource_jogo_event_092"), SubResource("Resource_jogo_event_093"), SubResource("Resource_jogo_event_094"), SubResource("Resource_jogo_event_095"), SubResource("Resource_jogo_event_096"), SubResource("Resource_jogo_event_097"), SubResource("Resource_jogo_event_098"), SubResource("Resource_jogo_event_099")])
+
