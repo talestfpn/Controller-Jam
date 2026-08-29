@@ -29,6 +29,18 @@ default_color = Color(1, 0.72, 0.3, 0.95)
 closed = true
 antialiased = true
 
+[node name="DecoyAnchor" type="Marker2D" parent="."]
+position = Vector2(10, -7)
+
+[node name="DecoyRing" type="Line2D" parent="DecoyAnchor"]
+z_index = 2
+points = PackedVector2Array(0, -100, 38.27, -92.39, 70.71, -70.71, 92.39, -38.27, 100, 0, 92.39, 38.27, 70.71, 70.71, 38.27, 92.39, 0, 100, -38.27, 92.39, -70.71, 70.71, -92.39, 38.27, -100, 0, -92.39, -38.27, -70.71, -70.71, -38.27, -92.39)
+width = 4.0
+default_color = Color(0.74, 0.45, 1, 0.55)
+closed = true
+antialiased = true
+visible = false
+
 [node name="CenterDot" type="Polygon2D" parent="."]
 z_index = 3
 polygon = PackedVector2Array(0, -10, 3.83, -9.24, 7.07, -7.07, 9.24, -3.83, 10, 0, 9.24, 3.83, 7.07, 7.07, 3.83, 9.24, 0, 10, -3.83, 9.24, -7.07, 7.07, -9.24, 3.83, -10, 0, -9.24, -3.83, -7.07, -7.07, -3.83, -9.24)

@@ -37,6 +37,19 @@ public static class DamageCalculator
             comboMultiplier);
     }
 
+    public static float ApplyArmorToHealthDamage(
+        float rawDamage,
+        bool armorActive,
+        float armorMultiplier)
+    {
+        if (!armorActive)
+        {
+            return Math.Max(0.0f, rawDamage);
+        }
+
+        return Math.Max(0.0f, rawDamage) * Math.Clamp(armorMultiplier, 0.0f, 1.0f);
+    }
+
     public static float CalculateIncomingDamage(
         float baseDamage,
         TimingResult timingResult,

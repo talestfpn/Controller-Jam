@@ -1,0 +1,27 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://debug/Phase55PatternValidation.cs" id="1_validation"]
+[ext_resource type="Resource" path="res://resources/jogo_generated_pattern.tres" id="2_pattern"]
+[ext_resource type="Resource" path="res://resources/rhythm_fairness_config.tres" id="3_fairness"]
+[ext_resource type="PackedScene" path="res://combat/rhythm_prompt.tscn" id="4_prompt"]
+[ext_resource type="Resource" path="res://resources/the_initiate_data.tres" id="5_initiate"]
+[ext_resource type="Resource" path="res://resources/the_brute_data.tres" id="6_brute"]
+[ext_resource type="Resource" path="res://resources/the_duelist_data.tres" id="7_duelist"]
+[ext_resource type="Resource" path="res://resources/the_assassin_data.tres" id="8_assassin"]
+[ext_resource type="Resource" path="res://resources/the_mage_data.tres" id="9_mage"]
+[ext_resource type="Resource" path="res://resources/the_knight_data.tres" id="10_knight"]
+[ext_resource type="Resource" path="res://resources/the_berserker_data.tres" id="11_berserker"]
+
+[node name="Phase55PatternValidation" type="Node"]
+script = ExtResource("1_validation")
+BasePattern = ExtResource("2_pattern")
+FairnessConfig = ExtResource("3_fairness")
+PromptScene = ExtResource("4_prompt")
+InitiateData = ExtResource("5_initiate")
+BruteData = ExtResource("6_brute")
+DuelistData = ExtResource("7_duelist")
+AssassinData = ExtResource("8_assassin")
+MageData = ExtResource("9_mage")
+KnightData = ExtResource("10_knight")
+BerserkerData = ExtResource("11_berserker")
+Seed = 12345

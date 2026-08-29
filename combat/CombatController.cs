@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using Godot;
 
 /// <summary>
@@ -16,6 +17,18 @@ public partial class CombatController : Node2D
 
     [Export]
     public RhythmPatternResource AttackPattern { get; set; } = null!;
+
+    [Export]
+    public RhythmFairnessConfigResource FairnessConfig { get; set; } = null!;
+
+    [Export]
+    public Godot.Collections.Array<EnemyDataResource> EnemyRoster { get; set; } = new();
+
+    [Export(PropertyHint.Range, "0,20,1")]
+    public int StartingEnemyIndex { get; set; }
+
+    [Export]
+    public int EncounterSeed { get; set; } = 12345;
 
     [Export]
     public TimingConfig TimingConfig { get; set; } = null!;
@@ -48,6 +61,7 @@ public partial class CombatController : Node2D
     private EnemyBase _enemy = null!;
     private PlayerBase _player = null!;
     private RhythmPrompt? _activePrompt;
+    private RhythmEventResource? _activePatternEvent;
     private RhythmEventResource? _queuedPatternEvent;
     private double _queuedPatternBeatPosition = -1.0d;
     private bool _hasQueuedPatternEvent;
@@ -58,6 +72,13 @@ public partial class CombatController : Node2D
     private float _lastIncomingDamage;
     private float _lastPostureDamage;
     private CombatState _combatState = CombatState.Running;
+    private RhythmPatternResource? _encounterPattern;
+    private EnemyDataResource? _selectedEnemyData;
+    private EnemyRhythmProfileResource? _activeRhythmProfile;
+    private EncounterPatternStats? _encounterStats;
+    private int _selectedEnemyIndex;
+    private int _activeRhythmPhaseIndex = -1;
+    private int _pendingRhythmPhaseIndex = -1;
 
     private Label _bpmLabel = null!;
     private Label _beatLabel = null!;
@@ -82,6 +103,9 @@ public partial class CombatController : Node2D
     private Label _comboMultiplierLabel = null!;
     private Label _perfectStreakLabel = null!;
     private Label _comboFeedbackLabel = null!;
+    private Label _enemySelectionLabel = null!;
+    private Label _profileDebugLabel = null!;
+    private Label _patternPreviewLabel = null!;
     private Control _comboPanel = null!;
     private Control _debugPanel = null!;
     private Timer _executionDelayTimer = null!;
@@ -89,11 +113,20 @@ public partial class CombatController : Node2D
     private ComboManager _comboManager = null!;
     private AudioManager _audioManager = null!;
     private float _lastHealthDamage;
+    private float _lastRawHealthDamage;
     private double _comboFeedbackTime;
     private double _comboLabelPunchTime;
     private double _perfectStreakPunchTime;
     private Color _comboFeedbackColor = Colors.White;
     private double _beatFeedbackTime;
+
+    public EnemyRhythmProfileResource? ActiveRhythmProfile => _activeRhythmProfile;
+    public EncounterPatternStats? EncounterStats => _encounterStats;
+    public RhythmEventResource? ActivePatternEvent => _activePatternEvent;
+    public int CurrentRhythmPhaseIndex => _activeRhythmPhaseIndex;
+    public bool IsRhythmPhaseChangePending => _pendingRhythmPhaseIndex >= 0;
+    public float LastRawHealthDamage => _lastRawHealthDamage;
+    public float LastFinalHealthDamage => _lastHealthDamage;
 
     public override void _Ready()
     {
@@ -136,8 +169,15 @@ public partial class CombatController : Node2D
             "CanvasLayer/Ui/ComboPanel/PerfectStreakLabel");
         _comboFeedbackLabel = GetNode<Label>(
             "CanvasLayer/Ui/ComboPanel/ComboFeedbackLabel");
+        _enemySelectionLabel = GetNode<Label>(
+            "CanvasLayer/Ui/PatternDebugPanel/EnemySelectionLabel");
+        _profileDebugLabel = GetNode<Label>(
+            "CanvasLayer/Ui/PatternDebugPanel/ProfileDebugLabel");
+        _patternPreviewLabel = GetNode<Label>(
+            "CanvasLayer/Ui/PatternDebugPanel/PatternPreviewLabel");
         _debugPanel = GetNode<Control>("CanvasLayer/Ui/DebugPanel");
         _debugPanel.Visible = DebugRhythm;
+        GetNode<Control>("CanvasLayer/Ui/PatternDebugPanel").Visible = DebugRhythm;
 
         _comboManager.ComboChanged += OnComboChanged;
         _comboManager.PerfectStreakChanged += OnPerfectStreakChanged;
@@ -149,6 +189,9 @@ public partial class CombatController : Node2D
         UpdateComboUi();
 
         ResolveSceneReferences();
+        FairnessConfig ??= new RhythmFairnessConfigResource();
+        SelectEnemyData(StartingEnemyIndex);
+        BuildEncounterPattern();
         CreateEnemy();
 
         _player.HealthChanged += OnPlayerHealthChanged;
@@ -161,7 +204,8 @@ public partial class CombatController : Node2D
         _postureDamageLabel.Text = "POSTURE: --";
         _lastIncomingDamageLabel.Text = "Last incoming damage: 0.0";
         _lastHealthDamage = 0.0f;
-        _statusLabel.Text = "THE INITIATE aguarda seu ritmo.";
+        _lastRawHealthDamage = 0.0f;
+        _statusLabel.Text = $"{GetCurrentEnemyName()} aguarda seu ritmo.";
 
         _rhythmManager.BeatStarted += OnBeatStarted;
         if (!_rhythmManager.IsRunning)
@@ -178,10 +222,15 @@ public partial class CombatController : Node2D
 
     public override void _Process(double delta)
     {
-        if (_combatState == CombatState.Running)
+        if (_combatState == CombatState.Running ||
+            _combatState == CombatState.ResolvingPrompt)
         {
+            TryApplyPendingRhythmPhase();
             TryScheduleNextPrompt();
-            UpdateWaitingStatus();
+            if (_combatState == CombatState.Running)
+            {
+                UpdateWaitingStatus();
+            }
         }
         else if (_combatState == CombatState.ExecutionPrompt)
         {
@@ -277,9 +326,94 @@ public partial class CombatController : Node2D
         }
     }
 
+    private void SelectEnemyData(int requestedIndex)
+    {
+        _activeRhythmProfile = null;
+        _activeRhythmPhaseIndex = -1;
+        _pendingRhythmPhaseIndex = -1;
+        if (EnemyRoster.Count == 0)
+        {
+            _selectedEnemyIndex = 0;
+            _selectedEnemyData = null;
+            return;
+        }
+
+        _selectedEnemyIndex = Math.Clamp(requestedIndex, 0, EnemyRoster.Count - 1);
+        _selectedEnemyData = EnemyRoster[_selectedEnemyIndex];
+    }
+
+    private void BuildEncounterPattern()
+    {
+        var phaseIndex = -1;
+        var profile = _selectedEnemyData == null
+            ? null
+            : _selectedEnemyData.GetRhythmProfileForHealthPercent(
+                1.0f,
+                out phaseIndex);
+        _activeRhythmPhaseIndex = phaseIndex;
+        _pendingRhythmPhaseIndex = -1;
+        BuildEncounterPattern(profile, phaseIndex);
+    }
+
+    private void BuildEncounterPattern(
+        EnemyRhythmProfileResource? profile,
+        int phaseIndex)
+    {
+        _encounterStats = null;
+        if (AttackPattern == null)
+        {
+            _encounterPattern = null;
+            _activeRhythmProfile = profile;
+            ShowError("Chart musical-base não foi encontrado na cena.");
+            return;
+        }
+
+        if (profile == null)
+        {
+            _encounterPattern = AttackPattern;
+            _activeRhythmProfile = null;
+            return;
+        }
+
+        _activeRhythmProfile = profile;
+        var generationResult = EncounterPatternGenerator.Generate(
+            AttackPattern,
+            profile,
+            GetEncounterSeed(phaseIndex),
+            BaseAttackDamage,
+            _selectedEnemyData?.BaseAttackDamage ?? 20.0f,
+            FairnessConfig);
+        _encounterPattern = generationResult.Pattern;
+        _encounterStats = generationResult.Stats;
+        GD.Print(
+            $"ENCOUNTER_PATTERN enemy={GetCurrentEnemyName()} " +
+            $"profile={profile.ProfileName} phase={phaseIndex} seed={EncounterSeed} " +
+            $"events={_encounterStats.EventCount} " +
+            $"player={_encounterStats.PlayerAttackCount} " +
+            $"enemy={_encounterStats.EnemyAttackCount} " +
+            $"half={_encounterStats.HalfBeatCount} " +
+            $"bursts={_encounterStats.BurstCount} " +
+            $"feints={_encounterStats.FeintCount} " +
+            $"fades={_encounterStats.FadeCount} " +
+            $"decoys={_encounterStats.DecoyCount} " +
+            $"min_spacing={_encounterStats.MinimumTargetSpacingBeats:0.00}");
+    }
+
+    private ulong GetEncounterSeed(int phaseIndex)
+    {
+        var baseSeed = unchecked((ulong)Math.Max(0, EncounterSeed));
+        if (phaseIndex < 0)
+        {
+            return baseSeed;
+        }
+
+        return baseSeed + (ulong)((phaseIndex + 1) * 104729);
+    }
+
     private void CreateEnemy()
     {
-        if (EnemyScene == null)
+        var enemyScene = _selectedEnemyData?.EnemyScene ?? EnemyScene;
+        if (enemyScene == null)
         {
             ShowError("PackedScene do inimigo não foi encontrado na cena.");
             return;
@@ -287,7 +421,12 @@ public partial class CombatController : Node2D
 
         try
         {
-            _enemy = EnemyScene.Instantiate<EnemyBase>();
+            _enemy = enemyScene.Instantiate<EnemyBase>();
+            if (_selectedEnemyData != null)
+            {
+                _enemy.Configure(_selectedEnemyData);
+            }
+
             if (DebugComboTrainingDummy)
             {
                 _enemy.MaxHealth = Math.Max(_enemy.MaxHealth, DebugComboDummyHealth);
@@ -325,17 +464,25 @@ public partial class CombatController : Node2D
 
     private void TryScheduleNextPrompt()
     {
-        if (_combatState != CombatState.Running || AttackPattern == null || IsPromptActive())
+        if ((_combatState != CombatState.Running &&
+             _combatState != CombatState.ResolvingPrompt) ||
+            _encounterPattern == null)
         {
             return;
         }
 
         if (!_hasQueuedPatternEvent)
         {
+            var currentBeatPosition = Math.Max(
+                0.0d,
+                _rhythmManager.GetMusicPosition() / _rhythmManager.BeatDuration);
+            var earliestTargetBeat = IsPromptActive()
+                ? currentBeatPosition + 0.001d
+                : currentBeatPosition + GetMinimumTelegraphBeats();
             var firstPossibleBeatPosition = Math.Max(
                 _nextPatternSearchBeatPosition,
-                _rhythmManager.CurrentBeat + 1.0d);
-            if (!AttackPattern.TryGetNextEvent(
+                earliestTargetBeat);
+            if (!_encounterPattern.TryGetNextEvent(
                     firstPossibleBeatPosition,
                     out var targetBeatPosition,
                     out var rhythmEvent) ||
@@ -348,6 +495,26 @@ public partial class CombatController : Node2D
             _queuedPatternBeatPosition = targetBeatPosition;
             _queuedPatternEvent = rhythmEvent;
             _hasQueuedPatternEvent = true;
+        }
+
+        if (IsPromptActive())
+        {
+            var currentTime = _rhythmManager.GetMusicPosition();
+            var queuedStartTime = GetQueuedPromptStartTime();
+            if (currentTime >= queuedStartTime)
+            {
+                // O prompt seguinte não cabe mais com o telegraph global sem
+                // sobrepor o atual. Descartar preserva a música e a justiça;
+                // o próximo candidato será buscado no futuro.
+                _nextPatternSearchBeatPosition = Math.Max(
+                    _nextPatternSearchBeatPosition,
+                    _queuedPatternBeatPosition + 0.001d);
+                _queuedPatternEvent = null;
+                _queuedPatternBeatPosition = -1.0d;
+                _hasQueuedPatternEvent = false;
+            }
+
+            return;
         }
 
         if (_queuedPatternEvent == null ||
@@ -366,9 +533,20 @@ public partial class CombatController : Node2D
 
     private double GetQueuedPromptStartTime()
     {
-        var safeLeadBeats = Math.Max(0.25d, PromptLeadBeats);
+        var safeLeadBeats = GetMinimumTelegraphBeats();
         return _rhythmManager.GetBeatTime(_queuedPatternBeatPosition) -
             (_rhythmManager.BeatDuration * safeLeadBeats);
+    }
+
+    private double GetMinimumTelegraphBeats()
+    {
+        var configuredMinimum = FairnessConfig?.MinimumTelegraphBeats ?? 1.25f;
+        var profileTelegraph = _activeRhythmProfile?.TelegraphBeats ?? PromptLeadBeats;
+        return Math.Max(
+            0.5d,
+            Math.Max(
+                configuredMinimum,
+                Math.Max(0.5d, profileTelegraph)));
     }
 
     private bool IsPromptActive()
@@ -386,13 +564,19 @@ public partial class CombatController : Node2D
         var promptDamage = rhythmEvent.Damage > 0.0f
             ? rhythmEvent.Damage
             : BaseAttackDamage;
-        CreatePrompt(promptType, promptDamage, targetBeatPosition);
+        _activePatternEvent = rhythmEvent;
+        CreatePrompt(
+            promptType,
+            promptDamage,
+            targetBeatPosition,
+            rhythmEvent.GetPromptBehavior());
     }
 
     private void CreatePrompt(
         RhythmPromptType promptType,
         float promptDamage,
-        double targetBeatPosition)
+        double targetBeatPosition,
+        RhythmPromptBehavior promptBehavior = RhythmPromptBehavior.Normal)
     {
         if (PromptScene == null)
         {
@@ -407,6 +591,9 @@ public partial class CombatController : Node2D
             prompt.Resolved += OnAttackPromptResolved;
             _activePromptType = promptType;
             _activePromptDamage = promptDamage;
+            var safePromptBehavior = promptType == RhythmPromptType.Execution
+                ? RhythmPromptBehavior.Normal
+                : promptBehavior;
 
             if (_activePromptType == RhythmPromptType.EnemyAttack)
             {
@@ -435,9 +622,14 @@ public partial class CombatController : Node2D
                     new Color(1.0f, 0.72f, 0.3f, 1.0f));
             }
 
+            var profile = _activeRhythmProfile;
             prompt.Configure(
                 _rhythmManager.GetBeatTime(targetBeatPosition),
-                _rhythmManager.BeatDuration);
+                _rhythmManager.BeatDuration,
+                safePromptBehavior,
+                (float)GetMinimumTelegraphBeats(),
+                profile?.FadeBeatsBeforeTarget ?? 0.5f,
+                profile?.FeintStrength ?? 0.24f);
             _activePrompt = prompt;
             _combatState = _activePromptType == RhythmPromptType.Execution
                 ? CombatState.ExecutionPrompt
@@ -468,6 +660,7 @@ public partial class CombatController : Node2D
         var resolvedAction = _activePromptType;
         var resolvedBaseDamage = _activePromptDamage;
         _activePrompt = null;
+        _activePatternEvent = null;
 
         if (resolvedAction == RhythmPromptType.Execution)
         {
@@ -502,6 +695,7 @@ public partial class CombatController : Node2D
         if (_combatState == CombatState.ResolvingPrompt)
         {
             _combatState = CombatState.Running;
+            TryApplyPendingRhythmPhase();
             TryScheduleNextPrompt();
         }
     }
@@ -518,11 +712,17 @@ public partial class CombatController : Node2D
             RhythmPromptType.PlayerAttack,
             timingResult);
         var comboMultiplier = _comboManager.GetDamageMultiplier();
-        var damage = DamageCalculator.CalculatePlayerAttackDamage(
+        var rawDamage = DamageCalculator.CalculatePlayerAttackDamage(
             baseDamage,
             timingResult,
             TimingConfig,
             comboMultiplier);
+        var armorActive = _enemy != null && _enemy.IsArmorActive;
+        var damage = DamageCalculator.ApplyArmorToHealthDamage(
+            rawDamage,
+            armorActive,
+            _enemy?.ArmorHealthDamageMultiplier ?? 1.0f);
+        _lastRawHealthDamage = rawDamage;
         _lastHealthDamage = damage;
 
         SetResultFeedback(
@@ -578,14 +778,16 @@ public partial class CombatController : Node2D
             return;
         }
 
-        _statusLabel.Text = timingResult switch
-        {
-            TimingResult.Perfect =>
-                $"{resultName} — dano {damage:0.0}; postura -{postureDamage:0.0}.",
-            TimingResult.Good or TimingResult.Ok =>
-                $"{resultName} — apenas postura -{postureDamage:0.0}; sem dano direto.",
-            _ => "MISS — nenhum dano causado.",
-        };
+        _statusLabel.Text = armorActive && rawDamage > 0.0f
+            ? $"{resultName} — ARMOR: dano {rawDamage:0.0} → {damage:0.0}; postura -{postureDamage:0.0}."
+            : timingResult switch
+            {
+                TimingResult.Perfect =>
+                    $"{resultName} — dano {damage:0.0}; postura -{postureDamage:0.0}.",
+                TimingResult.Good or TimingResult.Ok =>
+                    $"{resultName} — apenas postura -{postureDamage:0.0}; sem dano direto.",
+                _ => "MISS — nenhum dano causado.",
+            };
         RegisterComboResult(timingResult);
     }
 
@@ -605,6 +807,7 @@ public partial class CombatController : Node2D
             TimingConfig);
         var defenseResult = GetDefenseResultName(timingResult);
         _lastIncomingDamage = incomingDamage;
+        _lastRawHealthDamage = incomingDamage;
         _lastHealthDamage = incomingDamage;
         _lastIncomingDamageLabel.Text = $"Last incoming damage: {incomingDamage:0.0}";
 
@@ -700,6 +903,7 @@ public partial class CombatController : Node2D
             timingResult,
             TimingConfig);
         var executionResult = GetExecutionResultName(timingResult);
+        _lastRawHealthDamage = executionDamage;
         _lastHealthDamage = executionDamage;
 
         SetResultFeedback(
@@ -757,6 +961,7 @@ public partial class CombatController : Node2D
             ? "PERFECT EXECUTION — postura restaurada; combate retomado."
             : "EXECUTION FAILED — oportunidade perdida; postura restaurada; combate retomado.";
         RegisterComboResult(timingResult);
+        TryApplyPendingRhythmPhase();
         TryScheduleNextPrompt();
     }
 
@@ -921,6 +1126,7 @@ public partial class CombatController : Node2D
         _audioManager.PlayPostureBreak();
         _combatState = CombatState.EnemyStaggered;
         _queuedPatternEvent = null;
+        _activePatternEvent = null;
         _queuedPatternBeatPosition = -1.0d;
         _hasQueuedPatternEvent = false;
         _executionTargetBeat = -1;
@@ -932,6 +1138,7 @@ public partial class CombatController : Node2D
         _statusLabel.Text = "STAGGERED — preparando EXECUTION...";
         UpdateCurrentActionLabels();
         UpdateCombatDetails();
+        UpdatePatternDebug();
         _executionDelayTimer.Start();
     }
 
@@ -963,7 +1170,7 @@ public partial class CombatController : Node2D
         }
 
         var promptStartTime = _rhythmManager.GetBeatTime(_executionTargetBeat) -
-            (_rhythmManager.BeatDuration * Math.Max(0.25d, PromptLeadBeats));
+            (_rhythmManager.BeatDuration * GetMinimumTelegraphBeats());
         if (_rhythmManager.GetMusicPosition() < promptStartTime)
         {
             return;
@@ -977,22 +1184,93 @@ public partial class CombatController : Node2D
     private void OnEnemyDied()
     {
         _combatState = CombatState.EnemyDead;
+        _pendingRhythmPhaseIndex = -1;
         _executionDelayTimer.Stop();
         _executionTargetBeat = -1;
         _queuedPatternEvent = null;
+        _activePatternEvent = null;
         _queuedPatternBeatPosition = -1.0d;
         _hasQueuedPatternEvent = false;
         _resultLabel.Text = "INIMIGO DERROTADO";
         _resultLabel.Modulate = new Color(1.0f, 0.84f, 0.3f, 1.0f);
         _resultDetailLabel.Text = "O inimigo não pode mais agir.";
         _postureDamageLabel.Text = "POSTURE: 0";
-        _statusLabel.Text = "THE INITIATE foi derrotado. O combate foi encerrado.";
+        _statusLabel.Text = $"{GetCurrentEnemyName()} foi derrotado. O combate foi encerrado.";
         UpdateCurrentActionLabels();
     }
 
     private void OnEnemyHealthChanged(float currentHealth, float maxHealth)
     {
         UpdateCombatDetails();
+        if (_selectedEnemyData == null ||
+            !_selectedEnemyData.HasRhythmPhases ||
+            maxHealth <= 0.0f ||
+            currentHealth <= 0.0f)
+        {
+            return;
+        }
+
+        var healthPercent = currentHealth / maxHealth;
+        var profile = _selectedEnemyData.GetRhythmProfileForHealthPercent(
+            healthPercent,
+            out var requestedPhaseIndex);
+        if (profile == null ||
+            requestedPhaseIndex < 0 ||
+            requestedPhaseIndex <= _activeRhythmPhaseIndex)
+        {
+            return;
+        }
+
+        _pendingRhythmPhaseIndex = requestedPhaseIndex;
+        TryApplyPendingRhythmPhase();
+    }
+
+    private void TryApplyPendingRhythmPhase()
+    {
+        if (_pendingRhythmPhaseIndex < 0 ||
+            _selectedEnemyData == null ||
+            !_selectedEnemyData.HasRhythmPhases ||
+            _enemy == null ||
+            _enemy.IsDead ||
+            IsPromptActive() ||
+            _combatState == CombatState.ExecutionPrompt ||
+            _combatState == CombatState.EnemyStaggered ||
+            _combatState == CombatState.PlayerDead ||
+            _combatState == CombatState.EnemyDead)
+        {
+            return;
+        }
+
+        var phaseIndex = _pendingRhythmPhaseIndex;
+        var phase = _selectedEnemyData.GetRhythmPhase(phaseIndex);
+        if (phase == null || phase.RhythmProfile == null)
+        {
+            _pendingRhythmPhaseIndex = -1;
+            return;
+        }
+
+        _pendingRhythmPhaseIndex = -1;
+        _activeRhythmPhaseIndex = phaseIndex;
+        ClearQueuedPatternEvent();
+        BuildEncounterPattern(phase.RhythmProfile, phaseIndex);
+
+        var currentBeatPosition = Math.Max(
+            0.0d,
+            _rhythmManager.GetMusicPosition() / _rhythmManager.BeatDuration);
+        _nextPatternSearchBeatPosition = Math.Max(
+            _nextPatternSearchBeatPosition,
+            currentBeatPosition + GetMinimumTelegraphBeats());
+        _statusLabel.Text =
+            $"{phase.PhaseName} — novo padrão preparado para os próximos beats.";
+        UpdateCurrentActionLabels();
+        UpdatePatternDebug();
+    }
+
+    private void ClearQueuedPatternEvent()
+    {
+        _queuedPatternEvent = null;
+        _queuedPatternBeatPosition = -1.0d;
+        _hasQueuedPatternEvent = false;
     }
 
     private void OnEnemyPostureChanged(float currentPosture, float maxPosture)
@@ -1011,9 +1289,11 @@ public partial class CombatController : Node2D
     private void OnPlayerDied()
     {
         _combatState = CombatState.PlayerDead;
+        _pendingRhythmPhaseIndex = -1;
         _executionDelayTimer.Stop();
         _executionTargetBeat = -1;
         _queuedPatternEvent = null;
+        _activePatternEvent = null;
         _queuedPatternBeatPosition = -1.0d;
         _hasQueuedPatternEvent = false;
         _resultLabel.Text = "PLAYER DEFEATED";
@@ -1025,10 +1305,26 @@ public partial class CombatController : Node2D
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (_combatState != CombatState.PlayerDead ||
-            @event is not InputEventKey keyEvent ||
+        if (@event is not InputEventKey keyEvent ||
             !keyEvent.Pressed ||
-            keyEvent.Echo ||
+            keyEvent.Echo)
+        {
+            return;
+        }
+
+        if (DebugRhythm && keyEvent.Unicode >= '1' && keyEvent.Unicode <= '7')
+        {
+            var requestedIndex = (int)(keyEvent.Unicode - '1');
+            if (requestedIndex < EnemyRoster.Count)
+            {
+                SwitchEnemyForDebug(requestedIndex);
+                GetViewport().SetInputAsHandled();
+            }
+
+            return;
+        }
+
+        if (_combatState != CombatState.PlayerDead ||
             (keyEvent.Keycode != Key.R && keyEvent.PhysicalKeycode != Key.R))
         {
             return;
@@ -1038,10 +1334,64 @@ public partial class CombatController : Node2D
         GetViewport().SetInputAsHandled();
     }
 
+    private void SwitchEnemyForDebug(int enemyIndex)
+    {
+        if (enemyIndex < 0 || enemyIndex >= EnemyRoster.Count)
+        {
+            return;
+        }
+
+        _executionDelayTimer.Stop();
+        if (_activePrompt != null && GodotObject.IsInstanceValid(_activePrompt))
+        {
+            _activePrompt.Resolved -= OnAttackPromptResolved;
+            _activePrompt.QueueFree();
+        }
+
+        _activePrompt = null;
+        _activePatternEvent = null;
+        _queuedPatternEvent = null;
+        _queuedPatternBeatPosition = -1.0d;
+        _hasQueuedPatternEvent = false;
+        _executionTargetBeat = -1;
+
+        if (_enemy != null && GodotObject.IsInstanceValid(_enemy))
+        {
+            _enemy.HealthChanged -= OnEnemyHealthChanged;
+            _enemy.PostureChanged -= OnEnemyPostureChanged;
+            _enemy.PostureBroken -= OnEnemyPostureBroken;
+            _enemy.Died -= OnEnemyDied;
+            _enemy.QueueFree();
+        }
+
+        SelectEnemyData(enemyIndex);
+        BuildEncounterPattern();
+        CreateEnemy();
+        _player.ResetHealth();
+        _comboManager.ResetForCombat();
+        _combatState = CombatState.Running;
+        _lastIncomingDamage = 0.0f;
+        _lastHealthDamage = 0.0f;
+        _lastRawHealthDamage = 0.0f;
+        _lastPostureDamage = 0.0f;
+        _nextPatternSearchBeatPosition = Math.Max(
+            0.0d,
+            (_rhythmManager.GetMusicPosition() / _rhythmManager.BeatDuration) + 0.25d);
+        _resultLabel.Text = GetCurrentEnemyName();
+        _resultDetailLabel.Text = "Encounter rítmico carregado — prepare-se";
+        _damageLabel.Text = "DANO: --";
+        _postureDamageLabel.Text = "POSTURE: --";
+        _statusLabel.Text = $"{GetCurrentEnemyName()} aguarda seu ritmo.";
+        UpdateCurrentActionLabels();
+        UpdateDebugLabels();
+        TryScheduleNextPrompt();
+    }
+
     private void RestartCombat()
     {
         _combatState = CombatState.Running;
         _activePrompt = null;
+        _activePatternEvent = null;
         _queuedPatternEvent = null;
         _queuedPatternBeatPosition = -1.0d;
         _hasQueuedPatternEvent = false;
@@ -1049,6 +1399,7 @@ public partial class CombatController : Node2D
         _executionTargetBeat = -1;
         _lastIncomingDamage = 0.0f;
         _lastHealthDamage = 0.0f;
+        _lastRawHealthDamage = 0.0f;
         _lastIncomingDamageLabel.Text = "Last incoming damage: 0.0";
         _lastPostureDamage = 0.0f;
         _postureDamageLabel.Text = "POSTURE: --";
@@ -1056,10 +1407,12 @@ public partial class CombatController : Node2D
         _comboManager.ResetForCombat();
         OnComboFeedbackTimeout();
 
-        if (_enemy != null && !_enemy.IsDefeated)
+        if (_enemy != null && GodotObject.IsInstanceValid(_enemy))
         {
             _enemy.RestoreFullHealth();
         }
+
+        BuildEncounterPattern();
 
         _nextPatternSearchBeatPosition = Math.Max(
             1.0d,
@@ -1081,6 +1434,7 @@ public partial class CombatController : Node2D
 
         UpdateCurrentActionLabels();
         UpdateCombatDetails();
+        UpdatePatternDebug();
 
         var musicPosition = _rhythmManager.GetMusicPosition();
         var targetTime = -1.0d;
@@ -1141,6 +1495,82 @@ public partial class CombatController : Node2D
             : "Enemy base damage: --";
     }
 
+    private void UpdatePatternDebug()
+    {
+        var profile = _activeRhythmProfile;
+        _enemySelectionLabel.Text =
+            $"[1-7] Current: {GetCurrentEnemyName()} | Seed: {EncounterSeed}";
+
+        if (profile == null)
+        {
+            _profileDebugLabel.Text = "Rhythm Profile: --";
+        }
+        else
+        {
+            var stats = _encounterStats;
+            _profileDebugLabel.Text =
+                $"Profile: {profile.ProfileName} | Difficulty: {profile.DifficultyLevel}\n" +
+                $"Density: {profile.EventDensity:0.00} | Enemy Weight: {profile.EnemyAttackWeight:0.0}\n" +
+                $"Half: {profile.AllowHalfBeats} ({profile.HalfBeatChance:P0}) | " +
+                $"Burst: {profile.BurstChance:P0} @ {profile.BurstSpacingBeats:0.0}b\n" +
+                $"Feint: {profile.FeintChance:P0} | Fade: {profile.VisualFadeChance:P0} | " +
+                $"Decoy: {profile.DecoyChance:P0}\n" +
+                $"Telegraph: {GetMinimumTelegraphBeats():0.00}b | Phase: {GetCurrentRhythmPhaseName()}\n" +
+                (stats == null
+                    ? "Generated: --"
+                    : $"Generated: {stats.EventCount} | P:{stats.PlayerAttackCount} " +
+                      $"E:{stats.EnemyAttackCount} H:{stats.HalfBeatCount} " +
+                      $"B:{stats.BurstCount} F:{stats.FeintCount}/{stats.FadeCount} " +
+                      $"D:{stats.DecoyCount}\n" +
+                      $"Spacing min/avg: {stats.MinimumTargetSpacingBeats:0.00}/" +
+                      $"{stats.AverageTargetSpacingBeats:0.00}b | " +
+                      $"Active max: {stats.MaximumActiveLogicalPrompts}");
+        }
+
+        var preview = new StringBuilder("NEXT EVENTS:\n");
+        if (_encounterPattern == null)
+        {
+            preview.Append("--");
+            _patternPreviewLabel.Text = preview.ToString();
+            return;
+        }
+
+        var searchBeat = _hasQueuedPatternEvent
+            ? _queuedPatternBeatPosition
+            : Math.Max(
+                _nextPatternSearchBeatPosition,
+                (_rhythmManager.GetMusicPosition() / _rhythmManager.BeatDuration) + 0.001d);
+        for (var index = 0; index < 5; index++)
+        {
+            if (!_encounterPattern.TryGetNextEvent(
+                    searchBeat,
+                    out var absoluteBeat,
+                    out var rhythmEvent) ||
+                rhythmEvent == null)
+            {
+                break;
+            }
+
+            var wholeBeat = Math.Floor(absoluteBeat);
+            var subdivision = absoluteBeat - wholeBeat;
+            preview.Append(
+                $"{absoluteBeat,6:0.0}  " +
+                $"{GetActionDisplayName(rhythmEvent.GetPromptType()),-13} " +
+                $"{rhythmEvent.GetPromptBehavior().ToString().ToUpperInvariant(),-18}");
+            if (rhythmEvent.ChainId > 0)
+            {
+                preview.Append($" C{rhythmEvent.ChainId}:{rhythmEvent.ChainIndex + 1}/{rhythmEvent.ChainLength}");
+            }
+
+            preview.Append($"  sub:{subdivision:0.0}\n");
+            searchBeat = absoluteBeat + 0.001d;
+        }
+
+        var activeBehavior = _activePrompt?.Behavior ?? RhythmPromptBehavior.Normal;
+        preview.Append($"Prompt Behavior: {activeBehavior.ToString().ToUpperInvariant()}");
+        _patternPreviewLabel.Text = preview.ToString();
+    }
+
     private void UpdateCombatDetails()
     {
         if (_combatDetailsLabel == null || _enemy == null)
@@ -1154,16 +1584,42 @@ public partial class CombatController : Node2D
             $"Enemy HP: {_enemy.CurrentHealth:0}/{_enemy.MaxHealth:0}\n" +
             $"Enemy Posture: {_enemy.CurrentPosture:0}/{_enemy.MaxPosture:0}\n" +
             $"Enemy State: {_enemy.State.ToString().ToUpperInvariant()}\n" +
+            $"Armor Active: {_enemy.IsArmorActive.ToString().ToLowerInvariant()}\n" +
+            $"Armor HP Multiplier: {_enemy.ArmorHealthDamageMultiplier:0.00}\n" +
+            $"Enemy Rhythm: {_activeRhythmProfile?.ProfileName ?? "--"}\n" +
+            $"Rhythm Phase: {GetCurrentRhythmPhaseName()}" +
+            (_pendingRhythmPhaseIndex >= 0 ? " (PENDING)" : string.Empty) + "\n" +
             $"Combat State: {_combatState.ToString().ToUpperInvariant()}\n" +
             $"Combo: {_comboManager.CurrentCombo} | Highest: {_comboManager.HighestCombo}\n" +
             $"Perfect Streak: {_comboManager.PerfectStreak}\n" +
             $"Combo Tier: {_comboManager.CurrentComboTier}\n" +
             $"Damage Multiplier: x{_comboManager.CurrentDamageMultiplier:0.00}\n" +
             $"Last Combo Result: {GetLastComboResultDisplayName()}\n" +
+            $"Last Raw HP Damage: {_lastRawHealthDamage:0.0}\n" +
             $"Last HP Damage: {_lastHealthDamage:0.0}\n" +
             $"Last Posture Damage: {_lastPostureDamage:0.0}\n" +
             $"Last SFX: {_audioManager.LastSfxName}\n" +
             $"Execution Active: {executionActive.ToString().ToLowerInvariant()}";
+    }
+
+    private string GetCurrentEnemyName()
+    {
+        if (!string.IsNullOrWhiteSpace(_selectedEnemyData?.EnemyName))
+        {
+            return _selectedEnemyData.EnemyName;
+        }
+
+        return _enemy != null && !string.IsNullOrWhiteSpace(_enemy.EnemyName)
+            ? _enemy.EnemyName
+            : "THE INITIATE";
+    }
+
+    private string GetCurrentRhythmPhaseName()
+    {
+        var phase = _selectedEnemyData?.GetRhythmPhase(_activeRhythmPhaseIndex);
+        return phase?.PhaseName ?? (_activeRhythmPhaseIndex >= 0
+            ? $"PHASE {_activeRhythmPhaseIndex + 1}"
+            : "--");
     }
 
     private string GetLastComboResultDisplayName()

@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EnemyRhythmProfileResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/EnemyRhythmProfileResource.cs" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+ProfileName = "Berserker Phase 1"
+DifficultyLevel = 7
+EventDensity = 0.72
+PlayerAttackWeight = 4.5
+EnemyAttackWeight = 5.5
+MinimumSpacingBeats = 2.5
+PreferredSpacingBeats = 3.25
+AllowHalfBeats = true
+HalfBeatChance = 0.25
+BurstChance = 0.05
+MinBurstLength = 2
+MaxBurstLength = 2
+BurstSpacingBeats = 1.5
+AlternationChance = 0.5
+DefenseChainChance = 0.2
+BaseActionBias = 0.2
+StrongBeatPreference = 0.3
+HeavyEventPreference = 0.35
+FeintChance = 0.0
+VisualFadeChance = 0.0
+DecoyChance = 0.0
+FadeBeatsBeforeTarget = 0.5
+FeintStrength = 0.1
+TelegraphBeats = 1.25

@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EnemyRhythmProfileResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/EnemyRhythmProfileResource.cs" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+ProfileName = "Knight"
+DifficultyLevel = 6
+EventDensity = 0.62
+PlayerAttackWeight = 3.5
+EnemyAttackWeight = 6.5
+MinimumSpacingBeats = 3.5
+PreferredSpacingBeats = 4.5
+AllowHalfBeats = true
+HalfBeatChance = 0.15
+BurstChance = 0.0
+MinBurstLength = 0
+MaxBurstLength = 0
+BurstSpacingBeats = 1.5
+AlternationChance = 0.3
+DefenseChainChance = 0.45
+BaseActionBias = 0.5
+StrongBeatPreference = 0.8
+HeavyEventPreference = 0.8
+FeintChance = 0.0
+VisualFadeChance = 0.0
+DecoyChance = 0.0
+FadeBeatsBeforeTarget = 0.5
+FeintStrength = 0.1
+TelegraphBeats = 1.5

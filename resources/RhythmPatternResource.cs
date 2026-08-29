@@ -60,6 +60,22 @@ public partial class RhythmPatternResource : Resource
         return null;
     }
 
+    public List<RhythmEventResource> GetEventsSorted()
+    {
+        var uniqueEvents = new HashSet<RhythmEventResource>();
+        var sortedEvents = new List<RhythmEventResource>();
+        foreach (var rhythmEvent in EnumerateEvents())
+        {
+            if (uniqueEvents.Add(rhythmEvent))
+            {
+                sortedEvents.Add(rhythmEvent);
+            }
+        }
+
+        sortedEvents.Sort((left, right) => left.BeatOffset.CompareTo(right.BeatOffset));
+        return sortedEvents;
+    }
+
     public bool TryGetNextEvent(
         int startBeat,
         out int eventBeat,

@@ -37,6 +37,7 @@ public partial class EnemyBase : Node2D
     private Label _healthLabel = null!;
     private Label _postureLabel = null!;
     private Label _stateLabel = null!;
+    private Label _armorLabel = null!;
     private Polygon2D _bodyPlaceholder = null!;
     private Polygon2D _corePlaceholder = null!;
     private Timer _attackFeedbackTimer = null!;
@@ -44,6 +45,7 @@ public partial class EnemyBase : Node2D
     private float _currentHealth;
     private float _currentPosture;
     private EnemyState _enemyState = EnemyState.Normal;
+    private EnemyDataResource? _enemyData;
 
     public float CurrentHealth => _currentHealth;
     public float CurrentPosture => _currentPosture;
@@ -51,6 +53,27 @@ public partial class EnemyBase : Node2D
     public bool IsDead => _enemyState == EnemyState.Dead;
     public bool IsStaggered => _enemyState == EnemyState.Staggered;
     public bool IsDefeated => IsDead;
+    public EnemyDataResource? EnemyData => _enemyData;
+    public bool IsArmored => _enemyData?.Armored ?? false;
+    public bool IsArmorActive => IsArmored && !IsDead && _currentPosture > 0.0f;
+    public float ArmorHealthDamageMultiplier =>
+        Mathf.Clamp(_enemyData?.HealthDamageMultiplierWhilePostureActive ?? 1.0f, 0.0f, 1.0f);
+
+    public void Configure(EnemyDataResource enemyData)
+    {
+        _enemyData = enemyData;
+        EnemyName = string.IsNullOrWhiteSpace(enemyData.EnemyName)
+            ? EnemyName
+            : enemyData.EnemyName;
+        MaxHealth = Math.Max(1.0f, enemyData.MaxHealth);
+        MaxPosture = Math.Max(1.0f, enemyData.MaxPosture);
+
+        if (IsNodeReady())
+        {
+            _nameLabel.Text = EnemyName;
+            RestoreFullHealth();
+        }
+    }
 
     public override void _Ready()
     {
@@ -60,6 +83,7 @@ public partial class EnemyBase : Node2D
         _healthLabel = GetNode<Label>("HealthLabel");
         _postureLabel = GetNode<Label>("PostureLabel");
         _stateLabel = GetNode<Label>("StateLabel");
+        _armorLabel = GetNode<Label>("ArmorLabel");
         _bodyPlaceholder = GetNode<Polygon2D>("BodyPlaceholder");
         _corePlaceholder = GetNode<Polygon2D>("CorePlaceholder");
         _attackFeedbackTimer = GetNode<Timer>("AttackFeedbackTimer");
@@ -228,6 +252,18 @@ public partial class EnemyBase : Node2D
         _postureBar.MaxValue = MaxPosture;
         _postureBar.Value = _currentPosture;
         _postureLabel.Text = $"POSTURE: {_currentPosture:0}/{MaxPosture:0}";
+        UpdateArmorVisuals();
+    }
+
+    private void UpdateArmorVisuals()
+    {
+        if (_armorLabel == null)
+        {
+            return;
+        }
+
+        _armorLabel.Visible = IsArmorActive;
+        _armorLabel.Text = "ARMORED";
     }
 
     private void UpdateStateVisuals()

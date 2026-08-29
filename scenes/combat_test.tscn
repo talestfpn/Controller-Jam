@@ -9,6 +9,15 @@
 [ext_resource type="Script" uid="uid://cyxvyobehvyui" path="res://combat/ComboManager.cs" id="7_combo_manager"]
 [ext_resource type="Resource" uid="uid://bq4wp8lq3065h" path="res://resources/combo_config.tres" id="8_combo_config"]
 [ext_resource type="PackedScene" path="res://audio/audio_manager.tscn" id="9_audio_manager"]
+[ext_resource type="Script" path="res://resources/EnemyDataResource.cs" id="10_enemy_data_script"]
+[ext_resource type="Resource" path="res://resources/the_initiate_data.tres" id="11_initiate_data"]
+[ext_resource type="Resource" path="res://resources/the_brute_data.tres" id="12_brute_data"]
+[ext_resource type="Resource" path="res://resources/the_duelist_data.tres" id="13_duelist_data"]
+[ext_resource type="Resource" path="res://resources/rhythm_fairness_config.tres" id="14_fairness"]
+[ext_resource type="Resource" path="res://resources/the_assassin_data.tres" id="15_assassin_data"]
+[ext_resource type="Resource" path="res://resources/the_mage_data.tres" id="16_mage_data"]
+[ext_resource type="Resource" path="res://resources/the_knight_data.tres" id="17_knight_data"]
+[ext_resource type="Resource" path="res://resources/the_berserker_data.tres" id="18_berserker_data"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_player_health_bg"]
 bg_color = Color(0.12, 0.08, 0.12, 1)
@@ -29,8 +38,11 @@ script = ExtResource("1_combat_controller")
 PromptScene = ExtResource("2_prompt_scene")
 EnemyScene = ExtResource("3_enemy_scene")
 AttackPattern = ExtResource("4_attack_pattern")
+EnemyRoster = Array[ExtResource("10_enemy_data_script")]([ExtResource("11_initiate_data"), ExtResource("12_brute_data"), ExtResource("13_duelist_data"), ExtResource("15_assassin_data"), ExtResource("16_mage_data"), ExtResource("17_knight_data"), ExtResource("18_berserker_data")])
+StartingEnemyIndex = 0
+EncounterSeed = 12345
 TimingConfig = ExtResource("5_timing_config")
-DebugComboTrainingDummy = true
+FairnessConfig = ExtResource("14_fairness")
 
 [node name="Background" type="ColorRect" parent="." unique_id=1395778706]
 offset_right = 1152.0
@@ -384,3 +396,42 @@ theme_override_colors/font_color = Color(0.76, 0.8, 0.92, 1)
 theme_override_font_sizes/font_size = 15
 text = "Inicializando combate..."
 horizontal_alignment = 1
+
+[node name="PatternDebugPanel" type="ColorRect" parent="CanvasLayer/Ui"]
+layout_mode = 0
+offset_left = 807.0
+offset_top = 102.0
+offset_right = 1124.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.07, 0.09, 0.16, 0.92)
+
+[node name="EnemySelectionLabel" type="Label" parent="CanvasLayer/Ui/PatternDebugPanel"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 10.0
+offset_right = 305.0
+offset_bottom = 32.0
+theme_override_colors/font_color = Color(0.72, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "[1-7] Current: --"
+
+[node name="ProfileDebugLabel" type="Label" parent="CanvasLayer/Ui/PatternDebugPanel"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 38.0
+offset_right = 305.0
+offset_bottom = 178.0
+theme_override_colors/font_color = Color(0.82, 0.85, 0.94, 1)
+theme_override_font_sizes/font_size = 11
+text = "Rhythm Profile: --"
+
+[node name="PatternPreviewLabel" type="Label" parent="CanvasLayer/Ui/PatternDebugPanel"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 184.0
+offset_right = 305.0
+offset_bottom = 378.0
+theme_override_colors/font_color = Color(0.92, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 11
+text = "NEXT EVENTS:\n--"

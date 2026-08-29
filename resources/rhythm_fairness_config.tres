@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="RhythmFairnessConfigResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/RhythmFairnessConfigResource.cs" id="1_fairness"]
+
+[resource]
+script = ExtResource("1_fairness")
+MinimumLogicalPromptSpacingBeats = 1.0
+MinimumTelegraphBeats = 1.25
+MaximumAllowedBurstLength = 3
+MinimumBurstSpacingBeats = 1.0
+MaximumActiveLogicalPrompts = 1
+MaximumDecoysPerPrompt = 1
