@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://debug/Phase55RuntimeValidation.cs" id="1_validation"]
+[ext_resource type="PackedScene" path="res://scenes/combat_test.tscn" id="2_combat"]
+
+[node name="Phase55MageRuntimeValidation" type="Node"]
+script = ExtResource("1_validation")
+CombatScene = ExtResource("2_combat")
+ValidationDurationSeconds = 60.0
+EnemyIndex = 4
+ExpectedEnemyName = "THE MAGE"
+RequireHalfBeats = true
+RequireFeints = true
+RequireFades = true
+RequireDecoys = true

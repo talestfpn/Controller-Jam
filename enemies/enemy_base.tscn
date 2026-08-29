@@ -106,6 +106,17 @@ theme_override_font_sizes/font_size = 14
 text = "NORMAL"
 horizontal_alignment = 1
 
+[node name="ArmorLabel" type="Label" parent="."]
+offset_left = -130.0
+offset_top = -20.0
+offset_right = 130.0
+offset_bottom = 4.0
+theme_override_colors/font_color = Color(0.55, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "ARMORED"
+horizontal_alignment = 1
+visible = false
+
 [node name="AttackFeedbackTimer" type="Timer" parent="."]
 wait_time = 0.18
 one_shot = true

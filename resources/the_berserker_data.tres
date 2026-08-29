@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="EnemyDataResource" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://resources/EnemyDataResource.cs" id="1_data"]
+[ext_resource type="PackedScene" path="res://enemies/the_berserker.tscn" id="2_scene"]
+[ext_resource type="Resource" path="res://resources/berserker_phase1_profile.tres" id="3_phase1_profile"]
+[ext_resource type="Resource" path="res://resources/berserker_phase2_profile.tres" id="4_phase2_profile"]
+[ext_resource type="Resource" path="res://resources/berserker_phase3_profile.tres" id="5_phase3_profile"]
+[ext_resource type="Script" path="res://resources/EnemyRhythmPhaseResource.cs" id="6_phase"]
+
+[sub_resource type="Resource" id="Resource_berserker_phase_1"]
+script = ExtResource("6_phase")
+MinHealthPercent = 0.67
+MaxHealthPercent = 1.0
+PhaseName = "BERSERKER PHASE 1"
+RhythmProfile = ExtResource("3_phase1_profile")
+
+[sub_resource type="Resource" id="Resource_berserker_phase_2"]
+script = ExtResource("6_phase")
+MinHealthPercent = 0.34
+MaxHealthPercent = 0.66
+PhaseName = "BERSERKER PHASE 2"
+RhythmProfile = ExtResource("4_phase2_profile")
+
+[sub_resource type="Resource" id="Resource_berserker_phase_3"]
+script = ExtResource("6_phase")
+MinHealthPercent = 0.0
+MaxHealthPercent = 0.33
+PhaseName = "BERSERKER PHASE 3"
+RhythmProfile = ExtResource("5_phase3_profile")
+
+[resource]
+script = ExtResource("1_data")
+EnemyName = "THE BERSERKER"
+MaxHealth = 230.0
+MaxPosture = 65.0
+BaseAttackDamage = 20.0
+Armored = false
+HealthDamageMultiplierWhilePostureActive = 1.0
+EnemyScene = ExtResource("2_scene")
+RhythmProfile = ExtResource("3_phase1_profile")
+RhythmPhases = Array[ExtResource("6_phase")]([SubResource("Resource_berserker_phase_1"), SubResource("Resource_berserker_phase_2"), SubResource("Resource_berserker_phase_3")])

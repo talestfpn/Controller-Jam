@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EnemyDataResource" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://resources/EnemyDataResource.cs" id="1_data"]
+[ext_resource type="PackedScene" path="res://enemies/the_knight.tscn" id="2_scene"]
+[ext_resource type="Resource" path="res://resources/knight_rhythm_profile.tres" id="3_profile"]
+
+[resource]
+script = ExtResource("1_data")
+EnemyName = "THE KNIGHT"
+MaxHealth = 260.0
+MaxPosture = 100.0
+BaseAttackDamage = 26.0
+Armored = true
+HealthDamageMultiplierWhilePostureActive = 0.25
+EnemyScene = ExtResource("2_scene")
+RhythmProfile = ExtResource("3_profile")

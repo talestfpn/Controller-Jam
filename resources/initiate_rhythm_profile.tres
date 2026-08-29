@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EnemyRhythmProfileResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/EnemyRhythmProfileResource.cs" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+ProfileName = "Initiate"
+DifficultyLevel = 1
+EventDensity = 0.82
+PlayerAttackWeight = 9.0
+EnemyAttackWeight = 1.0
+MinimumSpacingBeats = 4.0
+PreferredSpacingBeats = 5.0
+AllowHalfBeats = false
+HalfBeatChance = 0.0
+BurstChance = 0.0
+MinBurstLength = 2
+MaxBurstLength = 2
+BurstSpacingBeats = 1.0
+AlternationChance = 0.15
+DefenseChainChance = 0.0
+BaseActionBias = 0.15
+StrongBeatPreference = 0.25
+HeavyEventPreference = 0.15
+FeintChance = 0.0
+VisualFadeChance = 0.0
+FadeBeatsBeforeTarget = 0.5
+FeintStrength = 0.2
+TelegraphBeats = 1.25

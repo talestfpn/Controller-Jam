@@ -20,10 +20,32 @@ public partial class RhythmEventResource : Resource
     [Export(PropertyHint.Range, "0.0,999.0,1.0")]
     public float PostureDamage { get; set; }
 
+    [Export(PropertyHint.Enum, "Normal,Feint,FadeBeforeTarget,Decoy")]
+    public int PromptBehavior { get; set; } = (int)RhythmPromptBehavior.Normal;
+
+    [Export(PropertyHint.Range, "0,9999,1")]
+    public int ChainId { get; set; }
+
+    [Export(PropertyHint.Range, "0,4,1")]
+    public int ChainIndex { get; set; }
+
+    [Export(PropertyHint.Range, "1,4,1")]
+    public int ChainLength { get; set; } = 1;
+
+    [Export(PropertyHint.Range, "0.0,4096.0,0.25")]
+    public float SourceBeatOffset { get; set; }
+
     public RhythmPromptType GetPromptType()
     {
         return Enum.IsDefined(typeof(RhythmPromptType), PromptType)
             ? (RhythmPromptType)PromptType
             : RhythmPromptType.PlayerAttack;
+    }
+
+    public RhythmPromptBehavior GetPromptBehavior()
+    {
+        return Enum.IsDefined(typeof(RhythmPromptBehavior), PromptBehavior)
+            ? (RhythmPromptBehavior)PromptBehavior
+            : RhythmPromptBehavior.Normal;
     }
 }
