@@ -60,9 +60,6 @@ public partial class CombatController : Node2D
     [Export]
     public bool DebugRhythm { get; set; } = true;
 
-    [Export]
-    public bool EnableEnemySelectionHotkeys { get; set; } = true;
-
     [Export(PropertyHint.Range, "-1,6,1")]
     public int DebugBossPhase { get; set; } = -1;
 
@@ -138,6 +135,7 @@ public partial class CombatController : Node2D
     private Control _debugPanel = null!;
     private Timer _executionDelayTimer = null!;
     private Timer _comboFeedbackTimer = null!;
+    private Timer _encounterStartDelayTimer = null!;
     private Timer? _bossPhaseTransitionTimer;
     private Control? _bossPhaseTransitionPanel;
     private Label? _bossPhaseTransitionTitle;
@@ -162,6 +160,8 @@ public partial class CombatController : Node2D
     private bool _secondBreathUsedThisCombat;
     private bool _unbrokenUsedThisCombat;
     private bool _riposteReady;
+    private bool _encounterStartDelayActive;
+    private bool _waitingForTransitionReveal;
 
     public EnemyRhythmProfileResource? ActiveRhythmProfile => _activeRhythmProfile;
     public EncounterPatternStats? EncounterStats => _encounterStats;
@@ -187,6 +187,8 @@ public partial class CombatController : Node2D
         _executionDelayTimer.Timeout += OnExecutionDelayTimeout;
         _comboFeedbackTimer = GetNode<Timer>("ComboFeedbackTimer");
         _comboFeedbackTimer.Timeout += OnComboFeedbackTimeout;
+        _encounterStartDelayTimer = GetNode<Timer>("EncounterStartDelayTimer");
+        _encounterStartDelayTimer.Timeout += OnEncounterStartDelayTimeout;
         _bossPhaseTransitionTimer = GetNodeOrNull<Timer>("BossPhaseTransitionTimer");
         if (_bossPhaseTransitionTimer != null)
         {
@@ -251,7 +253,6 @@ public partial class CombatController : Node2D
         _comboManager.ComboMilestoneReached += OnComboMilestoneReached;
         _comboManager.ComboBroken += OnComboBroken;
         _comboManager.TimingResultRegistered += OnTimingResultRegistered;
-        _comboManager.ResetForCombat();
         _battlePerformance.Reset();
         _battleResultQueued = false;
         _secondBreathUsedThisCombat = false;
@@ -263,6 +264,13 @@ public partial class CombatController : Node2D
         _basePlayerMaxHealth = _player.MaxHealth;
         var runWasInitialized = _runManager.IsRunInitialized;
         _runManager.EnsureRunStarted(_basePlayerMaxHealth);
+        _comboManager.RestoreRunState(
+            _runManager.CurrentCombo,
+            _runManager.HighestCombo,
+            _runManager.PerfectStreak);
+        _displayedCombo = _comboManager.CurrentCombo;
+        _displayedComboTier = _comboManager.CurrentComboTier;
+        UpdateComboUi();
         _runManager.ClearLastBattleResult();
         FairnessConfig ??= new RhythmFairnessConfigResource();
         var encounterIndex = runWasInitialized
@@ -293,6 +301,7 @@ public partial class CombatController : Node2D
         _lastRawHealthDamage = 0.0f;
         _statusLabel.Text = $"{GetCurrentEnemyName()} aguarda seu ritmo.";
 
+        BeginEncounterStartDelay();
         _rhythmManager.BeatStarted += OnBeatStarted;
         if (!_rhythmManager.IsRunning)
         {
@@ -360,6 +369,16 @@ public partial class CombatController : Node2D
         if (_comboFeedbackTimer != null)
         {
             _comboFeedbackTimer.Timeout -= OnComboFeedbackTimeout;
+        }
+
+        if (_encounterStartDelayTimer != null)
+        {
+            _encounterStartDelayTimer.Timeout -= OnEncounterStartDelayTimeout;
+        }
+
+        if (_sceneTransitionManager != null)
+        {
+            _sceneTransitionManager.TransitionFinished -= OnSceneTransitionFinished;
         }
 
         if (_bossPhaseTransitionTimer != null)
@@ -655,7 +674,8 @@ public partial class CombatController : Node2D
 
     private void TryScheduleNextPrompt()
     {
-        if (_bossPhaseTransitionActive ||
+        if (_encounterStartDelayActive ||
+            _bossPhaseTransitionActive ||
             (_combatState != CombatState.Running &&
              _combatState != CombatState.ResolvingPrompt) ||
             _encounterPattern == null)
@@ -1430,6 +1450,11 @@ public partial class CombatController : Node2D
 
     private void OnComboChanged(int currentCombo, int highestCombo)
     {
+        _runManager.SetComboState(
+            currentCombo,
+            highestCombo,
+            _comboManager.PerfectStreak);
+
         if (currentCombo > _displayedCombo)
         {
             _comboPanel.PlayComboIncrease();
@@ -1442,6 +1467,11 @@ public partial class CombatController : Node2D
 
     private void OnPerfectStreakChanged(int perfectStreak)
     {
+        _runManager.SetComboState(
+            _comboManager.CurrentCombo,
+            _comboManager.HighestCombo,
+            perfectStreak);
+
         if (perfectStreak >= 2)
         {
             _perfectStreakPunchTime = 0.18d;
@@ -1737,6 +1767,10 @@ public partial class CombatController : Node2D
 
         _runManager.SetCurrentEncounter(_selectedEnemyIndex);
         _runManager.SetPlayerCurrentHP(_player.CurrentHealth);
+        _runManager.SetComboState(
+            _comboManager.CurrentCombo,
+            _comboManager.HighestCombo,
+            _comboManager.PerfectStreak);
         _runManager.SetLastBattleResult(result);
         _runManager.AddEssence(reward.TotalReward);
 
@@ -2079,18 +2113,6 @@ public partial class CombatController : Node2D
             return;
         }
 
-        if (EnableEnemySelectionHotkeys && keyEvent.Unicode >= '1' && keyEvent.Unicode <= '8')
-        {
-            var requestedIndex = (int)(keyEvent.Unicode - '1');
-            if (requestedIndex < EnemyRoster.Count)
-            {
-                SwitchEnemyForDebug(requestedIndex);
-                GetViewport().SetInputAsHandled();
-            }
-
-            return;
-        }
-
         if (_combatState != CombatState.PlayerDead ||
             (keyEvent.Keycode != Key.R && keyEvent.PhysicalKeycode != Key.R))
         {
@@ -2099,73 +2121,6 @@ public partial class CombatController : Node2D
 
         RestartCombat();
         GetViewport().SetInputAsHandled();
-    }
-
-    private void SwitchEnemyForDebug(int enemyIndex)
-    {
-        if (enemyIndex < 0 || enemyIndex >= EnemyRoster.Count)
-        {
-            return;
-        }
-
-        _executionDelayTimer.Stop();
-        _bossPhaseTransitionTimer?.Stop();
-        _bossPhaseTransitionActive = false;
-        _transitioningBossPhaseIndex = -1;
-        HideBossPhaseTransitionPanel();
-        if (_activePrompt != null && GodotObject.IsInstanceValid(_activePrompt))
-        {
-            _activePrompt.Resolved -= OnAttackPromptResolved;
-            _activePrompt.QueueFree();
-        }
-
-        _activePrompt = null;
-        _activePatternEvent = null;
-        _queuedPatternEvent = null;
-        _queuedPatternBeatPosition = -1.0d;
-        _hasQueuedPatternEvent = false;
-        _executionTargetBeat = -1;
-
-        if (_enemy != null && GodotObject.IsInstanceValid(_enemy))
-        {
-            DetachBossControllerSignals();
-            _enemy.HealthChanged -= OnEnemyHealthChanged;
-            _enemy.PostureChanged -= OnEnemyPostureChanged;
-            _enemy.PostureBroken -= OnEnemyPostureBroken;
-            _enemy.Died -= OnEnemyDied;
-            _enemy.QueueFree();
-        }
-
-        _bossController = null;
-
-        SelectEnemyData(enemyIndex);
-        BuildEncounterPattern();
-        CreateEnemy();
-        _player.ResetHealth();
-        _comboManager.ResetForCombat();
-        _battlePerformance.Reset();
-        _battleResultQueued = false;
-        _secondBreathUsedThisCombat = false;
-        _unbrokenUsedThisCombat = false;
-        _riposteReady = false;
-        _runManager.ClearLastBattleResult();
-        _combatState = CombatState.Running;
-        _lastIncomingDamage = 0.0f;
-        _lastHealthDamage = 0.0f;
-        _lastRawHealthDamage = 0.0f;
-        _lastPostureDamage = 0.0f;
-        _nextPatternSearchBeatPosition = Math.Max(
-            0.0d,
-            (_rhythmManager.GetMusicPosition() / _rhythmManager.BeatDuration) + 0.25d);
-        ShowImportantResult(
-            GetCurrentEnemyName(),
-            "Encounter rítmico carregado — prepare-se");
-        _damageLabel.Text = "DANO: --";
-        _postureDamageLabel.Text = "RESISTÊNCIA: --";
-        _statusLabel.Text = $"{GetCurrentEnemyName()} aguarda seu ritmo.";
-        UpdateCurrentActionLabels();
-        UpdateDebugLabels();
-        TryScheduleNextPrompt();
     }
 
     private void RestartCombat()
@@ -2227,6 +2182,46 @@ public partial class CombatController : Node2D
         _damageLabel.Text = "DANO: --";
         _statusLabel.Text = "Combate reiniciado.";
         UpdateCurrentActionLabels();
+        BeginEncounterStartDelay();
+    }
+
+    private void BeginEncounterStartDelay()
+    {
+        _encounterStartDelayTimer.Stop();
+        _encounterStartDelayActive = true;
+        _waitingForTransitionReveal = _sceneTransitionManager.IsTransitioning;
+
+        _sceneTransitionManager.TransitionFinished -= OnSceneTransitionFinished;
+        if (_waitingForTransitionReveal)
+        {
+            _sceneTransitionManager.TransitionFinished += OnSceneTransitionFinished;
+            return;
+        }
+
+        _encounterStartDelayTimer.Start();
+    }
+
+    private void OnSceneTransitionFinished()
+    {
+        _sceneTransitionManager.TransitionFinished -= OnSceneTransitionFinished;
+        if (!_waitingForTransitionReveal)
+        {
+            return;
+        }
+
+        _waitingForTransitionReveal = false;
+        _encounterStartDelayTimer.Start();
+    }
+
+    private void OnEncounterStartDelayTimeout()
+    {
+        _encounterStartDelayActive = false;
+        var currentBeatPosition = Math.Max(
+            0.0d,
+            _rhythmManager.GetMusicPosition() / _rhythmManager.BeatDuration);
+        _nextPatternSearchBeatPosition = Math.Max(
+            _nextPatternSearchBeatPosition,
+            currentBeatPosition + GetMinimumTelegraphBeats());
         TryScheduleNextPrompt();
     }
 
@@ -2306,7 +2301,7 @@ public partial class CombatController : Node2D
     {
         var profile = _activeRhythmProfile;
         _enemySelectionLabel.Text =
-            $"[1-8] Current: {GetCurrentEnemyName()} | Seed: {EncounterSeed}";
+            $"Current: {GetCurrentEnemyName()} | Seed: {EncounterSeed}";
 
         if (profile == null)
         {

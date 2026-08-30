@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://ui/VictoryController.cs" id="1_victory_controller"]
 [ext_resource type="Shader" path="res://shaders/beat_synced_nebula.gdshader" id="2_background_shader"]
@@ -6,6 +6,7 @@
 [ext_resource type="Shader" path="res://shaders/arcane_separator.gdshader" id="4_separator_shader"]
 [ext_resource type="FontFile" path="res://fontes/ferrum/ferrum.otf" id="5_ferrum_font"]
 [ext_resource type="Texture2D" path="res://assets/tudo part1/the resistance boss.png" id="6_boss_art"]
+[ext_resource type="PackedScene" path="res://scenes/main_menu.tscn" id="7_main_menu"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_victory_background"]
 resource_local_to_scene = true
@@ -92,7 +93,7 @@ mouse_filter = 2
 texture_filter = 1
 theme_override_fonts/font = ExtResource("5_ferrum_font")
 script = ExtResource("1_victory_controller")
-StartingPlayerMaxHealth = 100.0
+MainMenuScene = ExtResource("7_main_menu")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
@@ -258,7 +259,7 @@ theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_victory_button")
 theme_override_styles/hover = SubResource("StyleBoxFlat_victory_button_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_victory_button_hover")
-text = "NOVA RUN"
+text = "VOLTAR AO MENU"
 
 [node name="StatusLabel" type="Label" parent="."]
 layout_mode = 0
@@ -268,5 +269,5 @@ offset_right = 892.0
 offset_bottom = 660.0
 theme_override_colors/font_color = Color(0.72, 0.8, 0.96, 1)
 theme_override_font_sizes/font_size = 13
-text = "SPACE — iniciar uma nova run"
+text = "SPACE — voltar ao menu inicial"
 horizontal_alignment = 1

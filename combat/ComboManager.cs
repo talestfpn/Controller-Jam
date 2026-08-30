@@ -1,8 +1,8 @@
 using Godot;
 
 /// <summary>
-/// Estado independente de Combo durante um combate. Não conhece a UI nem
-/// aplica dano; comunica alterações por sinais para o CombatController.
+/// Estado independente de Combo durante a run. Não conhece a UI nem aplica
+/// dano; comunica alterações por sinais para o CombatController.
 /// </summary>
 public partial class ComboManager : Node
 {
@@ -145,6 +145,18 @@ public partial class ComboManager : Node
             SignalName.DamageMultiplierChanged,
             CurrentDamageMultiplier,
             CurrentComboTier);
+    }
+
+    public void RestoreRunState(
+        int currentCombo,
+        int highestCombo,
+        int perfectStreak)
+    {
+        CurrentCombo = Mathf.Max(0, currentCombo);
+        HighestCombo = Mathf.Max(CurrentCombo, Mathf.Max(0, highestCombo));
+        PerfectStreak = Mathf.Max(0, perfectStreak);
+        LastComboResult = null;
+        RecalculateTier();
     }
 
     public float GetDamageMultiplier()

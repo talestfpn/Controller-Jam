@@ -1,9 +1,11 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://ui/UpgradeCardController.cs" id="1_card_script"]
 [ext_resource type="Texture2D" path="res://assets/moldura black/moldura black.png" id="2_card_frame"]
 [ext_resource type="FontFile" path="res://fontes/ferrum/ferrum.otf" id="3_ferrum_font"]
 [ext_resource type="Shader" path="res://shaders/arcane_card.gdshader" id="4_card_shader"]
+[ext_resource type="Texture2D" path="res://assets/moldura black/moldura bronze.png" id="5_common_frame"]
+[ext_resource type="Texture2D" path="res://assets/moldura black/moldura prata.png" id="6_rare_frame"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_card_glow"]
 shader = ExtResource("4_card_shader")
@@ -63,6 +65,9 @@ mouse_filter = 2
 texture_filter = 1
 theme_override_fonts/font = ExtResource("3_ferrum_font")
 script = ExtResource("1_card_script")
+CommonFrame = ExtResource("5_common_frame")
+RareFrame = ExtResource("6_rare_frame")
+ArcaneFrame = ExtResource("2_card_frame")
 
 [node name="CardGlow" type="ColorRect" parent="."]
 layout_mode = 0
