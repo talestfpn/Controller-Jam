@@ -4,24 +4,24 @@
 [ext_resource type="Resource" path="res://resources/jogo_generated_pattern.tres" id="2_pattern"]
 [ext_resource type="Resource" path="res://resources/rhythm_fairness_config.tres" id="3_fairness"]
 [ext_resource type="PackedScene" path="res://combat/rhythm_prompt.tscn" id="4_prompt"]
-[ext_resource type="Resource" path="res://resources/the_initiate_data.tres" id="5_initiate"]
-[ext_resource type="Resource" path="res://resources/the_brute_data.tres" id="6_brute"]
-[ext_resource type="Resource" path="res://resources/the_duelist_data.tres" id="7_duelist"]
-[ext_resource type="Resource" path="res://resources/the_assassin_data.tres" id="8_assassin"]
-[ext_resource type="Resource" path="res://resources/the_mage_data.tres" id="9_mage"]
-[ext_resource type="Resource" path="res://resources/the_knight_data.tres" id="10_knight"]
-[ext_resource type="Resource" path="res://resources/the_berserker_data.tres" id="11_berserker"]
+[ext_resource type="Resource" path="res://resources/the_fool_data.tres" id="5_fool"]
+[ext_resource type="Resource" path="res://resources/the_tower_data.tres" id="6_tower"]
+[ext_resource type="Resource" path="res://resources/justice_data.tres" id="7_justice"]
+[ext_resource type="Resource" path="res://resources/knight_of_swords_data.tres" id="8_knight_of_swords"]
+[ext_resource type="Resource" path="res://resources/the_magician_data.tres" id="9_magician"]
+[ext_resource type="Resource" path="res://resources/knight_of_pentacles_data.tres" id="10_knight_of_pentacles"]
+[ext_resource type="Resource" path="res://resources/king_of_wands_data.tres" id="11_king_of_wands"]
 
 [node name="Phase55PatternValidation" type="Node"]
 script = ExtResource("1_validation")
 BasePattern = ExtResource("2_pattern")
 FairnessConfig = ExtResource("3_fairness")
 PromptScene = ExtResource("4_prompt")
-InitiateData = ExtResource("5_initiate")
-BruteData = ExtResource("6_brute")
-DuelistData = ExtResource("7_duelist")
-AssassinData = ExtResource("8_assassin")
-MageData = ExtResource("9_mage")
-KnightData = ExtResource("10_knight")
-BerserkerData = ExtResource("11_berserker")
+FoolData = ExtResource("5_fool")
+TowerData = ExtResource("6_tower")
+JusticeData = ExtResource("7_justice")
+KnightOfSwordsData = ExtResource("8_knight_of_swords")
+MagicianData = ExtResource("9_magician")
+KnightOfPentaclesData = ExtResource("10_knight_of_pentacles")
+KingOfWandsData = ExtResource("11_king_of_wands")
 Seed = 12345

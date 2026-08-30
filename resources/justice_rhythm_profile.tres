@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EnemyRhythmProfileResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/EnemyRhythmProfileResource.cs" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+ProfileName = "Justice"
+DifficultyLevel = 3
+EventDensity = 0.95
+PlayerAttackWeight = 4.5
+EnemyAttackWeight = 5.5
+MinimumSpacingBeats = 2.0
+PreferredSpacingBeats = 2.5
+AllowHalfBeats = true
+HalfBeatChance = 1.0
+BurstChance = 0.12
+MinBurstLength = 2
+MaxBurstLength = 2
+BurstSpacingBeats = 1.5
+AlternationChance = 0.72
+DefenseChainChance = 0.28
+BaseActionBias = 0.2
+StrongBeatPreference = 0.2
+HeavyEventPreference = 0.3
+FeintChance = 0.12
+VisualFadeChance = 0.02
+FadeBeatsBeforeTarget = 0.5
+FeintStrength = 0.12
+TelegraphBeats = 1.0

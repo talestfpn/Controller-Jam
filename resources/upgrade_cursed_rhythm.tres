@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "cursed_rhythm"
+DisplayName = "RITMO AMALDIÇOADO"
+Description = "PARRY causa +25% de dano de Resistência, mas o dano recebido ao errar uma defesa com MISS aumenta em 10%."
+EffectSummary = "PARRY RESISTÊNCIA +25%  /  DANO MISS +10%"
+Category = 7
+Rarity = 1
+EssenceCost = 100
+MaxStacks = 1
+SpecialEffectId = "cursed_rhythm"
+PrimaryValue = 0.25
+SecondaryValue = 0.10

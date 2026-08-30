@@ -15,6 +15,9 @@ public partial class EnemyDataResource : Resource
     [Export(PropertyHint.Range, "1.0,9999.0,1.0")]
     public float MaxPosture { get; set; } = 40.0f;
 
+    [Export(PropertyHint.Range, "0,99999,1")]
+    public int BaseEssenceReward { get; set; } = 50;
+
     [Export(PropertyHint.Range, "0.0,999.0,1.0")]
     public float BaseAttackDamage { get; set; } = 20.0f;
 

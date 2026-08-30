@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "glass_arcana"
+DisplayName = "ARCANO DE VIDRO"
+Description = "Ataques PERFECT causam +15% de dano ao HP, mas o HP máximo é reduzido em 10%."
+EffectSummary = "DANO PERFECT +15%  /  HP MÁXIMO -10%"
+Category = 7
+Rarity = 2
+EssenceCost = 125
+MaxStacks = 2
+SpecialEffectId = "glass_arcana"
+PrimaryValue = 0.15
+SecondaryValue = 0.10

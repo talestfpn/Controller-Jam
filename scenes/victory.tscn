@@ -1,0 +1,272 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://ui/VictoryController.cs" id="1_victory_controller"]
+[ext_resource type="Shader" path="res://shaders/beat_synced_nebula.gdshader" id="2_background_shader"]
+[ext_resource type="Script" path="res://combat/BeatSyncedBackground.cs" id="3_background_script"]
+[ext_resource type="Shader" path="res://shaders/arcane_separator.gdshader" id="4_separator_shader"]
+[ext_resource type="FontFile" path="res://fontes/ferrum/ferrum.otf" id="5_ferrum_font"]
+[ext_resource type="Texture2D" path="res://assets/tudo part1/the resistance boss.png" id="6_boss_art"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_victory_background"]
+resource_local_to_scene = true
+shader = ExtResource("2_background_shader")
+shader_parameter/rhythm_time = 0.0
+shader_parameter/beat_phase = 0.0
+shader_parameter/beat_pulse = 0.0
+shader_parameter/measure_pulse = 0.0
+shader_parameter/octave_count = 6
+shader_parameter/cloud_1_color = Color(0.24, 0.48, 0.88, 0.42)
+shader_parameter/cloud_2_color = Color(0.98, 0.62, 0.3, 0.14)
+shader_parameter/cloud_3_color = Color(0.69, 0.18, 0.72, 0.88)
+shader_parameter/cloud_4_color = Color(0.12, 0.035, 0.28, 1)
+shader_parameter/space_color = Color(0.018, 0.008, 0.075, 1)
+shader_parameter/star_color = Color(0.86, 0.9, 1, 1)
+shader_parameter/beat_glow_color = Color(0.72, 0.3, 1, 1)
+shader_parameter/zoom_scale = 4.6
+shader_parameter/cloud_motion = 0.045
+shader_parameter/star_scale = 38.0
+shader_parameter/star_probability = 0.982
+shader_parameter/star_strength = 0.72
+shader_parameter/aspect_ratio = 1.777778
+shader_parameter/center_offset = Vector2(0, 0)
+shader_parameter/exposure = 0.88
+shader_parameter/vignette_strength = 0.35
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_victory_separator"]
+shader = ExtResource("4_separator_shader")
+shader_parameter/primary_color = Color(0.22, 0.72, 1, 1)
+shader_parameter/secondary_color = Color(0.86, 0.16, 1, 1)
+shader_parameter/speed = 0.35
+shader_parameter/intensity = 0.82
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_victory_panel"]
+bg_color = Color(0.012, 0.006, 0.04, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.72, 0.32, 1, 0.85)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0.5, 0.12, 0.9, 0.48)
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_victory_button"]
+bg_color = Color(0.24, 0.06, 0.42, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.72, 0.32, 0.95)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.76, 0.24, 1, 0.48)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_victory_button_hover"]
+bg_color = Color(0.42, 0.12, 0.68, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.9, 0.58, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.92, 0.4, 1, 0.75)
+shadow_size = 13
+
+[node name="Victory" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture_filter = 1
+theme_override_fonts/font = ExtResource("5_ferrum_font")
+script = ExtResource("1_victory_controller")
+StartingPlayerMaxHealth = 100.0
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+material = SubResource("ShaderMaterial_victory_background")
+z_index = -10
+color = Color(1, 1, 1, 1)
+script = ExtResource("3_background_script")
+BeatPulseStrength = 0.12
+BeatPulseDecay = 7.0
+MeasurePulseStrength = 0.1
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+z_index = -9
+color = Color(0.008, 0.004, 0.025, 0.28)
+
+[node name="TopAccent" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 3.0
+mouse_filter = 2
+material = SubResource("ShaderMaterial_victory_separator")
+color = Color(1, 1, 1, 1)
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 0
+offset_left = 38.0
+offset_top = 24.0
+offset_right = 650.0
+offset_bottom = 66.0
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.02, 0.18, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 29
+text = "THE RESISTANCE"
+
+[node name="Subtitle" type="Label" parent="."]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 62.0
+offset_right = 720.0
+offset_bottom = 90.0
+theme_override_colors/font_color = Color(0.72, 0.78, 0.96, 1)
+theme_override_font_sizes/font_size = 14
+text = "A resistência foi quebrada — a sintonia venceu."
+
+[node name="EssenceTopLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 855.0
+offset_top = 30.0
+offset_right = 1114.0
+offset_bottom = 66.0
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_font_sizes/font_size = 19
+text = "VICTORY"
+horizontal_alignment = 2
+
+[node name="Content" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 116.0
+offset_top = 112.0
+offset_right = 1036.0
+offset_bottom = 574.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_victory_panel")
+
+[node name="VictoryLabel" type="Label" parent="Content"]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 22.0
+offset_right = 720.0
+offset_bottom = 66.0
+theme_override_colors/font_color = Color(0.55, 1, 0.68, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.15, 0.1, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 32
+text = "VICTORY"
+horizontal_alignment = 1
+
+[node name="EnemyNameLabel" type="Label" parent="Content"]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 67.0
+offset_right = 720.0
+offset_bottom = 104.0
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.14, 0.04, 0.22, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 21
+text = "THE RESISTANCE"
+horizontal_alignment = 1
+
+[node name="Accent" type="ColorRect" parent="Content"]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 112.0
+offset_right = 720.0
+offset_bottom = 115.0
+mouse_filter = 2
+material = SubResource("ShaderMaterial_victory_separator")
+color = Color(1, 1, 1, 1)
+
+[node name="SummaryLabel" type="Label" parent="Content"]
+layout_mode = 0
+offset_left = 46.0
+offset_top = 150.0
+offset_right = 696.0
+offset_bottom = 224.0
+theme_override_colors/font_color = Color(0.75, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "PERFECT  0    GOOD  0    OK  0    MISS  0\nMELHOR COMBO  x0    EXECUÇÕES  0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EssenceLabel" type="Label" parent="Content"]
+layout_mode = 0
+offset_left = 42.0
+offset_top = 254.0
+offset_right = 700.0
+offset_bottom = 291.0
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_font_sizes/font_size = 19
+text = "ESSENCE OBTIDA  +000    TOTAL  000"
+horizontal_alignment = 1
+
+[node name="BossArt" type="TextureRect" parent="Content"]
+layout_mode = 0
+offset_left = 735.0
+offset_top = 32.0
+offset_right = 885.0
+offset_bottom = 420.0
+mouse_filter = 2
+texture_filter = 1
+texture = ExtResource("6_boss_art")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1, 1, 1, 0.9)
+
+[node name="ContinueButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 408.0
+offset_top = 596.0
+offset_right = 744.0
+offset_bottom = 632.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(1, 0.93, 0.78, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("5_ferrum_font")
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_victory_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_victory_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_victory_button_hover")
+text = "NOVA RUN"
+
+[node name="StatusLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 260.0
+offset_top = 638.0
+offset_right = 892.0
+offset_bottom = 660.0
+theme_override_colors/font_color = Color(0.72, 0.8, 0.96, 1)
+theme_override_font_sizes/font_size = 13
+text = "SPACE — iniciar uma nova run"
+horizontal_alignment = 1

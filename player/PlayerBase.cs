@@ -19,6 +19,8 @@ public partial class PlayerBase : Node2D
     private Polygon2D _bodyPlaceholder = null!;
     private Polygon2D _corePlaceholder = null!;
     private Timer _damageFlashTimer = null!;
+    private Tween? _damageTween;
+    private Vector2 _basePosition;
     private float _currentHealth;
     private bool _isDead;
 
@@ -31,6 +33,7 @@ public partial class PlayerBase : Node2D
         _corePlaceholder = GetNode<Polygon2D>("CorePlaceholder");
         _damageFlashTimer = GetNode<Timer>("DamageFlashTimer");
         _damageFlashTimer.Timeout += OnDamageFlashTimeout;
+        _basePosition = Position;
 
         ResetHealth();
     }
@@ -72,6 +75,24 @@ public partial class PlayerBase : Node2D
         EmitSignal(SignalName.HealthChanged, _currentHealth, MaxHealth);
     }
 
+    public void SetCurrentHealth(float health)
+    {
+        _currentHealth = Mathf.Clamp(health, 0.0f, MaxHealth);
+        _isDead = _currentHealth <= 0.0f;
+        ResetDamageFeedback();
+        EmitSignal(SignalName.HealthChanged, _currentHealth, MaxHealth);
+    }
+
+    public void SetMaxHealth(float maxHealth)
+    {
+        MaxHealth = Mathf.Max(1.0f, maxHealth);
+        _currentHealth = Mathf.Clamp(_currentHealth, 0.0f, MaxHealth);
+        if (IsNodeReady())
+        {
+            EmitSignal(SignalName.HealthChanged, _currentHealth, MaxHealth);
+        }
+    }
+
     public void ResetHealth()
     {
         _isDead = false;
@@ -82,9 +103,19 @@ public partial class PlayerBase : Node2D
 
     private void PlayDamageFeedback()
     {
+        _damageTween?.Kill();
         _bodyPlaceholder.Modulate = new Color(1.0f, 0.35f, 0.35f, 1.0f);
         _corePlaceholder.Modulate = new Color(1.0f, 0.75f, 0.75f, 1.0f);
-        Scale = Vector2.One * 1.06f;
+        Position = _basePosition + new Vector2(-16.0f, 3.0f);
+        Rotation = -0.045f;
+        Scale = new Vector2(0.94f, 1.08f);
+
+        _damageTween = CreateTween().SetParallel(true);
+        _damageTween.SetEase(Tween.EaseType.Out);
+        _damageTween.SetTrans(Tween.TransitionType.Back);
+        _damageTween.TweenProperty(this, "position", _basePosition, 0.26d);
+        _damageTween.TweenProperty(this, "rotation", 0.0f, 0.24d);
+        _damageTween.TweenProperty(this, "scale", Vector2.One, 0.26d);
         _damageFlashTimer.Start();
     }
 
@@ -92,6 +123,8 @@ public partial class PlayerBase : Node2D
     {
         _bodyPlaceholder.Modulate = Colors.White;
         _corePlaceholder.Modulate = Colors.White;
+        Position = _basePosition;
+        Rotation = 0.0f;
         Scale = Vector2.One;
     }
 

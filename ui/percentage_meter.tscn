@@ -1,0 +1,106 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://ui/PercentageMeter.cs" id="1_meter_script"]
+[ext_resource type="Texture2D" path="res://assets/health-bar/Pixel Bar Starter Pack/Bar_Body.png" id="2_bar_body"]
+[ext_resource type="Texture2D" path="res://assets/health-bar/Pixel Bar Starter Pack/Bar_Fill_Red.png" id="3_fill_red"]
+[ext_resource type="Shader" path="res://shaders/percentage_meter_texture.gdshader" id="4_fill_shader"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_meter"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_meter"]
+resource_local_to_scene = true
+shader = ExtResource("4_fill_shader")
+shader_parameter/value_ratio = 1.0
+shader_parameter/fill_color = Color(1, 0.08, 0.3, 1)
+shader_parameter/frame_color = Color(1, 0.38, 0.62, 1)
+shader_parameter/empty_color = Color(0.025, 0.012, 0.04, 0.9)
+shader_parameter/glow_strength = 0.3
+shader_parameter/body_texture = ExtResource("2_bar_body")
+shader_parameter/inner_left = 0.0833333
+shader_parameter/inner_top = 0.272727
+shader_parameter/inner_right = 0.916667
+shader_parameter/inner_bottom = 0.636364
+shader_parameter/fill_crop_left = 0.0652174
+shader_parameter/fill_crop_right = 0.934783
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_trail"]
+resource_local_to_scene = true
+shader = ExtResource("4_fill_shader")
+shader_parameter/value_ratio = 1.0
+shader_parameter/fill_color = Color(1, 0.55, 0.2, 1)
+shader_parameter/frame_color = Color(1, 0.38, 0.3, 1)
+shader_parameter/empty_color = Color(0.025, 0.012, 0.04, 0.9)
+shader_parameter/glow_strength = 0.2
+shader_parameter/body_texture = ExtResource("2_bar_body")
+shader_parameter/inner_left = 0.0833333
+shader_parameter/inner_top = 0.272727
+shader_parameter/inner_right = 0.916667
+shader_parameter/inner_bottom = 0.636364
+shader_parameter/fill_crop_left = 0.0652174
+shader_parameter/fill_crop_right = 0.934783
+
+[node name="PercentageMeter" type="ProgressBar"]
+custom_minimum_size = Vector2(240, 30)
+mouse_filter = 2
+texture_filter = 1
+theme_override_styles/background = SubResource("StyleBoxEmpty_meter")
+theme_override_styles/fill = SubResource("StyleBoxEmpty_meter")
+value = 100.0
+show_percentage = false
+FillTexture = ExtResource("3_fill_red")
+script = ExtResource("1_meter_script")
+
+[node name="BarBody" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture_filter = 1
+texture = ExtResource("2_bar_body")
+expand_mode = 1
+stretch_mode = 0
+z_index = -2
+
+[node name="TrailVisual" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_trail")
+layout_mode = 1
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture_filter = 1
+texture = ExtResource("3_fill_red")
+expand_mode = 1
+stretch_mode = 0
+z_index = -1
+
+[node name="MeterVisual" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_meter")
+layout_mode = 1
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture_filter = 1
+texture = ExtResource("3_fill_red")
+expand_mode = 1
+stretch_mode = 0

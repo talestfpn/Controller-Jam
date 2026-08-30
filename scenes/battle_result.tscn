@@ -1,0 +1,623 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://ui/BattleResultController.cs" id="1_result_controller"]
+[ext_resource type="PackedScene" path="res://scenes/shop.tscn" id="2_shop_scene"]
+[ext_resource type="Shader" path="res://shaders/beat_synced_nebula.gdshader" id="3_background_shader"]
+[ext_resource type="Script" path="res://combat/BeatSyncedBackground.cs" id="4_background_script"]
+[ext_resource type="Shader" path="res://shaders/arcane_separator.gdshader" id="5_separator_shader"]
+[ext_resource type="FontFile" path="res://fontes/ferrum/ferrum.otf" id="6_ferrum_font"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_result_background"]
+resource_local_to_scene = true
+shader = ExtResource("3_background_shader")
+shader_parameter/rhythm_time = 0.0
+shader_parameter/beat_phase = 0.0
+shader_parameter/beat_pulse = 0.0
+shader_parameter/measure_pulse = 0.0
+shader_parameter/octave_count = 6
+shader_parameter/cloud_1_color = Color(0.24, 0.48, 0.88, 0.42)
+shader_parameter/cloud_2_color = Color(0.98, 0.62, 0.3, 0.14)
+shader_parameter/cloud_3_color = Color(0.69, 0.18, 0.72, 0.88)
+shader_parameter/cloud_4_color = Color(0.12, 0.035, 0.28, 1)
+shader_parameter/space_color = Color(0.018, 0.008, 0.075, 1)
+shader_parameter/star_color = Color(0.86, 0.9, 1, 1)
+shader_parameter/beat_glow_color = Color(0.72, 0.3, 1, 1)
+shader_parameter/zoom_scale = 4.6
+shader_parameter/cloud_motion = 0.045
+shader_parameter/star_scale = 38.0
+shader_parameter/star_probability = 0.982
+shader_parameter/star_strength = 0.72
+shader_parameter/aspect_ratio = 1.777778
+shader_parameter/center_offset = Vector2(0, 0)
+shader_parameter/exposure = 0.88
+shader_parameter/vignette_strength = 0.35
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_result_separator"]
+shader = ExtResource("5_separator_shader")
+shader_parameter/primary_color = Color(0.22, 0.72, 1, 1)
+shader_parameter/secondary_color = Color(0.86, 0.16, 1, 1)
+shader_parameter/speed = 0.35
+shader_parameter/intensity = 0.78
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result_content"]
+bg_color = Color(0.012, 0.008, 0.04, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.2, 0.92, 0.72)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0.36, 0.08, 0.72, 0.34)
+shadow_size = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result_section"]
+bg_color = Color(0.035, 0.018, 0.09, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.2, 0.7, 0.42)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result_button"]
+bg_color = Color(0.28, 0.06, 0.48, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0.38, 1, 0.9)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+shadow_color = Color(0.72, 0.18, 1, 0.46)
+shadow_size = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result_button_hover"]
+bg_color = Color(0.42, 0.1, 0.66, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.96, 0.72, 1, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+shadow_color = Color(0.82, 0.3, 1, 0.66)
+shadow_size = 10
+
+[node name="BattleResult" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture_filter = 1
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+script = ExtResource("1_result_controller")
+ShopScene = ExtResource("2_shop_scene")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+material = SubResource("ShaderMaterial_result_background")
+z_index = -10
+color = Color(1, 1, 1, 1)
+script = ExtResource("4_background_script")
+BeatPulseStrength = 0.1
+BeatPulseDecay = 7.0
+MeasurePulseStrength = 0.08
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+z_index = -9
+color = Color(0.008, 0.004, 0.025, 0.34)
+
+[node name="TopAccent" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 3.0
+grow_horizontal = 2
+mouse_filter = 2
+material = SubResource("ShaderMaterial_result_separator")
+color = Color(1, 1, 1, 1)
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 0
+offset_left = 34.0
+offset_top = 18.0
+offset_right = 600.0
+offset_bottom = 54.0
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.12, 0.02, 0.2, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 26
+text = "THE RESISTANCE"
+
+[node name="Subtitle" type="Label" parent="."]
+layout_mode = 0
+offset_left = 36.0
+offset_top = 53.0
+offset_right = 800.0
+offset_bottom = 78.0
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_colors/font_color = Color(0.7, 0.76, 0.94, 1)
+theme_override_font_sizes/font_size = 14
+text = "A batalha terminou — sua sintonia foi registrada"
+
+[node name="Content" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 135.0
+offset_top = 94.0
+offset_right = 1017.0
+offset_bottom = 566.0
+mouse_filter = 2
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_styles/panel = SubResource("StyleBoxFlat_result_content")
+
+[node name="VictoryLabel" type="Label" parent="Content"]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 17.0
+offset_right = 852.0
+offset_bottom = 58.0
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_colors/font_color = Color(0.55, 1, 0.68, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.15, 0.1, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 31
+text = "VICTORY"
+horizontal_alignment = 1
+
+[node name="EnemyNameLabel" type="Label" parent="Content"]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 58.0
+offset_right = 852.0
+offset_bottom = 92.0
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.14, 0.04, 0.22, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 21
+text = "THE FOOL"
+horizontal_alignment = 1
+
+[node name="Accent" type="ColorRect" parent="Content"]
+material = SubResource("ShaderMaterial_result_separator")
+layout_mode = 0
+offset_left = 30.0
+offset_top = 99.0
+offset_right = 852.0
+offset_bottom = 102.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="Performance" type="Panel" parent="Content"]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 119.0
+offset_right = 406.0
+offset_bottom = 390.0
+mouse_filter = 2
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_styles/panel = SubResource("StyleBoxFlat_result_section")
+
+[node name="Title" type="Label" parent="Content/Performance"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 13.0
+offset_right = 358.0
+offset_bottom = 39.0
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_colors/font_color = Color(0.62, 0.75, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "BATTLE PERFORMANCE"
+horizontal_alignment = 1
+
+[node name="PerfectRow" type="HBoxContainer" parent="Content/Performance"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 51.0
+offset_right = 358.0
+offset_bottom = 77.0
+theme_override_constants/separation = 8
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Content/Performance/PerfectRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.42, 1, 0.48, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 16
+text = "PERFECT"
+
+[node name="Value" type="Label" parent="Content/Performance/PerfectRow"]
+custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 1, 0.48, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 16
+text = "0"
+horizontal_alignment = 2
+
+[node name="GoodRow" type="HBoxContainer" parent="Content/Performance"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 83.0
+offset_right = 358.0
+offset_bottom = 109.0
+theme_override_constants/separation = 8
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Content/Performance/GoodRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.45, 1, 0.72, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 16
+text = "GOOD"
+
+[node name="Value" type="Label" parent="Content/Performance/GoodRow"]
+custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 1, 0.72, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 16
+text = "0"
+horizontal_alignment = 2
+
+[node name="OkRow" type="HBoxContainer" parent="Content/Performance"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 115.0
+offset_right = 358.0
+offset_bottom = 141.0
+theme_override_constants/separation = 8
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Content/Performance/OkRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.48, 0.78, 1, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 16
+text = "OK"
+
+[node name="Value" type="Label" parent="Content/Performance/OkRow"]
+custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.78, 1, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 16
+text = "0"
+horizontal_alignment = 2
+
+[node name="MissRow" type="HBoxContainer" parent="Content/Performance"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 147.0
+offset_right = 358.0
+offset_bottom = 173.0
+theme_override_constants/separation = 8
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Content/Performance/MissRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.38, 0.46, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 16
+text = "MISS"
+
+[node name="Value" type="Label" parent="Content/Performance/MissRow"]
+custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.38, 0.46, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 16
+text = "0"
+horizontal_alignment = 2
+
+[node name="HighestComboRow" type="HBoxContainer" parent="Content/Performance"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 191.0
+offset_right = 358.0
+offset_bottom = 217.0
+theme_override_constants/separation = 8
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Content/Performance/HighestComboRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 17
+text = "BEST COMBO"
+
+[node name="Value" type="Label" parent="Content/Performance/HighestComboRow"]
+custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 17
+text = "x0"
+horizontal_alignment = 2
+
+[node name="ExecutionRow" type="HBoxContainer" parent="Content/Performance"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 225.0
+offset_right = 358.0
+offset_bottom = 251.0
+theme_override_constants/separation = 8
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Content/Performance/ExecutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8, 0.55, 1, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 16
+text = "EXECUTIONS"
+
+[node name="Value" type="Label" parent="Content/Performance/ExecutionRow"]
+custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.55, 1, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 16
+text = "0"
+horizontal_alignment = 2
+
+[node name="Rewards" type="Panel" parent="Content"]
+layout_mode = 0
+offset_left = 446.0
+offset_top = 119.0
+offset_right = 852.0
+offset_bottom = 390.0
+mouse_filter = 2
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_styles/panel = SubResource("StyleBoxFlat_result_section")
+
+[node name="Title" type="Label" parent="Content/Rewards"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 13.0
+offset_right = 388.0
+offset_bottom = 39.0
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_colors/font_color = Color(0.62, 0.75, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "ESSENCE REWARD"
+horizontal_alignment = 1
+
+[node name="BaseRewardRow" type="HBoxContainer" parent="Content/Rewards"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 51.0
+offset_right = 388.0
+offset_bottom = 77.0
+theme_override_constants/separation = 8
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Content/Rewards/BaseRewardRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.86, 0.78, 0.58, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 15
+text = "BASE ESSENCE"
+
+[node name="Value" type="Label" parent="Content/Rewards/BaseRewardRow"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.78, 0.58, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 15
+text = "+0"
+horizontal_alignment = 2
+
+[node name="PerfectBonusRow" type="HBoxContainer" parent="Content/Rewards"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 83.0
+offset_right = 388.0
+offset_bottom = 109.0
+theme_override_constants/separation = 8
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Content/Rewards/PerfectBonusRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.44, 1, 0.52, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 15
+text = "PERFECT BONUS"
+
+[node name="Value" type="Label" parent="Content/Rewards/PerfectBonusRow"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.44, 1, 0.52, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 15
+text = "+0"
+horizontal_alignment = 2
+
+[node name="ExecutionBonusRow" type="HBoxContainer" parent="Content/Rewards"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 115.0
+offset_right = 388.0
+offset_bottom = 141.0
+theme_override_constants/separation = 8
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Content/Rewards/ExecutionBonusRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.78, 0.58, 1, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 15
+text = "EXECUTION BONUS"
+
+[node name="Value" type="Label" parent="Content/Rewards/ExecutionBonusRow"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.58, 1, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 15
+text = "+0"
+horizontal_alignment = 2
+
+[node name="MultiplierRow" type="HBoxContainer" parent="Content/Rewards"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 147.0
+offset_right = 388.0
+offset_bottom = 173.0
+theme_override_constants/separation = 8
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Content/Rewards/MultiplierRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.56, 0.8, 1, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 15
+text = "COMBO MULTIPLIER"
+
+[node name="Value" type="Label" parent="Content/Rewards/MultiplierRow"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.56, 0.8, 1, 1)
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 15
+text = "x1.00"
+horizontal_alignment = 2
+
+[node name="TotalRewardRow" type="HBoxContainer" parent="Content/Rewards"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 194.0
+offset_right = 388.0
+offset_bottom = 228.0
+theme_override_constants/separation = 8
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Content/Rewards/TotalRewardRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.84, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.18, 0.06, 0.28, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 20
+text = "TOTAL ESSENCE"
+
+[node name="Value" type="Label" parent="Content/Rewards/TotalRewardRow"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.84, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.18, 0.06, 0.28, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 20
+text = "+0"
+horizontal_alignment = 2
+
+[node name="OwnedEssenceRow" type="HBoxContainer" parent="Content"]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 408.0
+offset_right = 852.0
+offset_bottom = 440.0
+theme_override_constants/separation = 8
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Content/OwnedEssenceRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.98, 0.92, 0.56, 1)
+theme_override_colors/font_outline_color = Color(0.12, 0.04, 0.2, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 19
+text = "ESSENCE OWNED"
+horizontal_alignment = 2
+
+[node name="Value" type="Label" parent="Content/OwnedEssenceRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.92, 0.56, 1)
+theme_override_colors/font_outline_color = Color(0.12, 0.04, 0.2, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_font_sizes/font_size = 19
+text = "0"
+horizontal_alignment = 2
+
+[node name="ContinueButton" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 386.0
+offset_top = 578.0
+offset_right = 766.0
+offset_bottom = 616.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_colors/font_color = Color(1, 0.93, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_result_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_result_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_result_button_hover")
+text = "CONTINUAR PARA A LOJA"
+
+[node name="ContinueHintLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 250.0
+offset_top = 620.0
+offset_right = 902.0
+offset_bottom = 644.0
+theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_colors/font_color = Color(0.7, 0.76, 0.92, 1)
+theme_override_font_sizes/font_size = 13
+text = "SPACE — continuar para a loja"
+horizontal_alignment = 1

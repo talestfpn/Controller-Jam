@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyDataResource" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://resources/EnemyDataResource.cs" id="1_data"]
+[ext_resource type="PackedScene" path="res://enemies/knight_of_swords.tscn" id="2_scene"]
+[ext_resource type="Resource" path="res://resources/knight_of_swords_rhythm_profile.tres" id="3_profile"]
+
+[resource]
+script = ExtResource("1_data")
+EnemyName = "KNIGHT OF SWORDS"
+MaxHealth = 185.0
+MaxPosture = 45.0
+BaseEssenceReward = 75
+BaseAttackDamage = 12.0
+Armored = false
+HealthDamageMultiplierWhilePostureActive = 1.0
+EnemyScene = ExtResource("2_scene")
+RhythmProfile = ExtResource("3_profile")

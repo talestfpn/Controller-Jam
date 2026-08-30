@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "sharp_rhythm"
+DisplayName = "RITMO AFIADO"
+Description = "Ataques PERFECT causam +12% de dano ao HP, mas o dano de Resistência é reduzido em 8%."
+EffectSummary = "DANO PERFECT +12%  /  RESISTÊNCIA -8%"
+Category = 0
+Rarity = 1
+EssenceCost = 85
+MaxStacks = 2
+SpecialEffectId = "sharp_rhythm"
+PrimaryValue = 0.12
+SecondaryValue = 0.08

@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EnemyRhythmProfileResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/EnemyRhythmProfileResource.cs" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+ProfileName = "The Resistance — Phase 7"
+DifficultyLevel = 8
+EventDensity = 0.9
+PlayerAttackWeight = 3.8
+EnemyAttackWeight = 6.2
+MinimumSpacingBeats = 1.5
+PreferredSpacingBeats = 2.0
+AllowHalfBeats = true
+HalfBeatChance = 0.8
+BurstChance = 0.15
+MinBurstLength = 2
+MaxBurstLength = 2
+BurstSpacingBeats = 1.5
+AlternationChance = 0.7
+DefenseChainChance = 0.25
+BaseActionBias = 0.25
+StrongBeatPreference = 0.2
+HeavyEventPreference = 0.45
+FeintChance = 0.08
+VisualFadeChance = 0.03
+DecoyChance = 0.02
+FadeBeatsBeforeTarget = 0.5
+FeintStrength = 0.1
+TelegraphBeats = 1.25

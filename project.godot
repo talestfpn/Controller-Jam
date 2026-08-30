@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Prototipo_Jam"
-run/main_scene="res://scenes/combat_test.tscn"
+config/name="The Resistance"
+run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -22,6 +22,8 @@ default_bus_layout="res://default_bus_layout.tres"
 [autoload]
 
 RhythmManager="*res://autoload/rhythm_manager.tscn"
+RunManager="*res://autoload/RunManager.cs"
+SceneTransitionManager="*res://autoload/scene_transition_manager.tscn"
 
 [display]
 

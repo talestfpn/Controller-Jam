@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://enemies/enemy_base.tscn" id="1_base"]
+[ext_resource type="Texture2D" path="res://assets/tudo part1/king of wands.png" id="2_king_of_wands"]
+
+[node name="KingOfWands" instance=ExtResource("1_base")]
+
+[node name="VisualArt" parent="." index="2"]
+visible = true
+texture = ExtResource("2_king_of_wands")
+scale = Vector2(0.0628, 0.0628)
+texture_filter = 1
+
+[node name="CardFrame" parent="." index="5"]
+visible = false
+
+[node name="BodyPlaceholder" parent="." index="0"]
+visible = false
+
+[node name="CorePlaceholder" parent="." index="1"]
+visible = false

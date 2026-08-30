@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "flow_state"
+DisplayName = "ESTADO DE FLUXO"
+Description = "Ao alcançar um novo nível de Combo, recupera 3 HP."
+EffectSummary = "NOVO NÍVEL DE COMBO  /  RECUPERA 3 HP"
+Category = 3
+Rarity = 0
+EssenceCost = 70
+MaxStacks = 1
+SpecialEffectId = "flow_state"
+PrimaryValue = 3.0

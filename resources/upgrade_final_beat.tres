@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "final_beat"
+DisplayName = "BATIDA FINAL"
+Description = "Ataques PERFECT contra inimigos abaixo de 30% do HP causam +15% de dano."
+EffectSummary = "INIMIGO COM HP BAIXO  /  DANO PERFECT +15%"
+Category = 0
+Rarity = 2
+EssenceCost = 120
+MaxStacks = 1
+SpecialEffectId = "final_beat"
+PrimaryValue = 0.15
+SecondaryValue = 0.30

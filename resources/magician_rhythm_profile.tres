@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EnemyRhythmProfileResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/EnemyRhythmProfileResource.cs" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+ProfileName = "The Magician"
+DifficultyLevel = 5
+EventDensity = 0.78
+PlayerAttackWeight = 5.5
+EnemyAttackWeight = 4.5
+MinimumSpacingBeats = 2.0
+PreferredSpacingBeats = 2.75
+AllowHalfBeats = true
+HalfBeatChance = 0.65
+BurstChance = 0.06
+MinBurstLength = 2
+MaxBurstLength = 2
+BurstSpacingBeats = 1.5
+AlternationChance = 0.42
+DefenseChainChance = 0.12
+BaseActionBias = 0.18
+StrongBeatPreference = 0.35
+HeavyEventPreference = 0.2
+FeintChance = 0.20
+VisualFadeChance = 0.10
+DecoyChance = 0.12
+FadeBeatsBeforeTarget = 0.5
+FeintStrength = 0.1
+TelegraphBeats = 1.5

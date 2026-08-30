@@ -8,5 +8,5 @@ script = ExtResource("1_validation")
 CombatScene = ExtResource("2_combat")
 ValidationDurationSeconds = 30.0
 EnemyIndex = 5
-ExpectedEnemyName = "THE KNIGHT"
+ExpectedEnemyName = "KNIGHT OF PENTACLES"
 RequireArmor = true

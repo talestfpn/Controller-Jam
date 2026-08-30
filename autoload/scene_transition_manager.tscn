@@ -1,0 +1,50 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://autoload/SceneTransitionManager.cs" id="1_transition_manager"]
+[ext_resource type="Shader" path="res://shaders/scene_transition_patterns.gdshader" id="2_transition_shader"]
+[ext_resource type="Texture2D" path="res://assets/transitions/arcane_transition_pattern.svg" id="3_transition_pattern"]
+[ext_resource type="PackedScene" path="res://scenes/combat_test.tscn" id="4_combat_scene"]
+
+[sub_resource type="Gradient" id="Gradient_transition"]
+offsets = PackedFloat32Array(0, 0.46, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.44, 0.2, 0.7, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_transition"]
+gradient = SubResource("Gradient_transition")
+width = 256
+height = 256
+fill_from = Vector2(0, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_transition"]
+shader = ExtResource("2_transition_shader")
+shader_parameter/base_color = Color(0.02, 0.006, 0.07, 1)
+shader_parameter/node_resolution = Vector2(1152, 648)
+shader_parameter/factor = 0.0
+shader_parameter/width = 0.32
+shader_parameter/gradient_texture = SubResource("GradientTexture2D_transition")
+shader_parameter/gradient_fixed = false
+shader_parameter/shape_texture = ExtResource("3_transition_pattern")
+shader_parameter/shape_tiling = 3.0
+shader_parameter/shape_rotation = -8.0
+shader_parameter/shape_scroll = Vector2(0.018, -0.012)
+shader_parameter/shape_feathering = 0.08
+shader_parameter/shape_treshold = 0.72
+
+[node name="SceneTransitionManager" type="CanvasLayer"]
+layer = 1000
+process_mode = 3
+script = ExtResource("1_transition_manager")
+CoverDuration = 0.46
+RevealDuration = 0.52
+CombatScene = ExtResource("4_combat_scene")
+
+[node name="TransitionOverlay" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+material = SubResource("ShaderMaterial_transition")
+color = Color(1, 1, 1, 1)

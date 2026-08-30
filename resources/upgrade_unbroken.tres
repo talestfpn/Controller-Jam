@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "unbroken"
+DisplayName = "INABALÁVEL"
+Description = "O primeiro OK enquanto o Combo estiver em 10+ reduz o Combo em apenas 25%."
+EffectSummary = "PRIMEIRO OK NO COMBO 10+  /  PERDA -25%"
+Category = 3
+Rarity = 2
+EssenceCost = 120
+MaxStacks = 1
+SpecialEffectId = "unbroken"
+PrimaryValue = 0.25
+SecondaryValue = 10.0

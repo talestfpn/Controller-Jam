@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "soul_cut"
+DisplayName = "CORTE DA ALMA"
+Description = "Uma Execução bem-sucedida recupera 5 HP."
+EffectSummary = "EXECUÇÃO  /  RECUPERA 5 HP"
+Category = 5
+Rarity = 0
+EssenceCost = 70
+MaxStacks = 2
+SpecialEffectId = "soul_cut"
+PrimaryValue = 5.0

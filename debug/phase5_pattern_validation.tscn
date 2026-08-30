@@ -2,22 +2,22 @@
 
 [ext_resource type="Script" path="res://debug/Phase5PatternValidation.cs" id="1_validation"]
 [ext_resource type="Resource" path="res://resources/jogo_generated_pattern.tres" id="2_base_pattern"]
-[ext_resource type="Resource" path="res://resources/initiate_rhythm_profile.tres" id="3_initiate"]
-[ext_resource type="Resource" path="res://resources/brute_rhythm_profile.tres" id="4_brute"]
-[ext_resource type="Resource" path="res://resources/duelist_rhythm_profile.tres" id="5_duelist"]
+[ext_resource type="Resource" path="res://resources/fool_rhythm_profile.tres" id="3_fool"]
+[ext_resource type="Resource" path="res://resources/tower_rhythm_profile.tres" id="4_tower"]
+[ext_resource type="Resource" path="res://resources/justice_rhythm_profile.tres" id="5_justice"]
 [ext_resource type="PackedScene" path="res://combat/rhythm_prompt.tscn" id="6_prompt"]
-[ext_resource type="Resource" path="res://resources/the_initiate_data.tres" id="7_initiate_data"]
-[ext_resource type="Resource" path="res://resources/the_brute_data.tres" id="8_brute_data"]
-[ext_resource type="Resource" path="res://resources/the_duelist_data.tres" id="9_duelist_data"]
+[ext_resource type="Resource" path="res://resources/the_fool_data.tres" id="7_fool_data"]
+[ext_resource type="Resource" path="res://resources/the_tower_data.tres" id="8_tower_data"]
+[ext_resource type="Resource" path="res://resources/justice_data.tres" id="9_justice_data"]
 
 [node name="Phase5PatternValidation" type="Node"]
 script = ExtResource("1_validation")
 BasePattern = ExtResource("2_base_pattern")
-InitiateProfile = ExtResource("3_initiate")
-BruteProfile = ExtResource("4_brute")
-DuelistProfile = ExtResource("5_duelist")
+FoolProfile = ExtResource("3_fool")
+TowerProfile = ExtResource("4_tower")
+JusticeProfile = ExtResource("5_justice")
 PromptScene = ExtResource("6_prompt")
-InitiateData = ExtResource("7_initiate_data")
-BruteData = ExtResource("8_brute_data")
-DuelistData = ExtResource("9_duelist_data")
+FoolData = ExtResource("7_fool_data")
+TowerData = ExtResource("8_tower_data")
+JusticeData = ExtResource("9_justice_data")
 Seed = 12345

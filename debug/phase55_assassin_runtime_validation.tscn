@@ -8,6 +8,6 @@ script = ExtResource("1_validation")
 CombatScene = ExtResource("2_combat")
 ValidationDurationSeconds = 60.0
 EnemyIndex = 3
-ExpectedEnemyName = "THE ASSASSIN"
+ExpectedEnemyName = "KNIGHT OF SWORDS"
 RequireHalfBeats = true
 RequireBursts = true

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "pressure"
+DisplayName = "PRESSÃO"
+Description = "PARRY causa +15% de dano de Resistência."
+EffectSummary = "PARRY  /  RESISTÊNCIA +15%"
+Category = 2
+Rarity = 1
+EssenceCost = 85
+MaxStacks = 2
+SpecialEffectId = "pressure"
+PrimaryValue = 0.15

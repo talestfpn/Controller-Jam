@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "momentum"
+DisplayName = "IMPULSO"
+Description = "Com Combo 5/10/20+, o dano PERFECT recebe +5%/+8%/+12%."
+EffectSummary = "COMBO 5 / 10 / 20  /  DANO PERFECT +5 / +8 / +12%"
+Category = 3
+Rarity = 1
+EssenceCost = 95
+MaxStacks = 1
+SpecialEffectId = "momentum"
+PrimaryValue = 0.05
+SecondaryValue = 0.08
+TertiaryValue = 0.12

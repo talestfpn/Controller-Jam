@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "steady_hand"
+DisplayName = "MÃO FIRME"
+Description = "Um timing defensivo GOOD reduz o dano recebido em 10%."
+EffectSummary = "DEFESA GOOD  /  DANO -10%"
+Category = 2
+Rarity = 0
+EssenceCost = 65
+MaxStacks = 2
+SpecialEffectId = "steady_hand"
+PrimaryValue = 0.10

@@ -33,6 +33,18 @@ public partial class CombatController : Node2D
     [Export]
     public TimingConfig TimingConfig { get; set; } = null!;
 
+    [Export]
+    public BattleRewardConfig RewardConfig { get; set; } = null!;
+
+    [Export]
+    public PackedScene BattleResultScene { get; set; } = null!;
+
+    [Export]
+    public PackedScene VictoryScene { get; set; } = null!;
+
+    [Export]
+    public PackedScene CombatValueFeedbackScene { get; set; } = null!;
+
     [Export(PropertyHint.Range, "0.0,999.0,1.0")]
     public float BaseAttackDamage { get; set; } = 10.0f;
 
@@ -49,12 +61,20 @@ public partial class CombatController : Node2D
     public bool DebugRhythm { get; set; } = true;
 
     [Export]
+    public bool EnableEnemySelectionHotkeys { get; set; } = true;
+
+    [Export(PropertyHint.Range, "-1,6,1")]
+    public int DebugBossPhase { get; set; } = -1;
+
+    [Export]
     public bool DebugComboTrainingDummy { get; set; }
 
     [Export(PropertyHint.Range, "100.0,9999.0,100.0")]
     public float DebugComboDummyHealth { get; set; } = 1000.0f;
 
     private RhythmManager _rhythmManager = null!;
+    private RunManager _runManager = null!;
+    private SceneTransitionManager _sceneTransitionManager = null!;
     private ResourcePreloader _sceneResources = null!;
     private Node2D _promptContainer = null!;
     private Node2D _enemyContainer = null!;
@@ -74,11 +94,17 @@ public partial class CombatController : Node2D
     private CombatState _combatState = CombatState.Running;
     private RhythmPatternResource? _encounterPattern;
     private EnemyDataResource? _selectedEnemyData;
+    private BossDataResource? _selectedBossData;
+    private BossController? _bossController;
     private EnemyRhythmProfileResource? _activeRhythmProfile;
     private EncounterPatternStats? _encounterStats;
     private int _selectedEnemyIndex;
     private int _activeRhythmPhaseIndex = -1;
     private int _pendingRhythmPhaseIndex = -1;
+    private int _activeBossPhaseIndex = -1;
+    private int _pendingBossPhaseIndex = -1;
+    private bool _bossPhaseTransitionActive;
+    private int _transitioningBossPhaseIndex = -1;
 
     private Label _bpmLabel = null!;
     private Label _beatLabel = null!;
@@ -106,19 +132,36 @@ public partial class CombatController : Node2D
     private Label _enemySelectionLabel = null!;
     private Label _profileDebugLabel = null!;
     private Label _patternPreviewLabel = null!;
-    private Control _comboPanel = null!;
+    private ArcaneComboDisplay _comboPanel = null!;
+    private ArcaneCombatAtmosphere _arcaneAtmosphere = null!;
+    private Control _combatValueFeedbackLayer = null!;
     private Control _debugPanel = null!;
     private Timer _executionDelayTimer = null!;
     private Timer _comboFeedbackTimer = null!;
+    private Timer? _bossPhaseTransitionTimer;
+    private Control? _bossPhaseTransitionPanel;
+    private Label? _bossPhaseTransitionTitle;
+    private Label? _bossPhaseTransitionSubtitle;
+    private Label? _bossPhaseTransitionRules;
+    private ShaderMaterial? _bossPhaseTransitionAuraMaterial;
     private ComboManager _comboManager = null!;
     private AudioManager _audioManager = null!;
+    private readonly BattlePerformance _battlePerformance = new();
+    private bool _battleResultQueued;
     private float _lastHealthDamage;
     private float _lastRawHealthDamage;
     private double _comboFeedbackTime;
     private double _comboLabelPunchTime;
     private double _perfectStreakPunchTime;
+    private double _resultPunchTime;
     private Color _comboFeedbackColor = Colors.White;
     private double _beatFeedbackTime;
+    private int _displayedCombo;
+    private int _displayedComboTier;
+    private float _basePlayerMaxHealth;
+    private bool _secondBreathUsedThisCombat;
+    private bool _unbrokenUsedThisCombat;
+    private bool _riposteReady;
 
     public EnemyRhythmProfileResource? ActiveRhythmProfile => _activeRhythmProfile;
     public EncounterPatternStats? EncounterStats => _encounterStats;
@@ -131,6 +174,9 @@ public partial class CombatController : Node2D
     public override void _Ready()
     {
         _rhythmManager = GetNode<RhythmManager>("/root/RhythmManager");
+        _runManager = GetNode<RunManager>("/root/RunManager");
+        _sceneTransitionManager = GetNode<SceneTransitionManager>(
+            "/root/SceneTransitionManager");
         _sceneResources = GetNode<ResourcePreloader>("SceneResources");
         _promptContainer = GetNode<Node2D>("PromptContainer");
         _enemyContainer = GetNode<Node2D>("EnemyContainer");
@@ -141,6 +187,11 @@ public partial class CombatController : Node2D
         _executionDelayTimer.Timeout += OnExecutionDelayTimeout;
         _comboFeedbackTimer = GetNode<Timer>("ComboFeedbackTimer");
         _comboFeedbackTimer.Timeout += OnComboFeedbackTimeout;
+        _bossPhaseTransitionTimer = GetNodeOrNull<Timer>("BossPhaseTransitionTimer");
+        if (_bossPhaseTransitionTimer != null)
+        {
+            _bossPhaseTransitionTimer.Timeout += OnBossPhaseTransitionTimeout;
+        }
 
         _bpmLabel = GetNode<Label>("CanvasLayer/Ui/DebugPanel/BpmLabel");
         _beatLabel = GetNode<Label>("CanvasLayer/Ui/DebugPanel/BeatLabel");
@@ -161,7 +212,11 @@ public partial class CombatController : Node2D
         _statusLabel = GetNode<Label>("CanvasLayer/Ui/StatusLabel");
         _beatIndicator = GetNode<Label>("CanvasLayer/Ui/BeatIndicator");
         _clockSourceLabel = GetNode<Label>("CanvasLayer/Ui/DebugPanel/ClockSourceLabel");
-        _comboPanel = GetNode<Control>("CanvasLayer/Ui/ComboPanel");
+        _comboPanel = GetNode<ArcaneComboDisplay>("CanvasLayer/Ui/ComboPanel");
+        _arcaneAtmosphere = GetNode<ArcaneCombatAtmosphere>(
+            "ArcaneCombatAtmosphere");
+        _combatValueFeedbackLayer = GetNode<Control>(
+            "CanvasLayer/Ui/CombatValueFeedbackLayer");
         _comboLabel = GetNode<Label>("CanvasLayer/Ui/ComboPanel/ComboLabel");
         _comboMultiplierLabel = GetNode<Label>(
             "CanvasLayer/Ui/ComboPanel/ComboMultiplierLabel");
@@ -176,6 +231,17 @@ public partial class CombatController : Node2D
         _patternPreviewLabel = GetNode<Label>(
             "CanvasLayer/Ui/PatternDebugPanel/PatternPreviewLabel");
         _debugPanel = GetNode<Control>("CanvasLayer/Ui/DebugPanel");
+        _bossPhaseTransitionPanel = GetNodeOrNull<Control>(
+            "CanvasLayer/Ui/BossPhaseTransitionPanel");
+        _bossPhaseTransitionTitle = GetNodeOrNull<Label>(
+            "CanvasLayer/Ui/BossPhaseTransitionPanel/PhaseTitle");
+        _bossPhaseTransitionSubtitle = GetNodeOrNull<Label>(
+            "CanvasLayer/Ui/BossPhaseTransitionPanel/PhaseSubtitle");
+        _bossPhaseTransitionRules = GetNodeOrNull<Label>(
+            "CanvasLayer/Ui/BossPhaseTransitionPanel/PhaseRules");
+        var bossPhaseAura = GetNodeOrNull<ColorRect>(
+            "CanvasLayer/Ui/BossPhaseTransitionPanel/Aura");
+        _bossPhaseTransitionAuraMaterial = bossPhaseAura?.Material as ShaderMaterial;
         _debugPanel.Visible = DebugRhythm;
         GetNode<Control>("CanvasLayer/Ui/PatternDebugPanel").Visible = DebugRhythm;
 
@@ -186,22 +252,42 @@ public partial class CombatController : Node2D
         _comboManager.ComboBroken += OnComboBroken;
         _comboManager.TimingResultRegistered += OnTimingResultRegistered;
         _comboManager.ResetForCombat();
+        _battlePerformance.Reset();
+        _battleResultQueued = false;
+        _secondBreathUsedThisCombat = false;
+        _unbrokenUsedThisCombat = false;
+        _riposteReady = false;
         UpdateComboUi();
 
         ResolveSceneReferences();
+        _basePlayerMaxHealth = _player.MaxHealth;
+        var runWasInitialized = _runManager.IsRunInitialized;
+        _runManager.EnsureRunStarted(_basePlayerMaxHealth);
+        _runManager.ClearLastBattleResult();
         FairnessConfig ??= new RhythmFairnessConfigResource();
-        SelectEnemyData(StartingEnemyIndex);
+        var encounterIndex = runWasInitialized
+            ? _runManager.CurrentEncounterIndex
+            : StartingEnemyIndex;
+        if (!runWasInitialized)
+        {
+            _runManager.SetCurrentEncounter(encounterIndex);
+        }
+
+        _player.SetMaxHealth(_runManager.GetEffectivePlayerMaxHealth());
+        SelectEnemyData(encounterIndex);
         BuildEncounterPattern();
         CreateEnemy();
 
         _player.HealthChanged += OnPlayerHealthChanged;
         _player.Died += OnPlayerDied;
+        _player.SetCurrentHealth(_runManager.PlayerCurrentHP);
         OnPlayerHealthChanged(_player.CurrentHealth, _player.MaxHealth);
 
-        _resultLabel.Text = "AGUARDANDO ATAQUE";
-        _resultDetailLabel.Text = "Aperte SPACE quando o círculo amarelo entrar no azul";
+        ShowImportantResult(
+            "AGUARDANDO ATAQUE",
+            "Aperte SPACE quando o círculo amarelo entrar no azul");
         _damageLabel.Text = "DANO: --";
-        _postureDamageLabel.Text = "POSTURE: --";
+        _postureDamageLabel.Text = "RESISTÊNCIA: --";
         _lastIncomingDamageLabel.Text = "Last incoming damage: 0.0";
         _lastHealthDamage = 0.0f;
         _lastRawHealthDamage = 0.0f;
@@ -222,8 +308,16 @@ public partial class CombatController : Node2D
 
     public override void _Process(double delta)
     {
-        if (_combatState == CombatState.Running ||
-            _combatState == CombatState.ResolvingPrompt)
+        if (_bossController != null)
+        {
+            _bossController.ProcessRegeneration(
+                delta,
+                CanCountBossRegenerationTime());
+        }
+
+        if (!_bossPhaseTransitionActive &&
+            (_combatState == CombatState.Running ||
+             _combatState == CombatState.ResolvingPrompt))
         {
             TryApplyPendingRhythmPhase();
             TryScheduleNextPrompt();
@@ -232,7 +326,8 @@ public partial class CombatController : Node2D
                 UpdateWaitingStatus();
             }
         }
-        else if (_combatState == CombatState.ExecutionPrompt)
+        else if (!_bossPhaseTransitionActive &&
+                 _combatState == CombatState.ExecutionPrompt)
         {
             TryScheduleExecutionPrompt();
         }
@@ -252,6 +347,7 @@ public partial class CombatController : Node2D
 
         UpdateComboFeedback(delta);
         UpdateComboPunches(delta);
+        UpdateResultPunch(delta);
     }
 
     public override void _ExitTree()
@@ -266,6 +362,11 @@ public partial class CombatController : Node2D
             _comboFeedbackTimer.Timeout -= OnComboFeedbackTimeout;
         }
 
+        if (_bossPhaseTransitionTimer != null)
+        {
+            _bossPhaseTransitionTimer.Timeout -= OnBossPhaseTransitionTimeout;
+        }
+
         if (_rhythmManager != null)
         {
             _rhythmManager.BeatStarted -= OnBeatStarted;
@@ -273,6 +374,7 @@ public partial class CombatController : Node2D
 
         if (_enemy != null && GodotObject.IsInstanceValid(_enemy))
         {
+            DetachBossControllerSignals();
             _enemy.HealthChanged -= OnEnemyHealthChanged;
             _enemy.PostureChanged -= OnEnemyPostureChanged;
             _enemy.PostureBroken -= OnEnemyPostureBroken;
@@ -318,7 +420,7 @@ public partial class CombatController : Node2D
 
         if (AttackPattern == null)
         {
-            var preloadedPattern = _sceneResources.GetResource("initiate_pattern") as RhythmPatternResource;
+            var preloadedPattern = _sceneResources.GetResource("fool_pattern") as RhythmPatternResource;
             if (preloadedPattern != null)
             {
                 AttackPattern = preloadedPattern;
@@ -331,6 +433,9 @@ public partial class CombatController : Node2D
         _activeRhythmProfile = null;
         _activeRhythmPhaseIndex = -1;
         _pendingRhythmPhaseIndex = -1;
+        _activeBossPhaseIndex = -1;
+        _pendingBossPhaseIndex = -1;
+        _selectedBossData = null;
         if (EnemyRoster.Count == 0)
         {
             _selectedEnemyIndex = 0;
@@ -340,16 +445,33 @@ public partial class CombatController : Node2D
 
         _selectedEnemyIndex = Math.Clamp(requestedIndex, 0, EnemyRoster.Count - 1);
         _selectedEnemyData = EnemyRoster[_selectedEnemyIndex];
+        _selectedBossData = _selectedEnemyData as BossDataResource;
+        if (_selectedBossData != null && _selectedBossData.PhaseCount > 0)
+        {
+            _activeBossPhaseIndex = DebugBossPhase >= 0
+                ? Math.Clamp(DebugBossPhase, 0, _selectedBossData.PhaseCount - 1)
+                : 0;
+        }
     }
 
     private void BuildEncounterPattern()
     {
         var phaseIndex = -1;
-        var profile = _selectedEnemyData == null
-            ? null
-            : _selectedEnemyData.GetRhythmProfileForHealthPercent(
-                1.0f,
-                out phaseIndex);
+        EnemyRhythmProfileResource? profile;
+        if (_selectedBossData != null && _activeBossPhaseIndex >= 0)
+        {
+            phaseIndex = _activeBossPhaseIndex;
+            profile = _selectedBossData.GetBossPhase(phaseIndex)?.RhythmProfile;
+        }
+        else
+        {
+            profile = _selectedEnemyData == null
+                ? null
+                : _selectedEnemyData.GetRhythmProfileForHealthPercent(
+                    1.0f,
+                    out phaseIndex);
+        }
+
         _activeRhythmPhaseIndex = phaseIndex;
         _pendingRhythmPhaseIndex = -1;
         BuildEncounterPattern(profile, phaseIndex);
@@ -381,7 +503,7 @@ public partial class CombatController : Node2D
             profile,
             GetEncounterSeed(phaseIndex),
             BaseAttackDamage,
-            _selectedEnemyData?.BaseAttackDamage ?? 20.0f,
+            GetActiveEnemyAttackDamage(),
             FairnessConfig);
         _encounterPattern = generationResult.Pattern;
         _encounterStats = generationResult.Stats;
@@ -410,6 +532,32 @@ public partial class CombatController : Node2D
         return baseSeed + (ulong)((phaseIndex + 1) * 104729);
     }
 
+    private float GetActiveEnemyAttackDamage()
+    {
+        if (_selectedBossData != null && _activeBossPhaseIndex >= 0)
+        {
+            var phaseDamage = _selectedBossData.GetBossPhase(_activeBossPhaseIndex)?.AttackDamage;
+            if (phaseDamage.HasValue)
+            {
+                return Math.Max(0.0f, phaseDamage.Value);
+            }
+        }
+
+        return Math.Max(0.0f, _selectedEnemyData?.BaseAttackDamage ?? 20.0f);
+    }
+
+    private bool CanCountBossRegenerationTime()
+    {
+        return _selectedBossData != null &&
+            _bossController != null &&
+            !_bossPhaseTransitionActive &&
+            _combatState == CombatState.ResolvingPrompt &&
+            IsPromptActive() &&
+            _enemy != null &&
+            !_enemy.IsDead &&
+            !_enemy.IsStaggered;
+    }
+
     private void CreateEnemy()
     {
         var enemyScene = _selectedEnemyData?.EnemyScene ?? EnemyScene;
@@ -433,6 +581,39 @@ public partial class CombatController : Node2D
             }
 
             _enemyContainer.AddChild(_enemy);
+            _arcaneAtmosphere.ConfigureEnemy(_enemy.EnemyName);
+
+            _bossController = _enemy.GetNodeOrNull<BossController>("BossController");
+            if (_selectedBossData != null)
+            {
+                if (_bossController == null)
+                {
+                    ShowError("BossController não foi configurado na cena do boss.");
+                    return;
+                }
+
+                _bossController.Configure(_selectedBossData);
+                _bossController.RegenerationStarted += OnBossRegenerationStarted;
+                _bossController.RegenerationStopped += OnBossRegenerationStopped;
+                _bossController.RegenerationTick += OnBossRegenerationTick;
+                if (!_bossController.ActivatePhase(_activeBossPhaseIndex))
+                {
+                    ShowError("As fases do boss não foram configuradas corretamente.");
+                    return;
+                }
+
+                if (DebugBossPhase >= 0)
+                {
+                    var debugPhase = _selectedBossData.GetBossPhase(_activeBossPhaseIndex);
+                    if (debugPhase != null)
+                    {
+                        _enemy.SetCurrentHealth(
+                            _enemy.MaxHealth * _selectedBossData.GetPhaseStartHealthPercent(
+                                _activeBossPhaseIndex));
+                    }
+                }
+            }
+
             _enemy.HealthChanged += OnEnemyHealthChanged;
             _enemy.PostureChanged += OnEnemyPostureChanged;
             _enemy.PostureBroken += OnEnemyPostureBroken;
@@ -451,6 +632,16 @@ public partial class CombatController : Node2D
     {
         _beatFeedbackTime = 0.18d;
         _beatIndicator.Text = $"BEAT {beatIndex + 1}";
+        if (_bossController != null)
+        {
+            _bossController.ProcessBeat(CanCountBossRegenerationTime());
+        }
+
+        if (_bossPhaseTransitionActive)
+        {
+            return;
+        }
+
         if (_combatState == CombatState.Running)
         {
             TryScheduleNextPrompt();
@@ -464,7 +655,8 @@ public partial class CombatController : Node2D
 
     private void TryScheduleNextPrompt()
     {
-        if ((_combatState != CombatState.Running &&
+        if (_bossPhaseTransitionActive ||
+            (_combatState != CombatState.Running &&
              _combatState != CombatState.ResolvingPrompt) ||
             _encounterPattern == null)
         {
@@ -563,7 +755,9 @@ public partial class CombatController : Node2D
         var promptType = rhythmEvent.GetPromptType();
         var promptDamage = rhythmEvent.Damage > 0.0f
             ? rhythmEvent.Damage
-            : BaseAttackDamage;
+            : promptType == RhythmPromptType.EnemyAttack
+                ? GetActiveEnemyAttackDamage()
+                : BaseAttackDamage;
         _activePatternEvent = rhythmEvent;
         CreatePrompt(
             promptType,
@@ -578,6 +772,11 @@ public partial class CombatController : Node2D
         double targetBeatPosition,
         RhythmPromptBehavior promptBehavior = RhythmPromptBehavior.Normal)
     {
+        if (_bossPhaseTransitionActive)
+        {
+            return;
+        }
+
         if (PromptScene == null)
         {
             ShowError("PackedScene do prompt não foi encontrado na cena.");
@@ -591,6 +790,7 @@ public partial class CombatController : Node2D
             prompt.Resolved += OnAttackPromptResolved;
             _activePromptType = promptType;
             _activePromptDamage = promptDamage;
+            prompt.SetPromptType(promptType);
             var safePromptBehavior = promptType == RhythmPromptType.Execution
                 ? RhythmPromptBehavior.Normal
                 : promptBehavior;
@@ -605,14 +805,18 @@ public partial class CombatController : Node2D
                 {
                     _enemy.PlayAttackFeedback();
                 }
+                _arcaneAtmosphere.PlayEnemyTelegraph(
+                    (float)(_rhythmManager.BeatDuration * GetMinimumTelegraphBeats()));
             }
             else if (_activePromptType == RhythmPromptType.Execution)
             {
+                var executionEmphasis = 1.35f +
+                    _runManager.Build.GetPrimaryValue(UpgradeIds.BreakingPoint, 0.0f);
                 prompt.SetPromptPresentation(
                     "[!] EXECUTION [!]",
                     new Color(0.72f, 0.42f, 1.0f, 1.0f),
                     9.0f,
-                    1.35f);
+                    executionEmphasis);
                 _audioManager.PlayExecutionReady();
             }
             else
@@ -661,6 +865,11 @@ public partial class CombatController : Node2D
         var resolvedBaseDamage = _activePromptDamage;
         _activePrompt = null;
         _activePatternEvent = null;
+
+        if (resolvedAction == RhythmPromptType.EnemyAttack)
+        {
+            _arcaneAtmosphere.StopEnemyTelegraph();
+        }
 
         if (resolvedAction == RhythmPromptType.Execution)
         {
@@ -716,14 +925,24 @@ public partial class CombatController : Node2D
             baseDamage,
             timingResult,
             TimingConfig,
-            comboMultiplier);
+            comboMultiplier) * GetPerfectAttackUpgradeMultiplier();
+        if (timingResult == TimingResult.Perfect && _riposteReady)
+        {
+            _riposteReady = false;
+        }
         var armorActive = _enemy != null && _enemy.IsArmorActive;
         var damage = DamageCalculator.ApplyArmorToHealthDamage(
             rawDamage,
             armorActive,
             _enemy?.ArmorHealthDamageMultiplier ?? 1.0f);
+        damage = _bossController?.ClampHealthDamage(damage) ?? damage;
+        var postureDamage = DamageCalculator.CalculatePostureDamage(
+            RhythmPromptType.PlayerAttack,
+            timingResult,
+            TimingConfig) * GetOffensivePostureMultiplier(timingResult);
         _lastRawHealthDamage = rawDamage;
         _lastHealthDamage = damage;
+        _lastPostureDamage = postureDamage;
 
         SetResultFeedback(
             resultName,
@@ -731,8 +950,16 @@ public partial class CombatController : Node2D
             precisionPercent,
             offsetMilliseconds,
             direction);
-        _lastPostureDamage = 0.0f;
-        _postureDamageLabel.Text = "POSTURE: 0";
+        _postureDamageLabel.Text = $"RESISTÊNCIA: -{postureDamage:0.0}";
+        ShowCombatValueFeedback(
+            damage,
+            postureDamage,
+            incoming: false,
+            timingResult: timingResult);
+        _arcaneAtmosphere.PlayPlayerImpact(
+            damage,
+            postureDamage,
+            timingResult);
 
         if (damage > 0.0f && _enemy != null && !_enemy.IsDead)
         {
@@ -746,7 +973,17 @@ public partial class CombatController : Node2D
                 return;
             }
 
-            _statusLabel.Text = $"{resultName} — {_enemy.EnemyName} recebeu {damage:0.0} de dano.";
+            if (_pendingBossPhaseIndex >= 0)
+            {
+                _statusLabel.Text =
+                    $"{resultName} — limite alcançado; a próxima fase se aproxima.";
+                RegisterComboResult(timingResult);
+                _combatState = CombatState.Running;
+                TryApplyPendingRhythmPhase();
+                return;
+            }
+
+            _statusLabel.Text = "IMPACTO DIRETO";
         }
         else
         {
@@ -760,13 +997,6 @@ public partial class CombatController : Node2D
             return;
         }
 
-        var postureDamage = DamageCalculator.CalculatePostureDamage(
-            RhythmPromptType.PlayerAttack,
-            timingResult,
-            TimingConfig);
-        _lastPostureDamage = postureDamage;
-        _postureDamageLabel.Text = $"POSTURE: -{postureDamage:0.0}";
-
         if (postureDamage > 0.0f)
         {
             _enemy.TakePostureDamage(postureDamage);
@@ -779,14 +1009,12 @@ public partial class CombatController : Node2D
         }
 
         _statusLabel.Text = armorActive && rawDamage > 0.0f
-            ? $"{resultName} — ARMOR: dano {rawDamage:0.0} → {damage:0.0}; postura -{postureDamage:0.0}."
+            ? "A ARMADURA ABSORVEU PARTE DO IMPACTO"
             : timingResult switch
             {
-                TimingResult.Perfect =>
-                    $"{resultName} — dano {damage:0.0}; postura -{postureDamage:0.0}.",
-                TimingResult.Good or TimingResult.Ok =>
-                    $"{resultName} — apenas postura -{postureDamage:0.0}; sem dano direto.",
-                _ => "MISS — nenhum dano causado.",
+                TimingResult.Perfect => "IMPACTO DIRETO",
+                TimingResult.Good or TimingResult.Ok => "PRESSÃO NA RESISTÊNCIA",
+                _ => "ATAQUE PERDIDO",
             };
         RegisterComboResult(timingResult);
     }
@@ -801,25 +1029,41 @@ public partial class CombatController : Node2D
         _audioManager.PlayTimingFeedback(
             RhythmPromptType.EnemyAttack,
             timingResult);
-        var incomingDamage = DamageCalculator.CalculateIncomingDamage(
+        var rawIncomingDamage = DamageCalculator.CalculateIncomingDamage(
             baseDamage,
             timingResult,
             TimingConfig);
+        var incomingDamage = rawIncomingDamage * GetIncomingDamageMultiplier(timingResult);
+        if (timingResult == TimingResult.Miss &&
+            _runManager.HasUpgrade(UpgradeIds.SecondBreath) &&
+            !_secondBreathUsedThisCombat &&
+            _player.CurrentHealth > 1.0f &&
+            incomingDamage >= _player.CurrentHealth)
+        {
+            incomingDamage = _player.CurrentHealth - 1.0f;
+            _secondBreathUsedThisCombat = true;
+        }
+
         var defenseResult = GetDefenseResultName(timingResult);
         _lastIncomingDamage = incomingDamage;
-        _lastRawHealthDamage = incomingDamage;
+        _lastRawHealthDamage = rawIncomingDamage;
         _lastHealthDamage = incomingDamage;
         _lastIncomingDamageLabel.Text = $"Last incoming damage: {incomingDamage:0.0}";
 
         var postureDamage = DamageCalculator.CalculatePostureDamage(
             RhythmPromptType.EnemyAttack,
             timingResult,
-            TimingConfig);
+            TimingConfig) * GetDefensivePostureMultiplier(timingResult);
         _lastPostureDamage = postureDamage;
-        _postureDamageLabel.Text = $"POSTURE: -{postureDamage:0.0}";
+        _postureDamageLabel.Text = $"RESISTÊNCIA: -{postureDamage:0.0}";
 
         _damageLabel.Text = $"DANO RECEBIDO: {incomingDamage:0.0}";
         _damageLabel.Modulate = GetResultColor(timingResult);
+        ShowCombatValueFeedback(
+            incomingDamage,
+            postureDamage,
+            incoming: true,
+            timingResult: timingResult);
 
         if (incomingDamage > 0.0f)
         {
@@ -839,6 +1083,18 @@ public partial class CombatController : Node2D
             offsetMilliseconds,
             direction);
 
+        if (timingResult == TimingResult.Perfect)
+        {
+            _riposteReady = _runManager.HasUpgrade(UpgradeIds.Riposte);
+            var reflectionHeal = _runManager.Build.GetPrimaryValue(
+                UpgradeIds.Reflection,
+                0.0f);
+            if (reflectionHeal > 0.0f)
+            {
+                _player.Heal(reflectionHeal);
+            }
+        }
+
         if (postureDamage > 0.0f && _enemy != null && !_enemy.IsDead)
         {
             _enemy.TakePostureDamage(postureDamage);
@@ -852,9 +1108,7 @@ public partial class CombatController : Node2D
 
         if (_combatState == CombatState.ResolvingPrompt)
         {
-            _statusLabel.Text =
-                $"{defenseResult} — dano recebido: {incomingDamage:0.0}; " +
-                $"postura -{postureDamage:0.0}.";
+            _statusLabel.Text = defenseResult;
         }
 
         RegisterComboResult(timingResult);
@@ -867,11 +1121,47 @@ public partial class CombatController : Node2D
         float offsetMilliseconds,
         string direction)
     {
+        _resultPunchTime = 0.18d;
         _resultLabel.Text = displayResult;
         _resultLabel.Modulate = GetResultColor(timingResult);
-        _resultDetailLabel.Text =
-            $"{TimingJudge.FormatOffsetMilliseconds(offsetMilliseconds)}  •  " +
-            $"{precisionPercent:0.0}%  •  {direction}";
+        _resultDetailLabel.Text = string.Empty;
+        _resultLabel.Visible = false;
+        _resultDetailLabel.Visible = false;
+    }
+
+    private void ShowImportantResult(string title, string detail)
+    {
+        _resultLabel.Visible = true;
+        _resultDetailLabel.Visible = true;
+        _resultLabel.Text = title;
+        _resultDetailLabel.Text = detail;
+    }
+
+    private void ShowCombatValueFeedback(
+        float healthDamage,
+        float resistanceDamage,
+        bool incoming,
+        TimingResult timingResult)
+    {
+        if (CombatValueFeedbackScene == null ||
+            _combatValueFeedbackLayer == null)
+        {
+            return;
+        }
+
+        var feedback = CombatValueFeedbackScene.Instantiate<CombatValueFeedback>();
+        _combatValueFeedbackLayer.AddChild(feedback);
+
+        var origin = incoming
+            ? new Vector2(604.0f, 304.0f)
+            : new Vector2(298.0f, 304.0f);
+        feedback.Play(
+            origin,
+            healthDamage,
+            resistanceDamage,
+            incoming,
+            timingResult,
+            incoming ? 1.0f : -1.0f);
     }
 
     private static string GetDefenseResultName(TimingResult result)
@@ -901,7 +1191,9 @@ public partial class CombatController : Node2D
             timingResult);
         var executionDamage = DamageCalculator.CalculateExecutionDamage(
             timingResult,
-            TimingConfig);
+            TimingConfig) * (1.0f +
+                _runManager.Build.GetPrimaryValue(UpgradeIds.Executioner));
+        executionDamage = _bossController?.ClampHealthDamage(executionDamage) ?? executionDamage;
         var executionResult = GetExecutionResultName(timingResult);
         _lastRawHealthDamage = executionDamage;
         _lastHealthDamage = executionDamage;
@@ -918,21 +1210,53 @@ public partial class CombatController : Node2D
         }
 
         _lastPostureDamage = 0.0f;
-        _postureDamageLabel.Text = "POSTURE: --";
+        _postureDamageLabel.Text = "RESISTÊNCIA: --";
         _damageLabel.Text = executionDamage > 0.0f
             ? $"EXECUTION DAMAGE: {executionDamage:0.0}"
             : "EXECUTION DAMAGE: 0";
         _damageLabel.Modulate = timingResult == TimingResult.Perfect
             ? GetResultColor(timingResult)
             : GetResultColor(TimingResult.Miss);
+        ShowCombatValueFeedback(
+            executionDamage,
+            0.0f,
+            incoming: false,
+            timingResult: timingResult);
+        _arcaneAtmosphere.PlayPlayerImpact(
+            executionDamage,
+            0.0f,
+            timingResult);
 
         if (executionDamage > 0.0f)
         {
+            if (timingResult == TimingResult.Perfect)
+            {
+                _battlePerformance.RegisterSuccessfulExecution();
+                var executionHeal = _runManager.Build.GetPrimaryValue(
+                    UpgradeIds.SoulCut);
+                if (executionHeal > 0.0f)
+                {
+                    _player.Heal(executionHeal);
+                }
+            }
+
             _enemy.TakeDamage(executionDamage);
 
             if (_combatState == CombatState.EnemyDead)
             {
                 RegisterComboResult(timingResult);
+                return;
+            }
+
+            if (_pendingBossPhaseIndex >= 0)
+            {
+                _enemy.PlayExecutionFeedback();
+                _executionTargetBeat = -1;
+                _combatState = CombatState.Running;
+                _statusLabel.Text =
+                    "EXECUTION — limite alcançado; preparando a próxima fase.";
+                RegisterComboResult(timingResult);
+                TryApplyPendingRhythmPhase();
                 return;
             }
         }
@@ -958,8 +1282,8 @@ public partial class CombatController : Node2D
             _nextPatternSearchBeatPosition,
             _rhythmManager.CurrentBeat + safeRecoveryGapBeats);
         _statusLabel.Text = timingResult == TimingResult.Perfect
-            ? "PERFECT EXECUTION — postura restaurada; combate retomado."
-            : "EXECUTION FAILED — oportunidade perdida; postura restaurada; combate retomado.";
+            ? "PERFECT EXECUTION — resistência restaurada; combate retomado."
+            : "EXECUTION FAILED — oportunidade perdida; resistência restaurada; combate retomado.";
         RegisterComboResult(timingResult);
         TryApplyPendingRhythmPhase();
         TryScheduleNextPrompt();
@@ -976,11 +1300,142 @@ public partial class CombatController : Node2D
 
     private void RegisterComboResult(TimingResult timingResult)
     {
-        _comboManager.RegisterTimingResult(timingResult);
+        if (timingResult == TimingResult.Perfect)
+        {
+            _bossController?.NotifyPerfect();
+        }
+
+        var okReductionPercent = 50;
+        if (timingResult == TimingResult.Ok &&
+            _comboManager.CurrentCombo >= 10 &&
+            _runManager.HasUpgrade(UpgradeIds.Unbroken) &&
+            !_unbrokenUsedThisCombat)
+        {
+            okReductionPercent = 25;
+            _unbrokenUsedThisCombat = true;
+        }
+
+        _comboManager.RegisterTimingResult(timingResult, okReductionPercent);
+        _battlePerformance.RegisterTimingResult(
+            timingResult,
+            _comboManager.CurrentCombo,
+            _comboManager.HighestCombo);
+    }
+
+    private float GetPerfectAttackUpgradeMultiplier()
+    {
+        if (_runManager == null || !_runManager.IsRunInitialized)
+        {
+            return 1.0f;
+        }
+
+        var build = _runManager.Build;
+        var multiplier = 1.0f +
+            build.GetPrimaryValue(UpgradeIds.ArcaneEdge) +
+            build.GetPrimaryValue(UpgradeIds.SharpRhythm) +
+            build.GetPrimaryValue(UpgradeIds.GlassArcana);
+
+        if (_enemy != null &&
+            _enemy.MaxHealth > 0.0f &&
+            _enemy.CurrentHealth / _enemy.MaxHealth <=
+                build.GetSecondaryValue(UpgradeIds.FinalBeat, 0.30f))
+        {
+            multiplier += build.GetPrimaryValue(UpgradeIds.FinalBeat);
+        }
+
+        if (_player != null &&
+            _player.MaxHealth > 0.0f &&
+            _player.CurrentHealth / _player.MaxHealth <=
+                build.GetSecondaryValue(UpgradeIds.BloodTempo, 0.35f))
+        {
+            multiplier += build.GetPrimaryValue(UpgradeIds.BloodTempo);
+        }
+
+        if (_comboManager.CurrentCombo >= 20)
+        {
+            multiplier += build.GetTertiaryValue(UpgradeIds.Momentum);
+        }
+        else if (_comboManager.CurrentCombo >= 10)
+        {
+            multiplier += build.GetSecondaryValue(UpgradeIds.Momentum);
+        }
+        else if (_comboManager.CurrentCombo >= 5)
+        {
+            multiplier += build.GetPrimaryValue(UpgradeIds.Momentum);
+        }
+
+        if (_riposteReady)
+        {
+            multiplier += build.GetPrimaryValue(UpgradeIds.Riposte);
+        }
+
+        return Math.Max(0.0f, multiplier);
+    }
+
+    private float GetOffensivePostureMultiplier(TimingResult timingResult)
+    {
+        if (timingResult == TimingResult.Miss)
+        {
+            return 1.0f;
+        }
+
+        var build = _runManager.Build;
+        var multiplier = 1.0f + build.GetPrimaryValue(UpgradeIds.CrackedSigil);
+        if (timingResult == TimingResult.Perfect)
+        {
+            multiplier *= 1.0f - build.GetSecondaryValue(UpgradeIds.SharpRhythm);
+            var relentlessThreshold = build.GetSecondaryValue(
+                UpgradeIds.Relentless,
+                3.0f);
+            if (_comboManager.PerfectStreak + 1 >= relentlessThreshold)
+            {
+                multiplier += build.GetPrimaryValue(UpgradeIds.Relentless);
+            }
+        }
+
+        return Math.Max(0.0f, multiplier);
+    }
+
+    private float GetDefensivePostureMultiplier(TimingResult timingResult)
+    {
+        if (timingResult != TimingResult.Perfect)
+        {
+            return 1.0f;
+        }
+
+        var build = _runManager.Build;
+        return Math.Max(
+            0.0f,
+            1.0f +
+            build.GetPrimaryValue(UpgradeIds.Pressure) +
+            build.GetPrimaryValue(UpgradeIds.CursedRhythm));
+    }
+
+    private float GetIncomingDamageMultiplier(TimingResult timingResult)
+    {
+        var build = _runManager.Build;
+        var multiplier = 1.0f;
+        if (timingResult == TimingResult.Miss)
+        {
+            multiplier *= 1.0f - build.GetPrimaryValue(UpgradeIds.ArcaneGuard);
+            multiplier *= 1.0f + build.GetSecondaryValue(UpgradeIds.CursedRhythm);
+        }
+        else if (timingResult == TimingResult.Good)
+        {
+            multiplier *= 1.0f - build.GetPrimaryValue(UpgradeIds.SteadyHand);
+        }
+
+        return Math.Max(0.0f, multiplier);
     }
 
     private void OnComboChanged(int currentCombo, int highestCombo)
     {
+        if (currentCombo > _displayedCombo)
+        {
+            _comboPanel.PlayComboIncrease();
+        }
+
+        _displayedCombo = currentCombo;
         _comboLabelPunchTime = 0.18d;
         UpdateComboUi();
     }
@@ -990,6 +1445,7 @@ public partial class CombatController : Node2D
         if (perfectStreak >= 2)
         {
             _perfectStreakPunchTime = 0.18d;
+            _comboPanel.PlayPerfectStreak();
             _audioManager.PlayPerfectStreak(perfectStreak);
         }
 
@@ -998,11 +1454,25 @@ public partial class CombatController : Node2D
 
     private void OnDamageMultiplierChanged(float damageMultiplier, int comboTier)
     {
+        if (comboTier > _displayedComboTier)
+        {
+            _comboPanel.PlayTierUp();
+        }
+
+        _displayedComboTier = comboTier;
         UpdateComboUi();
     }
 
     private void OnComboMilestoneReached(int combo, string milestoneText)
     {
+        var flowHeal = _runManager.Build.GetPrimaryValue(
+            UpgradeIds.FlowState,
+            0.0f);
+        if (flowHeal > 0.0f)
+        {
+            _player.Heal(flowHeal);
+        }
+
         var safeMilestoneText = string.IsNullOrWhiteSpace(milestoneText)
             ? "FLOW UP!"
             : milestoneText;
@@ -1014,6 +1484,7 @@ public partial class CombatController : Node2D
 
     private void OnComboBroken(int previousCombo)
     {
+        _comboPanel.PlayComboBreak();
         ShowComboFeedback(
             "COMBO BREAK",
             new Color(1.0f, 0.38f, 0.38f, 1.0f));
@@ -1043,7 +1514,19 @@ public partial class CombatController : Node2D
             ? $"PERFECT ×{_comboManager.PerfectStreak}"
             : string.Empty;
 
-        _comboPanel.Modulate = GetComboTierColor(_comboManager.CurrentComboTier);
+        var tierColor = GetComboTierColor(_comboManager.CurrentComboTier);
+        _comboLabel.Modulate = tierColor;
+        _comboMultiplierLabel.Modulate = tierColor.Lerp(
+            new Color(1.0f, 0.82f, 0.3f, 1.0f),
+            0.45f);
+        _comboPanel.SetComboState(
+            _comboManager.CurrentCombo,
+            _comboManager.CurrentComboTier,
+            _comboManager.PerfectStreak);
+        _arcaneAtmosphere.SetComboState(
+            _comboManager.CurrentCombo,
+            _comboManager.CurrentComboTier,
+            _comboManager.PerfectStreak);
     }
 
     private void ShowComboFeedback(string message, Color color)
@@ -1101,13 +1584,20 @@ public partial class CombatController : Node2D
         _perfectStreakLabel.Scale = Vector2.One * (1.0f + streakPunch * 0.08f);
     }
 
+    private void UpdateResultPunch(double delta)
+    {
+        _resultPunchTime = Math.Max(0.0d, _resultPunchTime - delta);
+        var punch = Mathf.Clamp((float)(_resultPunchTime / 0.18d), 0.0f, 1.0f);
+        _resultLabel.Scale = Vector2.One * (1.0f + punch * 0.1f);
+    }
+
     private static Color GetComboTierColor(int comboTier)
     {
         return comboTier switch
         {
             1 => new Color(0.78f, 0.9f, 1.0f, 1.0f),
-            2 => new Color(1.0f, 0.82f, 0.42f, 1.0f),
-            3 => new Color(1.0f, 0.62f, 0.28f, 1.0f),
+            2 => new Color(1.0f, 0.48f, 0.86f, 1.0f),
+            3 => new Color(0.7f, 1.0f, 0.3f, 1.0f),
             _ => new Color(0.82f, 0.86f, 0.98f, 1.0f),
         };
     }
@@ -1124,6 +1614,7 @@ public partial class CombatController : Node2D
         }
 
         _audioManager.PlayPostureBreak();
+        _arcaneAtmosphere.PlayPostureBreak();
         _combatState = CombatState.EnemyStaggered;
         _queuedPatternEvent = null;
         _activePatternEvent = null;
@@ -1131,10 +1622,11 @@ public partial class CombatController : Node2D
         _hasQueuedPatternEvent = false;
         _executionTargetBeat = -1;
         _executionDelayTimer.Stop();
-        _resultLabel.Text = "STAGGERED";
+        ShowImportantResult(
+            "STAGGERED",
+            "RESISTÊNCIA QUEBRADA — prepare a execução");
         _resultLabel.Modulate = new Color(1.0f, 0.78f, 0.3f, 1.0f);
-        _resultDetailLabel.Text = "POSTURE BROKEN — prepare a execução";
-        _postureDamageLabel.Text = "POSTURE: 0";
+        _postureDamageLabel.Text = "RESISTÊNCIA: 0";
         _statusLabel.Text = "STAGGERED — preparando EXECUTION...";
         UpdateCurrentActionLabels();
         UpdateCombatDetails();
@@ -1183,25 +1675,104 @@ public partial class CombatController : Node2D
 
     private void OnEnemyDied()
     {
+        if (_battleResultQueued)
+        {
+            return;
+        }
+
+        _battleResultQueued = true;
         _combatState = CombatState.EnemyDead;
         _pendingRhythmPhaseIndex = -1;
+        _pendingBossPhaseIndex = -1;
+        _bossPhaseTransitionActive = false;
+        _transitioningBossPhaseIndex = -1;
+        _bossPhaseTransitionTimer?.Stop();
+        HideBossPhaseTransitionPanel();
         _executionDelayTimer.Stop();
         _executionTargetBeat = -1;
         _queuedPatternEvent = null;
         _activePatternEvent = null;
         _queuedPatternBeatPosition = -1.0d;
         _hasQueuedPatternEvent = false;
-        _resultLabel.Text = "INIMIGO DERROTADO";
+        if (_activePrompt != null && GodotObject.IsInstanceValid(_activePrompt))
+        {
+            _activePrompt.Resolved -= OnAttackPromptResolved;
+            _activePrompt.QueueFree();
+            _activePrompt = null;
+        }
+
+        ShowImportantResult(
+            "INIMIGO DERROTADO",
+            "O inimigo não pode mais agir.");
         _resultLabel.Modulate = new Color(1.0f, 0.84f, 0.3f, 1.0f);
-        _resultDetailLabel.Text = "O inimigo não pode mais agir.";
-        _postureDamageLabel.Text = "POSTURE: 0";
+        _postureDamageLabel.Text = "RESISTÊNCIA: 0";
         _statusLabel.Text = $"{GetCurrentEnemyName()} foi derrotado. O combate foi encerrado.";
         UpdateCurrentActionLabels();
+        CallDeferred(nameof(FinalizeBattleResult));
+    }
+
+    private void FinalizeBattleResult()
+    {
+        if (!_battleResultQueued)
+        {
+            return;
+        }
+
+        var rewardConfig = RewardConfig ?? new BattleRewardConfig();
+        var reward = BattleRewardCalculator.Calculate(
+            _selectedEnemyData?.BaseEssenceReward ?? 0,
+            _battlePerformance,
+            rewardConfig,
+            1.0f + _runManager.Build.GetPrimaryValue(UpgradeIds.SoulHarvest),
+            1.0f + _runManager.Build.GetPrimaryValue(UpgradeIds.Fortune));
+        var result = new BattleResultData(
+            GetCurrentEnemyName(),
+            _battlePerformance.PerfectCount,
+            _battlePerformance.GoodCount,
+            _battlePerformance.OkCount,
+            _battlePerformance.MissCount,
+            _battlePerformance.HighestCombo,
+            _battlePerformance.SuccessfulExecutions,
+            reward);
+
+        _runManager.SetCurrentEncounter(_selectedEnemyIndex);
+        _runManager.SetPlayerCurrentHP(_player.CurrentHealth);
+        _runManager.SetLastBattleResult(result);
+        _runManager.AddEssence(reward.TotalReward);
+
+        if (_selectedBossData != null && VictoryScene != null)
+        {
+            _sceneTransitionManager.TransitionToPacked(VictoryScene);
+            return;
+        }
+
+        if (BattleResultScene == null)
+        {
+            GD.PrintErr("CombatController: BattleResultScene não foi configurada na cena.");
+            return;
+        }
+
+        _sceneTransitionManager.TransitionToPacked(BattleResultScene);
     }
 
     private void OnEnemyHealthChanged(float currentHealth, float maxHealth)
     {
+        _arcaneAtmosphere.SetEnemyHealth(currentHealth, maxHealth);
         UpdateCombatDetails();
+        if (_selectedBossData != null)
+        {
+            if (_bossController != null && maxHealth > 0.0f && currentHealth > 0.0f &&
+                _bossController.TryGetNextPhaseIndex(
+                    currentHealth / maxHealth,
+                    out var requestedBossPhaseIndex))
+            {
+                _pendingBossPhaseIndex = requestedBossPhaseIndex;
+                TryApplyPendingRhythmPhase();
+            }
+
+            return;
+        }
+
         if (_selectedEnemyData == null ||
             !_selectedEnemyData.HasRhythmPhases ||
             maxHealth <= 0.0f ||
@@ -1227,9 +1798,8 @@ public partial class CombatController : Node2D
 
     private void TryApplyPendingRhythmPhase()
     {
-        if (_pendingRhythmPhaseIndex < 0 ||
-            _selectedEnemyData == null ||
-            !_selectedEnemyData.HasRhythmPhases ||
+        if (_bossPhaseTransitionActive ||
+            _combatState == CombatState.ResolvingPrompt ||
             _enemy == null ||
             _enemy.IsDead ||
             IsPromptActive() ||
@@ -1237,6 +1807,23 @@ public partial class CombatController : Node2D
             _combatState == CombatState.EnemyStaggered ||
             _combatState == CombatState.PlayerDead ||
             _combatState == CombatState.EnemyDead)
+        {
+            return;
+        }
+
+        if (_selectedBossData != null)
+        {
+            if (_pendingBossPhaseIndex >= 0)
+            {
+                BeginBossPhaseTransition(_pendingBossPhaseIndex);
+            }
+
+            return;
+        }
+
+        if (_pendingRhythmPhaseIndex < 0 ||
+            _selectedEnemyData == null ||
+            !_selectedEnemyData.HasRhythmPhases)
         {
             return;
         }
@@ -1266,6 +1853,176 @@ public partial class CombatController : Node2D
         UpdatePatternDebug();
     }
 
+    private void BeginBossPhaseTransition(int phaseIndex)
+    {
+        var phase = _selectedBossData?.GetBossPhase(phaseIndex);
+        if (phase == null || _bossController == null ||
+            _bossPhaseTransitionActive)
+        {
+            return;
+        }
+
+        _pendingBossPhaseIndex = -1;
+        _transitioningBossPhaseIndex = phaseIndex;
+        _bossPhaseTransitionActive = true;
+        _combatState = CombatState.Running;
+        _audioManager.PlayBossPhaseTransition();
+        _executionDelayTimer.Stop();
+        _executionTargetBeat = -1;
+        ClearQueuedPatternEvent();
+
+        if (_bossPhaseTransitionPanel != null)
+        {
+            _bossPhaseTransitionPanel.Visible = true;
+            _bossPhaseTransitionPanel.Modulate = Colors.White;
+        }
+
+        if (_bossPhaseTransitionTitle != null)
+        {
+            _bossPhaseTransitionTitle.Text = phase.PhaseName;
+        }
+
+        if (_bossPhaseTransitionSubtitle != null)
+        {
+            _bossPhaseTransitionSubtitle.Text =
+                $"THE RESISTANCE  •  {phase.ThemeLabel}";
+        }
+
+        if (_bossPhaseTransitionRules != null)
+        {
+            _bossPhaseTransitionRules.Text = phase.SpecialRules;
+        }
+
+        _bossPhaseTransitionAuraMaterial?.SetShaderParameter(
+            "phase_intensity",
+            Mathf.Clamp(0.55f + phaseIndex * 0.08f, 0.55f, 1.1f));
+
+        ShowImportantResult(
+            phase.PhaseName,
+            "A música continua — uma nova forma desperta.");
+        _resultLabel.Modulate = new Color(0.82f, 0.54f, 1.0f, 1.0f);
+        _statusLabel.Text = $"{phase.PhaseName} — prepare-se.";
+        UpdateCurrentActionLabels();
+
+        var transitionDuration = _selectedBossData?.PhaseTransitionDuration ?? 1.0f;
+        if (_bossPhaseTransitionTimer != null)
+        {
+            _bossPhaseTransitionTimer.Start(Mathf.Max(0.25f, transitionDuration));
+        }
+        else
+        {
+            GD.PrintErr(
+                "CombatController: BossPhaseTransitionTimer não foi configurado na cena.");
+            CallDeferred(nameof(OnBossPhaseTransitionTimeout));
+        }
+    }
+
+    private void OnBossPhaseTransitionTimeout()
+    {
+        if (!_bossPhaseTransitionActive)
+        {
+            return;
+        }
+
+        var phaseIndex = _transitioningBossPhaseIndex;
+        var phase = _selectedBossData?.GetBossPhase(phaseIndex);
+        var activated = phase != null &&
+            _bossController != null &&
+            _bossController.ActivatePhase(phaseIndex);
+        if (!activated || phase == null)
+        {
+            _bossPhaseTransitionActive = false;
+            _transitioningBossPhaseIndex = -1;
+            HideBossPhaseTransitionPanel();
+            ShowError("Não foi possível ativar a fase do boss.");
+            return;
+        }
+
+        _activeBossPhaseIndex = phaseIndex;
+        _activeRhythmPhaseIndex = phaseIndex;
+        _pendingBossPhaseIndex = -1;
+        ClearQueuedPatternEvent();
+        BuildEncounterPattern(phase.RhythmProfile, phaseIndex);
+
+        var currentBeatPosition = Math.Max(
+            0.0d,
+            _rhythmManager.GetMusicPosition() / _rhythmManager.BeatDuration);
+        _nextPatternSearchBeatPosition = Math.Max(
+            _nextPatternSearchBeatPosition,
+            currentBeatPosition + GetMinimumTelegraphBeats());
+        _bossPhaseTransitionActive = false;
+        _transitioningBossPhaseIndex = -1;
+        HideBossPhaseTransitionPanel();
+        _statusLabel.Text =
+            $"{phase.PhaseName} — novo padrão preparado. Resistência restaurada.";
+        UpdateCurrentActionLabels();
+        UpdatePatternDebug();
+        TryScheduleNextPrompt();
+    }
+
+    private void HideBossPhaseTransitionPanel()
+    {
+        if (_bossPhaseTransitionPanel == null)
+        {
+            return;
+        }
+
+        _bossPhaseTransitionPanel.Visible = false;
+        _bossPhaseTransitionPanel.Modulate = Colors.White;
+    }
+
+    private void OnBossRegenerationStarted()
+    {
+        if (_bossPhaseTransitionActive || _combatState == CombatState.PlayerDead)
+        {
+            return;
+        }
+
+        _audioManager.PlayBossRegeneration();
+        ShowImportantResult(
+            "RESISTANCE REGENERATING",
+            "Acerte PERFECT para interromper a regeneração.");
+        _resultLabel.Modulate = new Color(0.68f, 1.0f, 0.46f, 1.0f);
+        _statusLabel.Text =
+            "RESISTANCE REGENERATING — o próximo PERFECT interrompe a cura.";
+    }
+
+    private void OnBossRegenerationStopped()
+    {
+        if (_combatState == CombatState.PlayerDead || _bossController == null)
+        {
+            return;
+        }
+
+        _statusLabel.Text = _bossController.RegeneratedHealth > 0.0f
+            ? "A regeneração da RESISTANCE foi interrompida."
+            : "PERFECT — regeneração interrompida.";
+    }
+
+    private void OnBossRegenerationTick(float amount)
+    {
+        if (_bossPhaseTransitionActive || _combatState == CombatState.PlayerDead)
+        {
+            return;
+        }
+
+        _damageLabel.Text = $"RESISTANCE REGENERATING: +{amount:0.0} HP";
+        _damageLabel.Modulate = new Color(0.68f, 1.0f, 0.46f, 1.0f);
+    }
+
+    private void DetachBossControllerSignals()
+    {
+        if (_bossController == null ||
+            !GodotObject.IsInstanceValid(_bossController))
+        {
+            return;
+        }
+
+        _bossController.RegenerationStarted -= OnBossRegenerationStarted;
+        _bossController.RegenerationStopped -= OnBossRegenerationStopped;
+        _bossController.RegenerationTick -= OnBossRegenerationTick;
+    }
+
     private void ClearQueuedPatternEvent()
     {
         _queuedPatternEvent = null;
@@ -1275,6 +2032,7 @@ public partial class CombatController : Node2D
 
     private void OnEnemyPostureChanged(float currentPosture, float maxPosture)
     {
+        _arcaneAtmosphere.SetEnemyResistance(currentPosture, maxPosture);
         UpdateCombatDetails();
     }
 
@@ -1284,22 +2042,31 @@ public partial class CombatController : Node2D
         _playerHealthBar.Value = currentHealth;
         _playerHealthLabel.Text = $"HP: {currentHealth:0}/{maxHealth:0}";
         _playerHpDebugLabel.Text = $"Player HP: {currentHealth:0}/{maxHealth:0}";
+        _runManager.SetPlayerCurrentHP(currentHealth);
     }
 
     private void OnPlayerDied()
     {
+        _runManager.SetPlayerCurrentHP(0.0f);
         _combatState = CombatState.PlayerDead;
         _pendingRhythmPhaseIndex = -1;
+        _pendingBossPhaseIndex = -1;
+        _bossPhaseTransitionActive = false;
+        _transitioningBossPhaseIndex = -1;
+        _bossPhaseTransitionTimer?.Stop();
+        HideBossPhaseTransitionPanel();
         _executionDelayTimer.Stop();
         _executionTargetBeat = -1;
         _queuedPatternEvent = null;
         _activePatternEvent = null;
         _queuedPatternBeatPosition = -1.0d;
         _hasQueuedPatternEvent = false;
-        _resultLabel.Text = "PLAYER DEFEATED";
+        ShowImportantResult(
+            "GAME OVER",
+            "A run foi perdida. Essence, upgrades e progresso foram zerados.");
         _resultLabel.Modulate = GetResultColor(TimingResult.Miss);
-        _resultDetailLabel.Text = "O combate foi interrompido.";
-        _statusLabel.Text = "PLAYER DEFEATED — pressione R para reiniciar";
+        _statusLabel.Text =
+            "GAME OVER — pressione R para reiniciar no THE FOOL";
         UpdateCurrentActionLabels();
     }
 
@@ -1312,7 +2079,7 @@ public partial class CombatController : Node2D
             return;
         }
 
-        if (DebugRhythm && keyEvent.Unicode >= '1' && keyEvent.Unicode <= '7')
+        if (EnableEnemySelectionHotkeys && keyEvent.Unicode >= '1' && keyEvent.Unicode <= '8')
         {
             var requestedIndex = (int)(keyEvent.Unicode - '1');
             if (requestedIndex < EnemyRoster.Count)
@@ -1342,6 +2109,10 @@ public partial class CombatController : Node2D
         }
 
         _executionDelayTimer.Stop();
+        _bossPhaseTransitionTimer?.Stop();
+        _bossPhaseTransitionActive = false;
+        _transitioningBossPhaseIndex = -1;
+        HideBossPhaseTransitionPanel();
         if (_activePrompt != null && GodotObject.IsInstanceValid(_activePrompt))
         {
             _activePrompt.Resolved -= OnAttackPromptResolved;
@@ -1357,6 +2128,7 @@ public partial class CombatController : Node2D
 
         if (_enemy != null && GodotObject.IsInstanceValid(_enemy))
         {
+            DetachBossControllerSignals();
             _enemy.HealthChanged -= OnEnemyHealthChanged;
             _enemy.PostureChanged -= OnEnemyPostureChanged;
             _enemy.PostureBroken -= OnEnemyPostureBroken;
@@ -1364,11 +2136,19 @@ public partial class CombatController : Node2D
             _enemy.QueueFree();
         }
 
+        _bossController = null;
+
         SelectEnemyData(enemyIndex);
         BuildEncounterPattern();
         CreateEnemy();
         _player.ResetHealth();
         _comboManager.ResetForCombat();
+        _battlePerformance.Reset();
+        _battleResultQueued = false;
+        _secondBreathUsedThisCombat = false;
+        _unbrokenUsedThisCombat = false;
+        _riposteReady = false;
+        _runManager.ClearLastBattleResult();
         _combatState = CombatState.Running;
         _lastIncomingDamage = 0.0f;
         _lastHealthDamage = 0.0f;
@@ -1377,10 +2157,11 @@ public partial class CombatController : Node2D
         _nextPatternSearchBeatPosition = Math.Max(
             0.0d,
             (_rhythmManager.GetMusicPosition() / _rhythmManager.BeatDuration) + 0.25d);
-        _resultLabel.Text = GetCurrentEnemyName();
-        _resultDetailLabel.Text = "Encounter rítmico carregado — prepare-se";
+        ShowImportantResult(
+            GetCurrentEnemyName(),
+            "Encounter rítmico carregado — prepare-se");
         _damageLabel.Text = "DANO: --";
-        _postureDamageLabel.Text = "POSTURE: --";
+        _postureDamageLabel.Text = "RESISTÊNCIA: --";
         _statusLabel.Text = $"{GetCurrentEnemyName()} aguarda seu ritmo.";
         UpdateCurrentActionLabels();
         UpdateDebugLabels();
@@ -1389,6 +2170,14 @@ public partial class CombatController : Node2D
 
     private void RestartCombat()
     {
+        _runManager.BeginRun(
+            _basePlayerMaxHealth > 0.0f ? _basePlayerMaxHealth : _player.MaxHealth);
+        _player.SetMaxHealth(_runManager.GetEffectivePlayerMaxHealth());
+        _battlePerformance.Reset();
+        _battleResultQueued = false;
+        _secondBreathUsedThisCombat = false;
+        _unbrokenUsedThisCombat = false;
+        _riposteReady = false;
         _combatState = CombatState.Running;
         _activePrompt = null;
         _activePatternEvent = null;
@@ -1396,29 +2185,45 @@ public partial class CombatController : Node2D
         _queuedPatternBeatPosition = -1.0d;
         _hasQueuedPatternEvent = false;
         _executionDelayTimer.Stop();
+        _bossPhaseTransitionTimer?.Stop();
+        _bossPhaseTransitionActive = false;
+        _transitioningBossPhaseIndex = -1;
+        HideBossPhaseTransitionPanel();
         _executionTargetBeat = -1;
         _lastIncomingDamage = 0.0f;
         _lastHealthDamage = 0.0f;
         _lastRawHealthDamage = 0.0f;
         _lastIncomingDamageLabel.Text = "Last incoming damage: 0.0";
         _lastPostureDamage = 0.0f;
-        _postureDamageLabel.Text = "POSTURE: --";
+        _postureDamageLabel.Text = "RESISTÊNCIA: --";
         _player.ResetHealth();
         _comboManager.ResetForCombat();
         OnComboFeedbackTimeout();
 
         if (_enemy != null && GodotObject.IsInstanceValid(_enemy))
         {
-            _enemy.RestoreFullHealth();
+            DetachBossControllerSignals();
+            _enemy.HealthChanged -= OnEnemyHealthChanged;
+            _enemy.PostureChanged -= OnEnemyPostureChanged;
+            _enemy.PostureBroken -= OnEnemyPostureBroken;
+            _enemy.Died -= OnEnemyDied;
+            _enemy.QueueFree();
         }
 
+        _bossController = null;
+
+        // Uma morte sempre reinicia a run no primeiro encontro, inclusive se
+        // a morte ocorreu em um inimigo selecionado pelo modo de debug.
+        SelectEnemyData(0);
         BuildEncounterPattern();
+        CreateEnemy();
 
         _nextPatternSearchBeatPosition = Math.Max(
             1.0d,
             _rhythmManager.CurrentBeat + 1.0d);
-        _resultLabel.Text = "AGUARDANDO AÇÃO";
-        _resultDetailLabel.Text = "Aperte SPACE quando o círculo amarelo entrar no azul";
+        ShowImportantResult(
+            "AGUARDANDO AÇÃO",
+            "Aperte SPACE quando o círculo amarelo entrar no azul");
         _damageLabel.Text = "DANO: --";
         _statusLabel.Text = "Combate reiniciado.";
         UpdateCurrentActionLabels();
@@ -1477,7 +2282,9 @@ public partial class CombatController : Node2D
 
     private void UpdateCurrentActionLabels()
     {
-        var actionName = IsPromptActive()
+        var actionName = _bossPhaseTransitionActive
+            ? "BOSS PHASE TRANSITION"
+            : IsPromptActive()
             ? GetActionDisplayName(_activePromptType)
             : _combatState == CombatState.EnemyStaggered
                 ? "STAGGERED"
@@ -1499,7 +2306,7 @@ public partial class CombatController : Node2D
     {
         var profile = _activeRhythmProfile;
         _enemySelectionLabel.Text =
-            $"[1-7] Current: {GetCurrentEnemyName()} | Seed: {EncounterSeed}";
+            $"[1-8] Current: {GetCurrentEnemyName()} | Seed: {EncounterSeed}";
 
         if (profile == null)
         {
@@ -1525,6 +2332,21 @@ public partial class CombatController : Node2D
                       $"Spacing min/avg: {stats.MinimumTargetSpacingBeats:0.00}/" +
                       $"{stats.AverageTargetSpacingBeats:0.00}b | " +
                       $"Active max: {stats.MaximumActiveLogicalPrompts}");
+        }
+
+        if (_selectedBossData != null && _bossController != null)
+        {
+            var activePhase = _bossController.ActivePhase;
+            var bossDebug =
+                $"\nBoss phase: {_bossController.ActivePhaseIndex + 1}/" +
+                $"{_selectedBossData.PhaseCount} | HP gate: " +
+                $"{activePhase?.GetMinimumHealthPercent():P0}–" +
+                $"{activePhase?.GetMaximumHealthPercent():P0}\n" +
+                $"Armor: {_enemy.IsArmorActive} x{_enemy.ArmorHealthDamageMultiplier:0.00} | " +
+                $"Regen: {_bossController.IsRegenerating}\n" +
+                $"No PERFECT: {_bossController.TimeSinceLastPerfect:0.0}s | " +
+                $"Regen HP: {_bossController.RegeneratedHealth:0.0}";
+            _profileDebugLabel.Text += bossDebug;
         }
 
         var preview = new StringBuilder("NEXT EVENTS:\n");
@@ -1582,7 +2404,7 @@ public partial class CombatController : Node2D
             (IsPromptActive() && _activePromptType == RhythmPromptType.Execution);
         _combatDetailsLabel.Text =
             $"Enemy HP: {_enemy.CurrentHealth:0}/{_enemy.MaxHealth:0}\n" +
-            $"Enemy Posture: {_enemy.CurrentPosture:0}/{_enemy.MaxPosture:0}\n" +
+            $"Enemy Resistance: {_enemy.CurrentPosture:0}/{_enemy.MaxPosture:0}\n" +
             $"Enemy State: {_enemy.State.ToString().ToUpperInvariant()}\n" +
             $"Armor Active: {_enemy.IsArmorActive.ToString().ToLowerInvariant()}\n" +
             $"Armor HP Multiplier: {_enemy.ArmorHealthDamageMultiplier:0.00}\n" +
@@ -1597,9 +2419,17 @@ public partial class CombatController : Node2D
             $"Last Combo Result: {GetLastComboResultDisplayName()}\n" +
             $"Last Raw HP Damage: {_lastRawHealthDamage:0.0}\n" +
             $"Last HP Damage: {_lastHealthDamage:0.0}\n" +
-            $"Last Posture Damage: {_lastPostureDamage:0.0}\n" +
+            $"Last Resistance Damage: {_lastPostureDamage:0.0}\n" +
+            $"Run Build: {_runManager.GetBuildDebugSummary()}\n" +
             $"Last SFX: {_audioManager.LastSfxName}\n" +
-            $"Execution Active: {executionActive.ToString().ToLowerInvariant()}";
+            $"Execution Active: {executionActive.ToString().ToLowerInvariant()}" +
+            (_selectedBossData == null || _bossController == null
+                ? string.Empty
+                : $"\nBoss Phase: {_bossController.ActivePhaseIndex + 1}/" +
+                  $"{_selectedBossData.PhaseCount}\n" +
+                  $"Boss Regen: {_bossController.IsRegenerating.ToString().ToLowerInvariant()}\n" +
+                  $"No Perfect: {_bossController.TimeSinceLastPerfect:0.0}s\n" +
+                  $"Regenerated HP: {_bossController.RegeneratedHealth:0.0}");
     }
 
     private string GetCurrentEnemyName()
@@ -1611,11 +2441,17 @@ public partial class CombatController : Node2D
 
         return _enemy != null && !string.IsNullOrWhiteSpace(_enemy.EnemyName)
             ? _enemy.EnemyName
-            : "THE INITIATE";
+            : "THE FOOL";
     }
 
     private string GetCurrentRhythmPhaseName()
     {
+        if (_selectedBossData != null && _activeBossPhaseIndex >= 0)
+        {
+            return _selectedBossData.GetBossPhase(_activeBossPhaseIndex)?.PhaseName ??
+                $"PHASE {_activeBossPhaseIndex + 1}";
+        }
+
         var phase = _selectedEnemyData?.GetRhythmPhase(_activeRhythmPhaseIndex);
         return phase?.PhaseName ?? (_activeRhythmPhaseIndex >= 0
             ? $"PHASE {_activeRhythmPhaseIndex + 1}"

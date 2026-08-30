@@ -1,0 +1,17 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://debug/Phase8ShopValidation.cs" id="1_validation"]
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="2_upgrade_script"]
+[ext_resource type="Resource" path="res://resources/upgrade_arcane_edge.tres" id="3_arcane_edge"]
+[ext_resource type="Resource" path="res://resources/upgrade_vitality.tres" id="4_vitality"]
+[ext_resource type="Resource" path="res://resources/upgrade_glass_arcana.tres" id="5_glass"]
+[ext_resource type="Resource" path="res://resources/upgrade_second_breath.tres" id="6_second_breath"]
+[ext_resource type="Resource" path="res://resources/upgrade_arcane_rebirth.tres" id="7_arcane_rebirth"]
+
+[node name="Phase8ShopValidation" type="Node"]
+script = ExtResource("1_validation")
+TestPool = Array[ExtResource("2_upgrade_script")]([ExtResource("3_arcane_edge"), ExtResource("4_vitality"), ExtResource("5_glass"), ExtResource("6_second_breath"), ExtResource("7_arcane_rebirth")])
+ArcaneEdge = ExtResource("3_arcane_edge")
+Vitality = ExtResource("4_vitality")
+GlassArcana = ExtResource("5_glass")
+ArcaneRebirth = ExtResource("7_arcane_rebirth")

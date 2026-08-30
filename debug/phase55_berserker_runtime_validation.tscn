@@ -8,6 +8,6 @@ script = ExtResource("1_validation")
 CombatScene = ExtResource("2_combat")
 ValidationDurationSeconds = 60.0
 EnemyIndex = 6
-ExpectedEnemyName = "THE BERSERKER"
+ExpectedEnemyName = "KING OF WANDS"
 RequireHalfBeats = true
 RequireBursts = true
