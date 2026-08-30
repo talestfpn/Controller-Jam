@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EnemyRhythmProfileResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/EnemyRhythmProfileResource.cs" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+ProfileName = "Knight of Swords"
+DifficultyLevel = 4
+EventDensity = 0.98
+PlayerAttackWeight = 4.2
+EnemyAttackWeight = 5.8
+MinimumSpacingBeats = 1.5
+PreferredSpacingBeats = 2.0
+AllowHalfBeats = true
+HalfBeatChance = 1.0
+BurstChance = 0.28
+MinBurstLength = 2
+MaxBurstLength = 3
+BurstSpacingBeats = 1.5
+AlternationChance = 0.72
+DefenseChainChance = 0.24
+BaseActionBias = 0.18
+StrongBeatPreference = 0.15
+HeavyEventPreference = 0.35
+FeintChance = 0.04
+VisualFadeChance = 0.0
+DecoyChance = 0.0
+FadeBeatsBeforeTarget = 0.5
+FeintStrength = 0.1
+TelegraphBeats = 1.25

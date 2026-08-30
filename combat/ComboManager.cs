@@ -48,6 +48,11 @@ public partial class ComboManager : Node
 
     public void RegisterTimingResult(TimingResult result)
     {
+        RegisterTimingResult(result, 50);
+    }
+
+    public void RegisterTimingResult(TimingResult result, int okReductionPercent)
+    {
         var previousCombo = CurrentCombo;
         var previousHighestCombo = HighestCombo;
         var previousPerfectStreak = PerfectStreak;
@@ -64,7 +69,9 @@ public partial class ComboManager : Node
                 PerfectStreak = 0;
                 break;
             case TimingResult.Ok:
-                CurrentCombo /= 2;
+                var safeReduction = Mathf.Clamp(okReductionPercent, 0, 100);
+                CurrentCombo = (int)(CurrentCombo *
+                    ((100.0f - safeReduction) / 100.0f));
                 PerfectStreak = 0;
                 break;
             default:

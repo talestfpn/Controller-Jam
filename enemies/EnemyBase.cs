@@ -23,7 +23,7 @@ public partial class EnemyBase : Node2D
     public delegate void DefeatedEventHandler();
 
     [Export]
-    public string EnemyName { get; set; } = "THE INITIATE";
+    public string EnemyName { get; set; } = "THE FOOL";
 
     [Export(PropertyHint.Range, "1.0,9999.0,1.0")]
     public float MaxHealth { get; set; } = 60.0f;
@@ -40,12 +40,20 @@ public partial class EnemyBase : Node2D
     private Label _armorLabel = null!;
     private Polygon2D _bodyPlaceholder = null!;
     private Polygon2D _corePlaceholder = null!;
+    private Sprite2D _visualArt = null!;
+    private Vector2 _visualArtBaseScale = Vector2.One;
+    private Vector2 _basePosition;
+    private Tween? _damageTween;
+    private Tween? _entranceTween;
     private Timer _attackFeedbackTimer = null!;
     private Timer _staggerFeedbackTimer = null!;
     private float _currentHealth;
     private float _currentPosture;
     private EnemyState _enemyState = EnemyState.Normal;
     private EnemyDataResource? _enemyData;
+    private bool _hasBossPhaseConfiguration;
+    private bool _bossPhaseArmored;
+    private float _bossPhaseArmorMultiplier = 1.0f;
 
     public float CurrentHealth => _currentHealth;
     public float CurrentPosture => _currentPosture;
@@ -54,14 +62,24 @@ public partial class EnemyBase : Node2D
     public bool IsStaggered => _enemyState == EnemyState.Staggered;
     public bool IsDefeated => IsDead;
     public EnemyDataResource? EnemyData => _enemyData;
-    public bool IsArmored => _enemyData?.Armored ?? false;
+    public bool IsArmored => _hasBossPhaseConfiguration
+        ? _bossPhaseArmored
+        : _enemyData?.Armored ?? false;
     public bool IsArmorActive => IsArmored && !IsDead && _currentPosture > 0.0f;
     public float ArmorHealthDamageMultiplier =>
-        Mathf.Clamp(_enemyData?.HealthDamageMultiplierWhilePostureActive ?? 1.0f, 0.0f, 1.0f);
+        Mathf.Clamp(
+            _hasBossPhaseConfiguration
+                ? _bossPhaseArmorMultiplier
+                : _enemyData?.HealthDamageMultiplierWhilePostureActive ?? 1.0f,
+            0.0f,
+            1.0f);
 
     public void Configure(EnemyDataResource enemyData)
     {
         _enemyData = enemyData;
+        _hasBossPhaseConfiguration = false;
+        _bossPhaseArmored = false;
+        _bossPhaseArmorMultiplier = 1.0f;
         EnemyName = string.IsNullOrWhiteSpace(enemyData.EnemyName)
             ? EnemyName
             : enemyData.EnemyName;
@@ -86,6 +104,9 @@ public partial class EnemyBase : Node2D
         _armorLabel = GetNode<Label>("ArmorLabel");
         _bodyPlaceholder = GetNode<Polygon2D>("BodyPlaceholder");
         _corePlaceholder = GetNode<Polygon2D>("CorePlaceholder");
+        _visualArt = GetNode<Sprite2D>("VisualArt");
+        _visualArtBaseScale = _visualArt.Scale;
+        _basePosition = Position;
         _attackFeedbackTimer = GetNode<Timer>("AttackFeedbackTimer");
         _staggerFeedbackTimer = GetNode<Timer>("StaggerFeedbackTimer");
         _attackFeedbackTimer.Timeout += OnAttackFeedbackTimeout;
@@ -96,6 +117,7 @@ public partial class EnemyBase : Node2D
         _enemyState = EnemyState.Normal;
         _nameLabel.Text = EnemyName;
         UpdateVitalsVisuals();
+        PlayEntranceFeedback();
     }
 
     public override void _ExitTree()
@@ -121,12 +143,12 @@ public partial class EnemyBase : Node2D
         _currentHealth = Mathf.Clamp(_currentHealth - damage, 0.0f, MaxHealth);
         UpdateVitalsVisuals();
         EmitSignal(SignalName.HealthChanged, _currentHealth, MaxHealth);
+        PlayDamageReceivedFeedback(damage);
 
         if (_currentHealth <= 0.0f)
         {
             _enemyState = EnemyState.Dead;
             _staggerFeedbackTimer.Stop();
-            ResetPlaceholderFeedback();
             UpdateStateVisuals();
             EmitSignal(SignalName.Died);
             EmitSignal(SignalName.Defeated);
@@ -150,6 +172,10 @@ public partial class EnemyBase : Node2D
             0.0f,
             Math.Max(1.0f, MaxPosture));
         UpdatePostureVisuals();
+        if (_postureBar is PercentageMeter resistanceMeter)
+        {
+            resistanceMeter.PulseDamage();
+        }
         EmitSignal(SignalName.PostureChanged, _currentPosture, MaxPosture);
 
         if (_currentPosture <= 0.0f)
@@ -176,6 +202,61 @@ public partial class EnemyBase : Node2D
         EmitSignal(SignalName.PostureChanged, _currentPosture, MaxPosture);
     }
 
+    /// <summary>
+    /// Aplica os valores visuais e de resistência da fase atual sem alterar o
+    /// HP do inimigo. O BossController chama este método durante a transição.
+    /// </summary>
+    public void ApplyBossPhase(BossPhaseResource phase)
+    {
+        if (phase == null || IsDead)
+        {
+            return;
+        }
+
+        _hasBossPhaseConfiguration = true;
+        _bossPhaseArmored = phase.Armored;
+        _bossPhaseArmorMultiplier = Mathf.Clamp(
+            phase.ArmorHealthDamageMultiplier,
+            0.0f,
+            1.0f);
+        MaxPosture = Math.Max(1.0f, phase.MaxPosture);
+        _currentPosture = MaxPosture;
+        _enemyState = EnemyState.Normal;
+        ResetPlaceholderFeedback();
+        UpdateVitalsVisuals();
+        UpdateStateVisuals();
+        EmitSignal(SignalName.PostureChanged, _currentPosture, MaxPosture);
+    }
+
+    public void RestoreHealth(float amount)
+    {
+        if (IsDead || amount <= 0.0f || _currentHealth >= MaxHealth)
+        {
+            return;
+        }
+
+        _currentHealth = Mathf.Clamp(_currentHealth + amount, 0.0f, MaxHealth);
+        UpdateVitalsVisuals();
+        EmitSignal(SignalName.HealthChanged, _currentHealth, MaxHealth);
+    }
+
+    /// <summary>
+    /// Utilizado apenas pelas opções de debug para iniciar uma fase já em sua
+    /// faixa de HP, sem simular golpes artificiais.
+    /// </summary>
+    public void SetCurrentHealth(float health)
+    {
+        _currentHealth = Mathf.Clamp(health, 0.0f, MaxHealth);
+        if (_currentHealth > 0.0f && _enemyState == EnemyState.Dead)
+        {
+            _enemyState = EnemyState.Normal;
+        }
+
+        ResetPlaceholderFeedback();
+        UpdateVitalsVisuals();
+        EmitSignal(SignalName.HealthChanged, _currentHealth, MaxHealth);
+    }
+
     public void RestoreFullHealth()
     {
         _enemyState = EnemyState.Normal;
@@ -195,10 +276,59 @@ public partial class EnemyBase : Node2D
             return;
         }
 
+        FinishEntranceFeedback();
         _bodyPlaceholder.Modulate = new Color(1.0f, 0.35f, 0.35f, 1.0f);
         _corePlaceholder.Modulate = new Color(1.0f, 0.75f, 0.75f, 1.0f);
+        _visualArt.Modulate = new Color(1.0f, 0.82f, 0.82f, 1.0f);
+        _visualArt.Scale = _visualArtBaseScale * 1.05f;
         Scale = Vector2.One * 1.05f;
         _attackFeedbackTimer.Start();
+    }
+
+    public void PlayEntranceFeedback()
+    {
+        _entranceTween?.Kill();
+        Position = _basePosition + new Vector2(-26.0f, 8.0f);
+        Scale = Vector2.One * 0.82f;
+        Modulate = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+
+        _entranceTween = CreateTween().SetParallel(true);
+        _entranceTween.SetEase(Tween.EaseType.Out);
+        _entranceTween.SetTrans(Tween.TransitionType.Back);
+        _entranceTween.TweenProperty(this, "position", _basePosition, 0.52d);
+        _entranceTween.TweenProperty(this, "scale", Vector2.One, 0.52d);
+        _entranceTween.SetTrans(Tween.TransitionType.Cubic);
+        _entranceTween.TweenProperty(this, "modulate:a", 1.0f, 0.34d);
+    }
+
+    private void PlayDamageReceivedFeedback(float damage)
+    {
+        FinishEntranceFeedback();
+        _damageTween?.Kill();
+        _attackFeedbackTimer.Stop();
+
+        var impactStrength = Mathf.Clamp(damage / Math.Max(1.0f, MaxHealth), 0.08f, 0.32f);
+        _bodyPlaceholder.Modulate = new Color(1.0f, 0.32f, 0.52f, 1.0f);
+        _corePlaceholder.Modulate = new Color(1.0f, 0.88f, 0.95f, 1.0f);
+        _visualArt.Modulate = new Color(1.0f, 0.58f, 0.72f, 1.0f);
+        _visualArt.Scale = _visualArtBaseScale * (1.04f + impactStrength);
+        Position = _basePosition + new Vector2(12.0f + impactStrength * 22.0f, -2.0f);
+        Rotation = 0.025f + impactStrength * 0.08f;
+        Scale = new Vector2(1.06f, 0.94f);
+
+        _damageTween = CreateTween().SetParallel(true);
+        _damageTween.SetEase(Tween.EaseType.Out);
+        _damageTween.SetTrans(Tween.TransitionType.Back);
+        _damageTween.TweenProperty(this, "position", _basePosition, 0.28d);
+        _damageTween.TweenProperty(this, "rotation", 0.0f, 0.25d);
+        _damageTween.TweenProperty(this, "scale", Vector2.One, 0.28d);
+
+        if (_healthBar is PercentageMeter healthMeter)
+        {
+            healthMeter.PulseDamage();
+        }
+
+        _attackFeedbackTimer.Start(0.3d);
     }
 
     public void PlayStaggerFeedback()
@@ -208,8 +338,11 @@ public partial class EnemyBase : Node2D
             return;
         }
 
+        FinishEntranceFeedback();
         _bodyPlaceholder.Modulate = new Color(0.7f, 0.36f, 1.0f, 1.0f);
         _corePlaceholder.Modulate = new Color(1.0f, 0.82f, 0.3f, 1.0f);
+        _visualArt.Modulate = new Color(0.82f, 0.7f, 1.0f, 1.0f);
+        _visualArt.Scale = _visualArtBaseScale * 1.1f;
         Scale = Vector2.One * 1.1f;
         _staggerFeedbackTimer.Start();
     }
@@ -221,8 +354,11 @@ public partial class EnemyBase : Node2D
             return;
         }
 
+        FinishEntranceFeedback();
         _bodyPlaceholder.Modulate = new Color(1.0f, 0.78f, 0.3f, 1.0f);
         _corePlaceholder.Modulate = new Color(1.0f, 0.95f, 0.7f, 1.0f);
+        _visualArt.Modulate = new Color(1.0f, 0.9f, 0.58f, 1.0f);
+        _visualArt.Scale = _visualArtBaseScale * 1.14f;
         Scale = Vector2.One * 1.14f;
         _staggerFeedbackTimer.Start();
     }
@@ -251,7 +387,7 @@ public partial class EnemyBase : Node2D
 
         _postureBar.MaxValue = MaxPosture;
         _postureBar.Value = _currentPosture;
-        _postureLabel.Text = $"POSTURE: {_currentPosture:0}/{MaxPosture:0}";
+        _postureLabel.Text = $"RESISTÊNCIA: {_currentPosture:0}/{MaxPosture:0}";
         UpdateArmorVisuals();
     }
 
@@ -304,6 +440,24 @@ public partial class EnemyBase : Node2D
     {
         _bodyPlaceholder.Modulate = Colors.White;
         _corePlaceholder.Modulate = Colors.White;
+        _visualArt.Modulate = Colors.White;
+        _visualArt.Scale = _visualArtBaseScale;
+        Position = _basePosition;
+        Rotation = 0.0f;
+        Scale = Vector2.One;
+    }
+
+    private void FinishEntranceFeedback()
+    {
+        if (_entranceTween == null || !_entranceTween.IsValid())
+        {
+            return;
+        }
+
+        _entranceTween.Kill();
+        _entranceTween = null;
+        Modulate = Colors.White;
+        Position = _basePosition;
         Scale = Vector2.One;
     }
 }

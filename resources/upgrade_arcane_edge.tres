@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "arcane_edge"
+DisplayName = "LÂMINA ARCANA"
+Description = "Ataques PERFECT causam +8% de dano ao HP."
+EffectSummary = "DANO PERFECT +8%"
+Category = 0
+Rarity = 0
+EssenceCost = 55
+MaxStacks = 3
+SpecialEffectId = "arcane_edge"
+PrimaryValue = 0.08

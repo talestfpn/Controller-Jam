@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "relentless"
+DisplayName = "IMPLACÁVEL"
+Description = "Após 3 PERFECT consecutivos, o dano de Resistência aumenta em 15% enquanto a sequência continuar."
+EffectSummary = "3 PERFECT  /  RESISTÊNCIA +15%"
+Category = 1
+Rarity = 2
+EssenceCost = 115
+MaxStacks = 1
+SpecialEffectId = "relentless"
+PrimaryValue = 0.15
+SecondaryValue = 3.0

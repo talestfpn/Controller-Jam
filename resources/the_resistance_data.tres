@@ -1,0 +1,122 @@
+[gd_resource type="Resource" script_class="BossDataResource" load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://resources/BossDataResource.cs" id="1_boss_data"]
+[ext_resource type="PackedScene" path="res://enemies/the_resistance.tscn" id="2_boss_scene"]
+[ext_resource type="Resource" path="res://resources/fool_rhythm_profile.tres" id="3_fool_profile"]
+[ext_resource type="Resource" path="res://resources/tower_rhythm_profile.tres" id="4_tower_profile"]
+[ext_resource type="Resource" path="res://resources/justice_rhythm_profile.tres" id="5_justice_profile"]
+[ext_resource type="Resource" path="res://resources/knight_of_swords_rhythm_profile.tres" id="6_swords_profile"]
+[ext_resource type="Resource" path="res://resources/magician_rhythm_profile.tres" id="7_magician_profile"]
+[ext_resource type="Resource" path="res://resources/knight_of_pentacles_rhythm_profile.tres" id="8_pentacles_profile"]
+[ext_resource type="Resource" path="res://resources/resistance_phase7_profile.tres" id="9_resistance_profile"]
+[ext_resource type="Resource" path="res://resources/resistance_phase6_profile.tres" id="11_phase6_profile"]
+[ext_resource type="Script" path="res://resources/BossPhaseResource.cs" id="10_phase"]
+
+[sub_resource type="Resource" id="BossPhase_1"]
+script = ExtResource("10_phase")
+MinHealthPercent = 0.857142
+MaxHealthPercent = 1.0
+PhaseName = "FASE I — O INÍCIO"
+ThemeLabel = "THE FOOL"
+SpecialRules = "O primeiro arcano. Aprenda o ritmo e avance."
+RhythmProfile = ExtResource("3_fool_profile")
+AttackDamage = 18.0
+MaxPosture = 40.0
+Armored = false
+ArmorHealthDamageMultiplier = 1.0
+
+[sub_resource type="Resource" id="BossPhase_2"]
+script = ExtResource("10_phase")
+MinHealthPercent = 0.714286
+MaxHealthPercent = 0.857142
+PhaseName = "FASE II — A QUEDA"
+ThemeLabel = "THE TOWER"
+SpecialRules = "Golpes pesados e telegráficos. Respire entre as ações."
+RhythmProfile = ExtResource("4_tower_profile")
+AttackDamage = 38.0
+MaxPosture = 70.0
+Armored = false
+ArmorHealthDamageMultiplier = 1.0
+
+[sub_resource type="Resource" id="BossPhase_3"]
+script = ExtResource("10_phase")
+MinHealthPercent = 0.571429
+MaxHealthPercent = 0.714286
+PhaseName = "FASE III — A BALANÇA"
+ThemeLabel = "JUSTICE"
+SpecialRules = "Ataque e defesa se alternam. O parry abre caminho."
+RhythmProfile = ExtResource("5_justice_profile")
+AttackDamage = 22.0
+MaxPosture = 55.0
+Armored = false
+ArmorHealthDamageMultiplier = 1.0
+
+[sub_resource type="Resource" id="BossPhase_4"]
+script = ExtResource("10_phase")
+MinHealthPercent = 0.428571
+MaxHealthPercent = 0.571429
+PhaseName = "FASE IV — A LÂMINA"
+ThemeLabel = "KNIGHT OF SWORDS"
+SpecialRules = "Alta densidade. Rajadas curtas, sempre com espaço legível."
+RhythmProfile = ExtResource("6_swords_profile")
+AttackDamage = 24.0
+MaxPosture = 45.0
+Armored = false
+ArmorHealthDamageMultiplier = 1.0
+
+[sub_resource type="Resource" id="BossPhase_5"]
+script = ExtResource("10_phase")
+MinHealthPercent = 0.285714
+MaxHealthPercent = 0.428571
+PhaseName = "FASE V — O TRUQUE"
+ThemeLabel = "THE MAGICIAN"
+SpecialRules = "Fintas alteram apenas a aparência. O alvo musical é verdadeiro."
+RhythmProfile = ExtResource("7_magician_profile")
+AttackDamage = 20.0
+MaxPosture = 50.0
+Armored = false
+ArmorHealthDamageMultiplier = 1.0
+
+[sub_resource type="Resource" id="BossPhase_6"]
+script = ExtResource("10_phase")
+MinHealthPercent = 0.142857
+MaxHealthPercent = 0.285714
+PhaseName = "FASE VI — O PROTETOR"
+ThemeLabel = "KNIGHT OF PENTACLES"
+SpecialRules = "Resistência elevada. A armadura reduz apenas dano direto ao HP."
+RhythmProfile = ExtResource("11_phase6_profile")
+AttackDamage = 26.0
+MaxPosture = 140.0
+Armored = true
+ArmorHealthDamageMultiplier = 0.4
+
+[sub_resource type="Resource" id="BossPhase_7"]
+script = ExtResource("10_phase")
+MinHealthPercent = 0.0
+MaxHealthPercent = 0.142857
+PhaseName = "FASE VII — A RESISTÊNCIA"
+ThemeLabel = "THE RESISTANCE"
+SpecialRules = "Sem PERFECT por 6s: regenera 0,5% do HP por beat, até 5%."
+RhythmProfile = ExtResource("9_resistance_profile")
+AttackDamage = 32.0
+MaxPosture = 80.0
+Armored = false
+ArmorHealthDamageMultiplier = 1.0
+EnableRegeneration = true
+RegenerationDelaySeconds = 6.0
+RegenerationPercentPerBeat = 0.005
+MaxRegeneratedPercent = 0.05
+
+[resource]
+script = ExtResource("1_boss_data")
+EnemyName = "THE RESISTANCE"
+MaxHealth = 700.0
+MaxPosture = 40.0
+BaseEssenceReward = 350
+BaseAttackDamage = 18.0
+Armored = false
+HealthDamageMultiplierWhilePostureActive = 1.0
+EnemyScene = ExtResource("2_boss_scene")
+RhythmProfile = ExtResource("3_fool_profile")
+BossPhases = Array[ExtResource("10_phase")]([SubResource("BossPhase_1"), SubResource("BossPhase_2"), SubResource("BossPhase_3"), SubResource("BossPhase_4"), SubResource("BossPhase_5"), SubResource("BossPhase_6"), SubResource("BossPhase_7")])
+PhaseTransitionDuration = 1.0

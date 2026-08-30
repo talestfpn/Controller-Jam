@@ -25,5 +25,7 @@ public partial class AudioFeedbackConfig : Resource
     [Export] public AudioStream ComboMilestoneSfx { get; set; } = null!;
     [Export] public AudioStream ComboBreakSfx { get; set; } = null!;
     [Export] public AudioStream PerfectStreakSfx { get; set; } = null!;
+    [Export] public AudioStream BossRegenerationSfx { get; set; } = null!;
+    [Export] public AudioStream BossPhaseTransitionSfx { get; set; } = null!;
     [Export] public AudioStream MetronomeSfx { get; set; } = null!;
 }

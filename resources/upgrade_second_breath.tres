@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "second_breath"
+DisplayName = "SEGUNDO FÔLEGO"
+Description = "Uma vez por combate, um dano fatal deixa o jogador com 1 HP."
+EffectSummary = "UMA VEZ POR COMBATE  /  SOBREVIVE COM 1 HP"
+Category = 4
+Rarity = 2
+EssenceCost = 130
+MaxStacks = 1
+SpecialEffectId = "second_breath"
+PrimaryValue = 1.0

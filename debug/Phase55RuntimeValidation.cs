@@ -78,7 +78,7 @@ public partial class Phase55RuntimeValidation : Node
         if (RequireArmor)
         {
             _armorWasLoaded = _combat.GetNode<EnemyBase>(
-                "EnemyContainer/TheKnight").IsArmored;
+                "EnemyContainer/KnightOfPentacles").IsArmored;
         }
     }
 
@@ -260,7 +260,7 @@ public partial class Phase55RuntimeValidation : Node
 
         if (RequireArmor)
         {
-            errors += Require(_armorWasLoaded, "Knight não carregou Armor no início do combate");
+            errors += Require(_armorWasLoaded, "Knight of Pentacles não carregou Armor no início do combate");
         }
 
         errors += Require(

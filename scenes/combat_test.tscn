@@ -9,63 +9,199 @@
 [ext_resource type="Script" uid="uid://cyxvyobehvyui" path="res://combat/ComboManager.cs" id="7_combo_manager"]
 [ext_resource type="Resource" uid="uid://bq4wp8lq3065h" path="res://resources/combo_config.tres" id="8_combo_config"]
 [ext_resource type="PackedScene" path="res://audio/audio_manager.tscn" id="9_audio_manager"]
-[ext_resource type="Script" path="res://resources/EnemyDataResource.cs" id="10_enemy_data_script"]
-[ext_resource type="Resource" path="res://resources/the_initiate_data.tres" id="11_initiate_data"]
-[ext_resource type="Resource" path="res://resources/the_brute_data.tres" id="12_brute_data"]
-[ext_resource type="Resource" path="res://resources/the_duelist_data.tres" id="13_duelist_data"]
+[ext_resource type="Script" uid="uid://dgri3a1c6yhat" path="res://resources/EnemyDataResource.cs" id="10_enemy_data_script"]
+[ext_resource type="Resource" path="res://resources/the_fool_data.tres" id="11_fool_data"]
+[ext_resource type="Resource" path="res://resources/the_tower_data.tres" id="12_tower_data"]
+[ext_resource type="Resource" path="res://resources/justice_data.tres" id="13_justice_data"]
 [ext_resource type="Resource" path="res://resources/rhythm_fairness_config.tres" id="14_fairness"]
-[ext_resource type="Resource" path="res://resources/the_assassin_data.tres" id="15_assassin_data"]
-[ext_resource type="Resource" path="res://resources/the_mage_data.tres" id="16_mage_data"]
-[ext_resource type="Resource" path="res://resources/the_knight_data.tres" id="17_knight_data"]
-[ext_resource type="Resource" path="res://resources/the_berserker_data.tres" id="18_berserker_data"]
+[ext_resource type="Resource" path="res://resources/knight_of_swords_data.tres" id="15_knight_of_swords_data"]
+[ext_resource type="Resource" path="res://resources/the_magician_data.tres" id="16_magician_data"]
+[ext_resource type="Resource" path="res://resources/knight_of_pentacles_data.tres" id="17_knight_of_pentacles_data"]
+[ext_resource type="Resource" uid="uid://b5qsm3lfnr3nc" path="res://resources/king_of_wands_data.tres" id="18_king_of_wands_data"]
+[ext_resource type="Shader" path="res://shaders/beat_synced_nebula.gdshader" id="19_background_shader"]
+[ext_resource type="Script" path="res://combat/BeatSyncedBackground.cs" id="20_background_script"]
+[ext_resource type="FontFile" path="res://fontes/ferrum/ferrum.otf" id="21_ferrum_font"]
+[ext_resource type="PackedScene" path="res://ui/percentage_meter.tscn" id="22_meter_scene"]
+[ext_resource type="Script" path="res://ui/ArcaneComboDisplay.cs" id="23_combo_display"]
+[ext_resource type="Shader" path="res://shaders/arcane_combo.gdshader" id="24_combo_shader"]
+[ext_resource type="Shader" path="res://shaders/arcane_separator.gdshader" id="25_separator_shader"]
+[ext_resource type="Resource" path="res://resources/battle_reward_config.tres" id="26_reward_config"]
+[ext_resource type="PackedScene" path="res://scenes/battle_result.tscn" id="27_battle_result"]
+[ext_resource type="Resource" path="res://resources/the_resistance_data.tres" id="28_resistance_data"]
+[ext_resource type="PackedScene" path="res://scenes/victory.tscn" id="29_victory_scene"]
+[ext_resource type="Shader" path="res://shaders/boss_phase_transition.gdshader" id="30_boss_transition_shader"]
+[ext_resource type="PackedScene" path="res://ui/combat_value_feedback.tscn" id="31_value_feedback"]
+[ext_resource type="PackedScene" path="res://ui/arcane_combat_atmosphere.tscn" id="32_arcane_atmosphere"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nebula_background"]
+resource_local_to_scene = true
+shader = ExtResource("19_background_shader")
+shader_parameter/rhythm_time = 0.0
+shader_parameter/beat_phase = 0.0
+shader_parameter/beat_pulse = 0.0
+shader_parameter/measure_pulse = 0.0
+shader_parameter/octave_count = 6
+shader_parameter/cloud_1_color = Color(0.24, 0.48, 0.88, 0.42)
+shader_parameter/cloud_2_color = Color(0.98, 0.62, 0.3, 0.14)
+shader_parameter/cloud_3_color = Color(0.69, 0.18, 0.72, 0.88)
+shader_parameter/cloud_4_color = Color(0.12, 0.035, 0.28, 1)
+shader_parameter/space_color = Color(0.018, 0.008, 0.075, 1)
+shader_parameter/star_color = Color(0.86, 0.9, 1, 1)
+shader_parameter/beat_glow_color = Color(0.72, 0.3, 1, 1)
+shader_parameter/zoom_scale = 4.6
+shader_parameter/cloud_motion = 0.045
+shader_parameter/star_scale = 38.0
+shader_parameter/star_probability = 0.982
+shader_parameter/star_strength = 0.72
+shader_parameter/aspect_ratio = 1.777778
+shader_parameter/center_offset = Vector2(0, 0)
+shader_parameter/exposure = 0.88
+shader_parameter/vignette_strength = 0.35
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_arcane_combo"]
+resource_local_to_scene = true
+shader = ExtResource("24_combo_shader")
+shader_parameter/energy = 0.14
+shader_parameter/beat_phase = 0.0
+shader_parameter/impact = 0.0
+shader_parameter/tier_flash = 0.0
+shader_parameter/break_amount = 0.0
+shader_parameter/primary_color = Color(0.34, 0.62, 1, 1)
+shader_parameter/secondary_color = Color(0.7, 0.22, 1, 1)
+shader_parameter/core_color = Color(0.018, 0.008, 0.055, 0.94)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_top_separator"]
+shader = ExtResource("25_separator_shader")
+shader_parameter/primary_color = Color(0.22, 0.72, 1, 1)
+shader_parameter/secondary_color = Color(0.86, 0.16, 1, 1)
+shader_parameter/speed = 0.35
+shader_parameter/intensity = 0.7
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_arena_separator"]
+shader = ExtResource("25_separator_shader")
+shader_parameter/primary_color = Color(0.22, 0.68, 1, 1)
+shader_parameter/secondary_color = Color(0.75, 0.22, 1, 1)
+shader_parameter/speed = 0.22
+shader_parameter/intensity = 0.58
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_player_health_bg"]
-bg_color = Color(0.12, 0.08, 0.12, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+bg_color = Color(0.035, 0.045, 0.08, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.26, 0.4, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_player_health_fill"]
-bg_color = Color(0.25, 0.62, 0.82, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+bg_color = Color(0.2, 0.65, 0.88, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.48, 0.85, 1, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_player_status_panel"]
+bg_color = Color(0.018, 0.012, 0.055, 0.46)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0.25, 0.08, 0.55, 0.32)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_combo_panel"]
+bg_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_feedback_panel"]
+bg_color = Color(0, 0, 0, 0)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0)
+
+[sub_resource type="Theme" id="Theme_combat_ferrum"]
+default_font = ExtResource("21_ferrum_font")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_boss_transition_aura"]
+resource_local_to_scene = true
+shader = ExtResource("30_boss_transition_shader")
+shader_parameter/primary_color = Color(0.35, 0.08, 0.7, 1)
+shader_parameter/secondary_color = Color(1, 0.52, 0.18, 1)
+shader_parameter/phase_intensity = 0.55
 
 [node name="CombatTest" type="Node2D" unique_id=1017705345]
 script = ExtResource("1_combat_controller")
 PromptScene = ExtResource("2_prompt_scene")
 EnemyScene = ExtResource("3_enemy_scene")
 AttackPattern = ExtResource("4_attack_pattern")
-EnemyRoster = Array[ExtResource("10_enemy_data_script")]([ExtResource("11_initiate_data"), ExtResource("12_brute_data"), ExtResource("13_duelist_data"), ExtResource("15_assassin_data"), ExtResource("16_mage_data"), ExtResource("17_knight_data"), ExtResource("18_berserker_data")])
-StartingEnemyIndex = 0
-EncounterSeed = 12345
-TimingConfig = ExtResource("5_timing_config")
 FairnessConfig = ExtResource("14_fairness")
+EnemyRoster = Array[ExtResource("10_enemy_data_script")]([ExtResource("11_fool_data"), ExtResource("12_tower_data"), ExtResource("13_justice_data"), ExtResource("15_knight_of_swords_data"), ExtResource("16_magician_data"), ExtResource("17_knight_of_pentacles_data"), ExtResource("18_king_of_wands_data"), ExtResource("28_resistance_data")])
+TimingConfig = ExtResource("5_timing_config")
+RewardConfig = ExtResource("26_reward_config")
+BattleResultScene = ExtResource("27_battle_result")
+VictoryScene = ExtResource("29_victory_scene")
+CombatValueFeedbackScene = ExtResource("31_value_feedback")
+DebugRhythm = false
+DebugBossPhase = -1
 
 [node name="Background" type="ColorRect" parent="." unique_id=1395778706]
 offset_right = 1152.0
 offset_bottom = 648.0
 mouse_filter = 2
-color = Color(0.035, 0.047, 0.09, 1)
+material = SubResource("ShaderMaterial_nebula_background")
+z_index = -10
+color = Color(1, 1, 1, 1)
+script = ExtResource("20_background_script")
+BeatPulseStrength = 0.16
+BeatPulseDecay = 7.0
+MeasurePulseStrength = 0.12
+
+[node name="BackgroundDimmer" type="ColorRect" parent="." unique_id=2025010101]
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+z_index = -9
+color = Color(0.012, 0.018, 0.05, 0.2)
+
+[node name="ArcaneCombatAtmosphere" parent="." instance=ExtResource("32_arcane_atmosphere")]
 
 [node name="TopBand" type="ColorRect" parent="." unique_id=470670989]
+visible = false
 offset_right = 1152.0
-offset_bottom = 92.0
+offset_bottom = 78.0
 mouse_filter = 2
-color = Color(0.055, 0.071, 0.13, 1)
+color = Color(0.018, 0.012, 0.055, 0.96)
+
+[node name="TopAccent" type="ColorRect" parent="."]
+visible = false
+material = SubResource("ShaderMaterial_top_separator")
+offset_top = 76.0
+offset_right = 1152.0
+offset_bottom = 79.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
 
 [node name="ArenaLine" type="ColorRect" parent="." unique_id=1346346944]
+visible = false
+material = SubResource("ShaderMaterial_arena_separator")
 offset_left = 70.0
 offset_top = 470.0
 offset_right = 1082.0
-offset_bottom = 474.0
+offset_bottom = 473.0
 mouse_filter = 2
-color = Color(0.18, 0.22, 0.34, 0.8)
+color = Color(1, 1, 1, 1)
 
 [node name="SceneResources" type="ResourcePreloader" parent="." unique_id=1968776478]
-resources = [PackedStringArray("enemy_base", "initiate_pattern", "rhythm_prompt"), [ExtResource("3_enemy_scene"), ExtResource("4_attack_pattern"), ExtResource("2_prompt_scene")]]
+resources = [PackedStringArray("enemy_base", "fool_pattern", "rhythm_prompt"), [ExtResource("3_enemy_scene"), ExtResource("4_attack_pattern"), ExtResource("2_prompt_scene")]]
 
 [node name="ComboManager" type="Node" parent="." unique_id=2109085200]
 script = ExtResource("7_combo_manager")
@@ -81,14 +217,18 @@ one_shot = true
 wait_time = 1.1
 one_shot = true
 
+[node name="BossPhaseTransitionTimer" type="Timer" parent="."]
+one_shot = true
+
 [node name="PromptContainer" type="Node2D" parent="." unique_id=1786169807]
 position = Vector2(576, 330)
 
 [node name="EnemyContainer" type="Node2D" parent="." unique_id=1797179664]
-position = Vector2(900, 355)
+position = Vector2(225, 290)
+scale = Vector2(1.35, 1.35)
 
 [node name="PlayerContainer" type="Node2D" parent="." unique_id=1297877599]
-position = Vector2(235, 355)
+position = Vector2(576, 520)
 
 [node name="Player" parent="PlayerContainer" unique_id=1702382421 instance=ExtResource("6_player_scene")]
 
@@ -102,125 +242,186 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme = SubResource("Theme_combat_ferrum")
+theme_override_fonts/font = ExtResource("21_ferrum_font")
 
 [node name="Title" type="Label" parent="CanvasLayer/Ui" unique_id=1623649989]
+visible = false
 layout_mode = 0
 offset_left = 32.0
-offset_top = 20.0
+offset_top = 14.0
 offset_right = 600.0
-offset_bottom = 52.0
-theme_override_colors/font_color = Color(0.91, 0.93, 1, 1)
-theme_override_font_sizes/font_size = 24
-text = "COMBAT FOUNDATION"
+offset_bottom = 46.0
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.16, 0.03, 0.22, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 26
+text = "THE RESISTANCE"
 
 [node name="Instructions" type="Label" parent="CanvasLayer/Ui" unique_id=1379523864]
+visible = false
 layout_mode = 0
 offset_left = 32.0
-offset_top = 56.0
+offset_top = 48.0
 offset_right = 800.0
-offset_bottom = 82.0
-theme_override_colors/font_color = Color(0.6, 0.66, 0.8, 1)
-theme_override_font_sizes/font_size = 16
-text = "Ataque e defesa rítmicos — aguarde a próxima ação e pressione SPACE no timing"
+offset_bottom = 72.0
+theme_override_colors/font_color = Color(0.72, 0.78, 0.94, 1)
+theme_override_font_sizes/font_size = 14
+text = "SPACE  •  ATAQUE E DEFESA NO RITMO"
 
 [node name="BeatIndicator" type="Label" parent="CanvasLayer/Ui" unique_id=1917488870]
+visible = false
 layout_mode = 0
 offset_left = 920.0
-offset_top = 28.0
+offset_top = 22.0
 offset_right = 1120.0
-offset_bottom = 62.0
-theme_override_colors/font_color = Color(0.75, 0.78, 0.88, 0.7)
+offset_bottom = 56.0
+theme_override_colors/font_color = Color(0.74, 0.52, 1, 0.9)
 theme_override_font_sizes/font_size = 20
 text = "BEAT --"
 horizontal_alignment = 2
 
-[node name="ComboPanel" type="ColorRect" parent="CanvasLayer/Ui" unique_id=102300617]
+[node name="ComboPanel" type="Panel" parent="CanvasLayer/Ui" unique_id=102300617]
 layout_mode = 0
-offset_left = 370.0
-offset_top = 102.0
-offset_right = 782.0
-offset_bottom = 160.0
-pivot_offset = Vector2(206, 29)
+offset_left = 812.0
+offset_top = 190.0
+offset_right = 1128.0
+offset_bottom = 442.0
+pivot_offset = Vector2(158, 126)
 mouse_filter = 2
-color = Color(0.07, 0.09, 0.16, 0.92)
+theme_override_styles/panel = SubResource("StyleBoxFlat_combo_panel")
+script = ExtResource("23_combo_display")
+
+[node name="ArcaneAura" type="ColorRect" parent="CanvasLayer/Ui/ComboPanel"]
+material = SubResource("ShaderMaterial_arcane_combo")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -12.0
+offset_top = -24.0
+offset_right = 12.0
+offset_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
 
 [node name="ComboLabel" type="Label" parent="CanvasLayer/Ui/ComboPanel" unique_id=2063344528]
 layout_mode = 0
-offset_left = 12.0
-offset_top = 8.0
-offset_right = 132.0
-offset_bottom = 34.0
-theme_override_colors/font_color = Color(0.91, 0.93, 1, 1)
-theme_override_font_sizes/font_size = 17
+offset_left = 18.0
+offset_top = 70.0
+offset_right = 298.0
+offset_bottom = 120.0
+pivot_offset = Vector2(140, 25)
+theme_override_colors/font_color = Color(0.76, 0.88, 1, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.01, 0.18, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("21_ferrum_font")
+theme_override_font_sizes/font_size = 31
 text = "COMBO x0"
 horizontal_alignment = 1
 
 [node name="ComboMultiplierLabel" type="Label" parent="CanvasLayer/Ui/ComboPanel" unique_id=1155032537]
 layout_mode = 0
-offset_left = 132.0
-offset_top = 8.0
-offset_right = 250.0
-offset_bottom = 34.0
-theme_override_colors/font_color = Color(0.82, 0.86, 0.98, 1)
-theme_override_font_sizes/font_size = 17
+offset_left = 38.0
+offset_top = 126.0
+offset_right = 278.0
+offset_bottom = 164.0
+pivot_offset = Vector2(120, 18)
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.12, 0.02, 0.16, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("21_ferrum_font")
+theme_override_font_sizes/font_size = 22
 text = "DMG x1.00"
 horizontal_alignment = 1
 
 [node name="PerfectStreakLabel" type="Label" parent="CanvasLayer/Ui/ComboPanel" unique_id=251125992]
 visible = false
 layout_mode = 0
-offset_left = 250.0
-offset_top = 8.0
-offset_right = 408.0
-offset_bottom = 34.0
+offset_left = 28.0
+offset_top = 172.0
+offset_right = 288.0
+offset_bottom = 208.0
+pivot_offset = Vector2(130, 18)
 theme_override_colors/font_color = Color(1, 0.84, 0.3, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_outline_color = Color(0.12, 0.02, 0.16, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("21_ferrum_font")
+theme_override_font_sizes/font_size = 21
 horizontal_alignment = 1
 
 [node name="ComboFeedbackLabel" type="Label" parent="CanvasLayer/Ui/ComboPanel" unique_id=716210452]
 visible = false
 layout_mode = 0
-offset_left = 12.0
-offset_top = 34.0
-offset_right = 408.0
-offset_bottom = 56.0
+offset_left = 8.0
+offset_top = 210.0
+offset_right = 308.0
+offset_bottom = 248.0
 theme_override_colors/font_color = Color(1, 0.84, 0.3, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_outline_color = Color(0.1, 0.01, 0.16, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("21_ferrum_font")
+theme_override_font_sizes/font_size = 19
 horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="PlayerLabel" type="Label" parent="CanvasLayer/Ui" unique_id=503494649]
+visible = false
 layout_mode = 0
 offset_left = 150.0
 offset_top = 205.0
 offset_right = 330.0
 offset_bottom = 235.0
-theme_override_colors/font_color = Color(0.6, 0.84, 1, 1)
+z_index = 2
+theme_override_colors/font_color = Color(0.52, 0.86, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.02, 0.12, 1)
+theme_override_constants/outline_size = 3
 theme_override_font_sizes/font_size = 18
 text = "PLAYER"
 horizontal_alignment = 1
 
 [node name="PlayerHealthLabel" type="Label" parent="CanvasLayer/Ui" unique_id=2106373595]
+visible = false
 layout_mode = 0
-offset_left = 150.0
-offset_top = 500.0
-offset_right = 330.0
-offset_bottom = 524.0
-theme_override_colors/font_color = Color(0.7, 0.78, 0.9, 1)
-theme_override_font_sizes/font_size = 16
+offset_left = 132.0
+offset_top = 496.0
+offset_right = 348.0
+offset_bottom = 520.0
+z_index = 4
+theme_override_colors/font_color = Color(1, 0.9, 0.94, 1)
+theme_override_colors/font_outline_color = Color(0.14, 0.02, 0.08, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 15
 text = "HP: 100/100"
 horizontal_alignment = 1
 
-[node name="PlayerHealthBar" type="ProgressBar" parent="CanvasLayer/Ui" unique_id=208437970]
+[node name="PlayerHealthBar" parent="CanvasLayer/Ui" unique_id=208437970 instance=ExtResource("22_meter_scene")]
 layout_mode = 0
-offset_left = 140.0
-offset_top = 530.0
-offset_right = 340.0
-offset_bottom = 548.0
-mouse_filter = 2
-theme_override_styles/background = SubResource("StyleBoxFlat_player_health_bg")
-theme_override_styles/fill = SubResource("StyleBoxFlat_player_health_fill")
+custom_minimum_size = Vector2(0, 0)
+offset_left = 411.0
+offset_top = 28.0
+offset_right = 741.0
+offset_bottom = 60.0
+z_index = 4
+FillColor = Color(1, 0.08, 0.25, 1)
+TrailColor = Color(1, 0.48, 0.16, 1)
+EmptyColor = Color(0.22, 0.08, 0.18, 0.24)
+FrameColor = Color(1, 0.38, 0.62, 1)
+GlowStrength = 0.5
 value = 100.0
-show_percentage = false
+
+[node name="PlayerStatusPanel" type="Panel" parent="CanvasLayer/Ui" unique_id=2025010102]
+visible = false
+layout_mode = 0
+offset_left = 132.0
+offset_top = 486.0
+offset_right = 348.0
+offset_bottom = 558.0
+z_index = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_player_status_panel")
 
 [node name="DebugPanel" type="ColorRect" parent="CanvasLayer/Ui" unique_id=36936538]
 layout_mode = 0
@@ -330,7 +531,7 @@ offset_bottom = 492.0
 theme_override_colors/font_color = Color(0.82, 0.85, 0.94, 1)
 theme_override_font_sizes/font_size = 11
 text = "Enemy HP: --
-Enemy Posture: --
+Enemy Resistance: --
 Enemy State: --
 Combat State: --
 Combo: 0 | Highest: 0
@@ -339,65 +540,122 @@ Combo Tier: 0
 Damage Multiplier: x1.00
 Last Combo Result: --
 Last HP Damage: 0.0
-Last Posture Damage: 0.0
+Last Resistance Damage: 0.0
 Execution Active: false"
+
+[node name="FeedbackPanel" type="Panel" parent="CanvasLayer/Ui"]
+layout_mode = 0
+offset_left = 320.0
+offset_top = 548.0
+offset_right = 832.0
+offset_bottom = 642.0
+z_index = 1
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_feedback_panel")
+
+[node name="FeedbackAccent" type="ColorRect" parent="CanvasLayer/Ui/FeedbackPanel"]
+visible = false
+material = SubResource("ShaderMaterial_arena_separator")
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 22.0
+offset_top = 1.0
+offset_right = -22.0
+offset_bottom = 3.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
 
 [node name="ResultLabel" type="Label" parent="CanvasLayer/Ui" unique_id=981644611]
 layout_mode = 0
-offset_left = 390.0
-offset_top = 470.0
-offset_right = 762.0
-offset_bottom = 520.0
+offset_left = 350.0
+offset_top = 550.0
+offset_right = 802.0
+offset_bottom = 590.0
+pivot_offset = Vector2(186, 23)
+z_index = 2
 theme_override_colors/font_color = Color(0.95, 0.96, 1, 1)
-theme_override_font_sizes/font_size = 34
+theme_override_colors/font_outline_color = Color(0.12, 0.02, 0.18, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("21_ferrum_font")
+theme_override_font_sizes/font_size = 31
 text = "AGUARDANDO AÇÃO"
 horizontal_alignment = 1
 
 [node name="ResultDetailLabel" type="Label" parent="CanvasLayer/Ui" unique_id=98672939]
 layout_mode = 0
-offset_left = 350.0
-offset_top = 524.0
-offset_right = 802.0
-offset_bottom = 552.0
+offset_left = 320.0
+offset_top = 590.0
+offset_right = 832.0
+offset_bottom = 614.0
+z_index = 2
 theme_override_colors/font_color = Color(0.65, 0.7, 0.84, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_colors/font_outline_color = Color(0.025, 0.008, 0.07, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("21_ferrum_font")
+theme_override_font_sizes/font_size = 15
 text = "Aperte SPACE para atacar ou defender no timing desejado"
 horizontal_alignment = 1
 
 [node name="DamageLabel" type="Label" parent="CanvasLayer/Ui" unique_id=784350204]
+visible = false
 layout_mode = 0
 offset_left = 410.0
 offset_top = 560.0
 offset_right = 742.0
 offset_bottom = 584.0
+z_index = 2
 theme_override_colors/font_color = Color(1, 0.72, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.09, 0.018, 0.03, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("21_ferrum_font")
 theme_override_font_sizes/font_size = 18
 text = "DANO: --"
 horizontal_alignment = 1
 
 [node name="PostureDamageLabel" type="Label" parent="CanvasLayer/Ui" unique_id=1972457473]
+visible = false
 layout_mode = 0
 offset_left = 390.0
 offset_top = 584.0
 offset_right = 762.0
 offset_bottom = 608.0
-theme_override_colors/font_color = Color(0.94, 0.78, 0.46, 1)
+z_index = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_colors/font_outline_color = Color(0.025, 0.008, 0.07, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("21_ferrum_font")
 theme_override_font_sizes/font_size = 16
-text = "POSTURE: --"
+text = "RESISTÊNCIA: --"
 horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="CanvasLayer/Ui" unique_id=253686250]
 layout_mode = 0
-offset_left = 300.0
+offset_left = 270.0
 offset_top = 612.0
-offset_right = 852.0
+offset_right = 882.0
 offset_bottom = 640.0
+z_index = 2
 theme_override_colors/font_color = Color(0.76, 0.8, 0.92, 1)
+theme_override_colors/font_outline_color = Color(0.025, 0.008, 0.07, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("21_ferrum_font")
 theme_override_font_sizes/font_size = 15
 text = "Inicializando combate..."
 horizontal_alignment = 1
 
-[node name="PatternDebugPanel" type="ColorRect" parent="CanvasLayer/Ui"]
+[node name="CombatValueFeedbackLayer" type="Control" parent="CanvasLayer/Ui"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+z_index = 8
+
+[node name="PatternDebugPanel" type="ColorRect" parent="CanvasLayer/Ui" unique_id=1507895892]
 layout_mode = 0
 offset_left = 807.0
 offset_top = 102.0
@@ -406,7 +664,7 @@ offset_bottom = 490.0
 mouse_filter = 2
 color = Color(0.07, 0.09, 0.16, 0.92)
 
-[node name="EnemySelectionLabel" type="Label" parent="CanvasLayer/Ui/PatternDebugPanel"]
+[node name="EnemySelectionLabel" type="Label" parent="CanvasLayer/Ui/PatternDebugPanel" unique_id=838735218]
 layout_mode = 0
 offset_left = 12.0
 offset_top = 10.0
@@ -414,9 +672,9 @@ offset_right = 305.0
 offset_bottom = 32.0
 theme_override_colors/font_color = Color(0.72, 0.82, 1, 1)
 theme_override_font_sizes/font_size = 12
-text = "[1-7] Current: --"
+text = "[1-8] Current: --"
 
-[node name="ProfileDebugLabel" type="Label" parent="CanvasLayer/Ui/PatternDebugPanel"]
+[node name="ProfileDebugLabel" type="Label" parent="CanvasLayer/Ui/PatternDebugPanel" unique_id=1455391216]
 layout_mode = 0
 offset_left = 12.0
 offset_top = 38.0
@@ -426,7 +684,7 @@ theme_override_colors/font_color = Color(0.82, 0.85, 0.94, 1)
 theme_override_font_sizes/font_size = 11
 text = "Rhythm Profile: --"
 
-[node name="PatternPreviewLabel" type="Label" parent="CanvasLayer/Ui/PatternDebugPanel"]
+[node name="PatternPreviewLabel" type="Label" parent="CanvasLayer/Ui/PatternDebugPanel" unique_id=836595028]
 layout_mode = 0
 offset_left = 12.0
 offset_top = 184.0
@@ -434,4 +692,85 @@ offset_right = 305.0
 offset_bottom = 378.0
 theme_override_colors/font_color = Color(0.92, 0.86, 0.66, 1)
 theme_override_font_sizes/font_size = 11
-text = "NEXT EVENTS:\n--"
+text = "NEXT EVENTS:
+--"
+
+[node name="BossPhaseTransitionPanel" type="Control" parent="CanvasLayer/Ui"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+z_index = 20
+
+[node name="Dimmer" type="ColorRect" parent="CanvasLayer/Ui/BossPhaseTransitionPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.008, 0.002, 0.03, 0.88)
+
+[node name="Aura" type="ColorRect" parent="CanvasLayer/Ui/BossPhaseTransitionPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+material = SubResource("ShaderMaterial_boss_transition_aura")
+color = Color(1, 1, 1, 1)
+
+[node name="TopGlow" type="ColorRect" parent="CanvasLayer/Ui/BossPhaseTransitionPanel"]
+layout_mode = 0
+offset_left = 160.0
+offset_top = 250.0
+offset_right = 992.0
+offset_bottom = 253.0
+mouse_filter = 2
+color = Color(0.72, 0.3, 1, 0.9)
+
+[node name="PhaseTitle" type="Label" parent="CanvasLayer/Ui/BossPhaseTransitionPanel"]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 272.0
+offset_right = 1012.0
+offset_bottom = 326.0
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.16, 0.02, 0.25, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("21_ferrum_font")
+theme_override_font_sizes/font_size = 31
+text = "FASE II — A QUEDA"
+horizontal_alignment = 1
+
+[node name="PhaseSubtitle" type="Label" parent="CanvasLayer/Ui/BossPhaseTransitionPanel"]
+layout_mode = 0
+offset_left = 180.0
+offset_top = 330.0
+offset_right = 972.0
+offset_bottom = 366.0
+theme_override_colors/font_color = Color(0.8, 0.56, 1, 1)
+theme_override_fonts/font = ExtResource("21_ferrum_font")
+theme_override_font_sizes/font_size = 18
+text = "THE RESISTANCE  •  THE TOWER"
+horizontal_alignment = 1
+
+[node name="PhaseRules" type="Label" parent="CanvasLayer/Ui/BossPhaseTransitionPanel"]
+layout_mode = 0
+offset_left = 220.0
+offset_top = 382.0
+offset_right = 932.0
+offset_bottom = 420.0
+theme_override_colors/font_color = Color(0.75, 0.8, 0.98, 1)
+theme_override_fonts/font = ExtResource("21_ferrum_font")
+theme_override_font_sizes/font_size = 14
+text = "Uma nova forma desperta."
+horizontal_alignment = 1
+autowrap_mode = 2

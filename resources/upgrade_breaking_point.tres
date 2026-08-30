@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "breaking_point"
+DisplayName = "PONTO DE RUPTURA"
+Description = "Após a quebra de Resistência, o prompt de Execução recebe destaque visual e sonoro maior."
+EffectSummary = "QUEBRA DE RESISTÊNCIA  /  EXECUÇÃO EM DESTAQUE"
+Category = 5
+Rarity = 2
+EssenceCost = 110
+MaxStacks = 1
+SpecialEffectId = "breaking_point"
+PrimaryValue = 0.12

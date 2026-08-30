@@ -1,0 +1,19 @@
+[gd_resource type="Resource" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://resources/RhythmPatternResource.cs" id="1_pattern"]
+[ext_resource type="Resource" path="res://resources/fool_attack_beat_1.tres" id="2_event_1"]
+[ext_resource type="Resource" path="res://resources/fool_attack_beat_4.tres" id="3_event_4"]
+[ext_resource type="Resource" path="res://resources/fool_enemy_attack_beat_7.tres" id="4_event_7"]
+[ext_resource type="Resource" path="res://resources/fool_attack_beat_10.tres" id="5_event_10"]
+[ext_resource type="Resource" path="res://resources/fool_enemy_attack_beat_13.tres" id="6_event_13"]
+[ext_resource type="Resource" path="res://resources/fool_attack_beat_16.tres" id="7_event_16"]
+
+[resource]
+script = ExtResource("1_pattern")
+LoopLengthBeats = 20.0
+EventOne = ExtResource("2_event_1")
+EventTwo = ExtResource("3_event_4")
+EventThree = ExtResource("4_event_7")
+EventFour = ExtResource("5_event_10")
+EventFive = ExtResource("6_event_13")
+EventSix = ExtResource("7_event_16")

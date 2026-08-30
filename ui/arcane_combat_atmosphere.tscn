@@ -1,0 +1,70 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://ui/ArcaneCombatAtmosphere.cs" id="1_atmosphere_script"]
+[ext_resource type="Shader" path="res://shaders/arcane_combat_atmosphere.gdshader" id="2_atmosphere_shader"]
+[ext_resource type="Shader" path="res://shaders/arcane_foreground_motes.gdshader" id="3_foreground_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_atmosphere"]
+resource_local_to_scene = true
+shader = ExtResource("2_atmosphere_shader")
+shader_parameter/enemy_position = Vector2(0.195, 0.447)
+shader_parameter/prompt_position = Vector2(0.5, 0.509)
+shader_parameter/combo_position = Vector2(0.842, 0.488)
+shader_parameter/aspect_ratio = 1.777778
+shader_parameter/beat_phase = 0.0
+shader_parameter/health_ratio = 1.0
+shader_parameter/resistance_ratio = 1.0
+shader_parameter/combo_energy = 0.06
+shader_parameter/combo_tier = 0.0
+shader_parameter/enemy_seed = 0.0
+shader_parameter/ornament_style = 0.0
+shader_parameter/telegraph_strength = 0.0
+shader_parameter/telegraph_progress = 0.0
+shader_parameter/hit_progress = -1.0
+shader_parameter/hit_strength = 0.0
+shader_parameter/stagger_flash = 0.0
+shader_parameter/enemy_primary = Color(0.75, 0.25, 1, 1)
+shader_parameter/enemy_secondary = Color(1, 0.72, 0.2, 1)
+shader_parameter/impact_color = Color(0.55, 1, 0.24, 1)
+shader_parameter/combo_primary = Color(0.32, 0.72, 1, 1)
+shader_parameter/combo_secondary = Color(0.8, 0.24, 1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_foreground_motes"]
+resource_local_to_scene = true
+shader = ExtResource("3_foreground_shader")
+shader_parameter/density = 0.16
+shader_parameter/intensity = 0.22
+shader_parameter/cold_color = Color(0.36, 0.78, 1, 1)
+shader_parameter/warm_color = Color(0.9, 0.34, 1, 1)
+
+[node name="ArcaneCombatAtmosphere" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+z_index = -4
+script = ExtResource("1_atmosphere_script")
+
+[node name="VisualField" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_atmosphere")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="ForegroundMotes" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_foreground_motes")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+z_index = 8
+color = Color(1, 1, 1, 1)

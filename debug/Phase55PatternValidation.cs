@@ -20,25 +20,25 @@ public partial class Phase55PatternValidation : Node
     public PackedScene PromptScene { get; set; } = null!;
 
     [Export]
-    public EnemyDataResource InitiateData { get; set; } = null!;
+    public EnemyDataResource FoolData { get; set; } = null!;
 
     [Export]
-    public EnemyDataResource BruteData { get; set; } = null!;
+    public EnemyDataResource TowerData { get; set; } = null!;
 
     [Export]
-    public EnemyDataResource DuelistData { get; set; } = null!;
+    public EnemyDataResource JusticeData { get; set; } = null!;
 
     [Export]
-    public EnemyDataResource AssassinData { get; set; } = null!;
+    public EnemyDataResource KnightOfSwordsData { get; set; } = null!;
 
     [Export]
-    public EnemyDataResource MageData { get; set; } = null!;
+    public EnemyDataResource MagicianData { get; set; } = null!;
 
     [Export]
-    public EnemyDataResource KnightData { get; set; } = null!;
+    public EnemyDataResource KnightOfPentaclesData { get; set; } = null!;
 
     [Export]
-    public EnemyDataResource BerserkerData { get; set; } = null!;
+    public EnemyDataResource KingOfWandsData { get; set; } = null!;
 
     [Export]
     public int Seed { get; set; } = 12345;
@@ -56,46 +56,46 @@ public partial class Phase55PatternValidation : Node
         }
 
         var baseSignature = GetSignature(BasePattern);
-        var initiate = ValidateData("INITIATE", InitiateData);
-        var brute = ValidateData("BRUTE", BruteData);
-        var duelist = ValidateData("DUELIST", DuelistData);
-        var assassin = ValidateData("ASSASSIN", AssassinData);
-        var mage = ValidateData("MAGE", MageData);
-        var knight = ValidateData("KNIGHT", KnightData);
-        var berserkerPhase1 = ValidatePhase("BERSERKER_P1", BerserkerData, 0);
-        var berserkerPhase2 = ValidatePhase("BERSERKER_P2", BerserkerData, 1);
-        var berserkerPhase3 = ValidatePhase("BERSERKER_P3", BerserkerData, 2);
+        var fool = ValidateData("THE FOOL", FoolData);
+        var tower = ValidateData("THE TOWER", TowerData);
+        var justice = ValidateData("JUSTICE", JusticeData);
+        var knightOfSwords = ValidateData("KNIGHT OF SWORDS", KnightOfSwordsData);
+        var magician = ValidateData("THE MAGICIAN", MagicianData);
+        var knightOfPentacles = ValidateData("KNIGHT OF PENTACLES", KnightOfPentaclesData);
+        var kingOfWandsPhase1 = ValidatePhase("KING OF WANDS_P1", KingOfWandsData, 0);
+        var kingOfWandsPhase2 = ValidatePhase("KING OF WANDS_P2", KingOfWandsData, 1);
+        var kingOfWandsPhase3 = ValidatePhase("KING OF WANDS_P3", KingOfWandsData, 2);
 
-        Require(duelist.EventCount > initiate.EventCount,
-            "Duelist deve ser mais denso que Initiate.");
-        Require(assassin.EventCount > duelist.EventCount,
-            "Assassin deve ser mais denso que Duelist.");
-        Require(assassin.EnemyAttackCount > duelist.EnemyAttackCount,
-            "Assassin deve possuir mais pressão de EnemyAttack que Duelist.");
-        Require(mage.FeintCount > 0 && mage.FadeCount > 0 && mage.DecoyCount > 0,
-            "Mage precisa gerar Feint, Fade e Decoy.");
-        Require(knight.DecoyCount == 0 && knight.FeintCount == 0 && knight.FadeCount == 0,
-            "Knight não deve possuir modifiers visuais.");
-        Require(berserkerPhase3.EventCount > berserkerPhase1.EventCount,
-            "Berserker Phase 3 deve ser mais densa que Phase 1.");
-        Require(berserkerPhase3.EnemyAttackCount > berserkerPhase1.EnemyAttackCount,
-            "Berserker Phase 3 deve possuir mais EnemyAttack que Phase 1.");
-        Require(berserkerPhase3.BurstCount >= berserkerPhase1.BurstCount,
-            "Berserker Phase 3 não deve perder identidade de burst.");
+        Require(justice.EventCount > fool.EventCount,
+            "Justice deve ser mais densa que The Fool.");
+        Require(knightOfSwords.EventCount > justice.EventCount,
+            "Knight of Swords deve ser mais denso que Justice.");
+        Require(knightOfSwords.EnemyAttackCount > justice.EnemyAttackCount,
+            "Knight of Swords deve possuir mais pressão de EnemyAttack que Justice.");
+        Require(magician.FeintCount > 0 && magician.FadeCount > 0 && magician.DecoyCount > 0,
+            "The Magician precisa gerar Feint, Fade e Decoy.");
+        Require(knightOfPentacles.DecoyCount == 0 && knightOfPentacles.FeintCount == 0 && knightOfPentacles.FadeCount == 0,
+            "Knight of Pentacles não deve possuir modifiers visuais.");
+        Require(kingOfWandsPhase3.EventCount > kingOfWandsPhase1.EventCount,
+            "King of Wands Phase 3 deve ser mais densa que Phase 1.");
+        Require(kingOfWandsPhase3.EnemyAttackCount > kingOfWandsPhase1.EnemyAttackCount,
+            "King of Wands Phase 3 deve possuir mais EnemyAttack que Phase 1.");
+        Require(kingOfWandsPhase3.BurstCount >= kingOfWandsPhase1.BurstCount,
+            "King of Wands Phase 3 não deve perder identidade de burst.");
 
         ValidatePromptBehaviors();
-        ValidateEnemyData(InitiateData);
-        ValidateEnemyData(BruteData);
-        ValidateEnemyData(DuelistData);
-        ValidateEnemyData(AssassinData);
-        ValidateEnemyData(MageData);
-        ValidateEnemyData(KnightData);
-        ValidateEnemyData(BerserkerData);
+        ValidateEnemyData(FoolData);
+        ValidateEnemyData(TowerData);
+        ValidateEnemyData(JusticeData);
+        ValidateEnemyData(KnightOfSwordsData);
+        ValidateEnemyData(MagicianData);
+        ValidateEnemyData(KnightOfPentaclesData);
+        ValidateEnemyData(KingOfWandsData);
         ValidateBerserkerPhases();
 
-        Require(KnightData.Armored, "Knight precisa estar marcado como Armored.");
-        Require(Math.Abs(KnightData.HealthDamageMultiplierWhilePostureActive - 0.25f) < 0.001f,
-            "Knight precisa usar Armor multiplier 0.25.");
+        Require(KnightOfPentaclesData.Armored, "Knight of Pentacles precisa estar marcado como Armored.");
+        Require(Math.Abs(KnightOfPentaclesData.HealthDamageMultiplierWhilePostureActive - 0.25f) < 0.001f,
+            "Knight of Pentacles precisa usar Armor multiplier 0.25.");
         var armoredDamage = DamageCalculator.ApplyArmorToHealthDamage(15.0f, true, 0.25f);
         Require(Math.Abs(armoredDamage - 3.75f) < 0.001f,
             "Armor não reduziu o dano de HP conforme configurado.");
@@ -313,14 +313,20 @@ public partial class Phase55PatternValidation : Node
             $"Cena de {data.EnemyName} carregou HP incorreto.");
         Require(Math.Abs(enemy.MaxPosture - data.MaxPosture) < 0.01f,
             $"Cena de {data.EnemyName} carregou postura incorreta.");
+        if (data.EnemyName == "THE TOWER")
+        {
+            var towerArt = enemy.GetNode<Sprite2D>("VisualArt");
+            Require(towerArt.Visible && towerArt.Texture != null,
+                "The Tower precisa carregar seu Sprite2D de arte pela cena.");
+        }
         enemy.QueueFree();
     }
 
     private void ValidateBerserkerPhases()
     {
-        Require(BerserkerData != null && BerserkerData.RhythmPhases.Count == 3,
-            "Berserker precisa possuir exatamente três fases.");
-        if (BerserkerData == null || BerserkerData.RhythmPhases.Count != 3)
+        Require(KingOfWandsData != null && KingOfWandsData.RhythmPhases.Count == 3,
+            "King of Wands precisa possuir exatamente três fases.");
+        if (KingOfWandsData == null || KingOfWandsData.RhythmPhases.Count != 3)
         {
             return;
         }
@@ -329,11 +335,11 @@ public partial class Phase55PatternValidation : Node
         var expectedIndices = new[] { 0, 1, 2, 2 };
         for (var index = 0; index < phaseSamples.Length; index++)
         {
-            var profile = BerserkerData.GetRhythmProfileForHealthPercent(
+            var profile = KingOfWandsData.GetRhythmProfileForHealthPercent(
                 phaseSamples[index],
                 out var phaseIndex);
             Require(profile != null && phaseIndex == expectedIndices[index],
-                $"Berserker selecionou fase incorreta em HP {phaseSamples[index]:P0}.");
+                $"King of Wands selecionou fase incorreta em HP {phaseSamples[index]:P0}.");
         }
     }
 

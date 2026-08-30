@@ -34,7 +34,7 @@ public partial class Phase55BerserkerPhaseValidation : Node
         _combat.StartingEnemyIndex = 6;
         _combat.DebugRhythm = false;
         AddChild(_combat);
-        _enemy = _combat.GetNode<EnemyBase>("EnemyContainer/TheBerserker");
+        _enemy = _combat.GetNode<EnemyBase>("EnemyContainer/KingOfWands");
         _promptContainer = _combat.GetNode<Node2D>("PromptContainer");
         _initialBpm = _rhythmManager.Bpm;
     }
@@ -141,7 +141,7 @@ public partial class Phase55BerserkerPhaseValidation : Node
             $"phase3={_phaseThreeSeen} max_active={_maximumActivePrompts} " +
             $"bpm={_rhythmManager.Bpm:0.0} music_position={_rhythmManager.GetMusicPosition():0.000} " +
             $"errors={_errors}");
-        _finishFramesRemaining = 3;
+        _finishFramesRemaining = 10;
         _rhythmManager.Stop();
         _combat.QueueFree();
     }

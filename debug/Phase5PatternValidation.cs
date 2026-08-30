@@ -12,25 +12,25 @@ public partial class Phase5PatternValidation : Node
     public RhythmPatternResource BasePattern { get; set; } = null!;
 
     [Export]
-    public EnemyRhythmProfileResource InitiateProfile { get; set; } = null!;
+    public EnemyRhythmProfileResource FoolProfile { get; set; } = null!;
 
     [Export]
-    public EnemyRhythmProfileResource BruteProfile { get; set; } = null!;
+    public EnemyRhythmProfileResource TowerProfile { get; set; } = null!;
 
     [Export]
-    public EnemyRhythmProfileResource DuelistProfile { get; set; } = null!;
+    public EnemyRhythmProfileResource JusticeProfile { get; set; } = null!;
 
     [Export]
     public PackedScene PromptScene { get; set; } = null!;
 
     [Export]
-    public EnemyDataResource InitiateData { get; set; } = null!;
+    public EnemyDataResource FoolData { get; set; } = null!;
 
     [Export]
-    public EnemyDataResource BruteData { get; set; } = null!;
+    public EnemyDataResource TowerData { get; set; } = null!;
 
     [Export]
-    public EnemyDataResource DuelistData { get; set; } = null!;
+    public EnemyDataResource JusticeData { get; set; } = null!;
 
     [Export]
     public int Seed { get; set; } = 12345;
@@ -41,34 +41,34 @@ public partial class Phase5PatternValidation : Node
     public override void _Ready()
     {
         var baseSignature = GetSignature(BasePattern);
-        var initiate = ValidateProfile("INITIATE", InitiateProfile, InitiateData);
-        var brute = ValidateProfile("BRUTE", BruteProfile, BruteData);
-        var duelist = ValidateProfile("DUELIST", DuelistProfile, DuelistData);
+        var fool = ValidateProfile("THE FOOL", FoolProfile, FoolData);
+        var tower = ValidateProfile("THE TOWER", TowerProfile, TowerData);
+        var justice = ValidateProfile("JUSTICE", JusticeProfile, JusticeData);
 
-        Require(brute.Stats.EventCount < initiate.Stats.EventCount,
-            "Brute precisa ter menos eventos que Initiate.");
-        Require(initiate.Stats.HalfBeatCount == 0 && brute.Stats.HalfBeatCount == 0,
-            "Initiate e Brute não devem usar half-beats.");
-        Require(duelist.Stats.EventCount > initiate.Stats.EventCount,
-            "Duelist precisa ser mais denso que Initiate.");
-        Require(duelist.Stats.HalfBeatCount > 0,
-            "Duelist precisa possuir half-beats.");
-        Require(duelist.Stats.BurstCount > 0,
-            "Duelist precisa possuir bursts.");
-        Require(duelist.Stats.FeintCount > 0,
-            "Duelist precisa possuir Feints ocasionais.");
-        Require(HasBurstSpacing(duelist.Pattern, DuelistProfile.BurstSpacingBeats),
-            $"Duelist precisa possuir ao menos uma chain espaçada em {DuelistProfile.BurstSpacingBeats:0.0} beat.");
+        Require(tower.Stats.EventCount < fool.Stats.EventCount,
+            "The Tower precisa ter menos eventos que The Fool.");
+        Require(fool.Stats.HalfBeatCount == 0 && tower.Stats.HalfBeatCount == 0,
+            "The Fool e The Tower não devem usar half-beats.");
+        Require(justice.Stats.EventCount > fool.Stats.EventCount,
+            "Justice precisa ser mais densa que The Fool.");
+        Require(justice.Stats.HalfBeatCount > 0,
+            "Justice precisa possuir half-beats.");
+        Require(justice.Stats.BurstCount > 0,
+            "Justice precisa possuir bursts.");
+        Require(justice.Stats.FeintCount > 0,
+            "Justice precisa possuir Feints ocasionais.");
+        Require(HasBurstSpacing(justice.Pattern, JusticeProfile.BurstSpacingBeats),
+            $"Justice precisa possuir ao menos uma chain espaçada em {JusticeProfile.BurstSpacingBeats:0.0} beat.");
         Require(baseSignature == GetSignature(BasePattern),
             "O chart musical-base foi mutado durante a geração.");
 
         ValidatePromptBehaviors();
         ValidateSubdivisionTimeline();
-        ValidateEnemyScene(InitiateData);
-        ValidateEnemyScene(BruteData);
-        ValidateEnemyScene(DuelistData);
-        Require(Math.Abs(BruteData.BaseAttackDamage - 40.0f) < 0.01f,
-            "Brute precisa causar 40 de dano-base.");
+        ValidateEnemyScene(FoolData);
+        ValidateEnemyScene(TowerData);
+        ValidateEnemyScene(JusticeData);
+        Require(Math.Abs(TowerData.BaseAttackDamage - 40.0f) < 0.01f,
+            "The Tower precisa causar 40 de dano-base.");
 
         GD.Print($"PHASE5_VALIDATION_RESULT errors={_errors}");
         _finishFramesRemaining = 3;

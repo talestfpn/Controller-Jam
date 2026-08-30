@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/shop.tscn" id="1_shop"]
+
+[node name="Phase8ShopTest" type="Node"]
+
+[node name="Shop" parent="." instance=ExtResource("1_shop")]
+DebugShop = true

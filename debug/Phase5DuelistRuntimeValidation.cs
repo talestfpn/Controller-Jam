@@ -18,7 +18,7 @@ public partial class Phase5DuelistRuntimeValidation : Node
     public int EnemyIndex { get; set; } = 2;
 
     [Export]
-    public string ExpectedEnemyName { get; set; } = "THE DUELIST";
+    public string ExpectedEnemyName { get; set; } = "JUSTICE";
 
     [Export]
     public bool RequireHalfBeats { get; set; } = true;

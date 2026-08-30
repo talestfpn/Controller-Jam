@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "riposte"
+DisplayName = "RIPOSTA"
+Description = "Após um PARRY, seu próximo ataque ofensivo PERFECT causa +10% de dano ao HP."
+EffectSummary = "PARRY  /  PRÓXIMO DANO PERFECT +10%"
+Category = 2
+Rarity = 1
+EssenceCost = 90
+MaxStacks = 2
+SpecialEffectId = "riposte"
+PrimaryValue = 0.10

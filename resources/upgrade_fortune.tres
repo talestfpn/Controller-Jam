@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "fortune"
+DisplayName = "FORTUNA"
+Description = "A recompensa base de Essence aumenta em 10%."
+EffectSummary = "RECOMPENSA BASE DE ESSENCE +10%"
+Category = 6
+Rarity = 0
+EssenceCost = 65
+MaxStacks = 2
+SpecialEffectId = "fortune"
+PrimaryValue = 0.10

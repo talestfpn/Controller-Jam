@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "arcane_guard"
+DisplayName = "GUARDA ARCANA"
+Description = "O dano recebido ao errar uma defesa com MISS é reduzido em 8%."
+EffectSummary = "DEFESA MISS  /  DANO -8%"
+Category = 4
+Rarity = 0
+EssenceCost = 55
+MaxStacks = 3
+SpecialEffectId = "arcane_guard"
+PrimaryValue = 0.08

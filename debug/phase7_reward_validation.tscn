@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://debug/Phase7RewardValidation.cs" id="1_validation"]
+[ext_resource type="Resource" path="res://resources/battle_reward_config.tres" id="2_reward_config"]
+
+[node name="Phase7RewardValidation" type="Node"]
+script = ExtResource("1_validation")
+Config = ExtResource("2_reward_config")

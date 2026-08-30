@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "vitality"
+DisplayName = "VITALIDADE"
+Description = "+10 de HP máximo e recupera 10 HP ao adquirir."
+EffectSummary = "HP MÁXIMO +10  /  RECUPERA 10"
+Category = 4
+Rarity = 0
+EssenceCost = 60
+MaxStacks = 3
+SpecialEffectId = "vitality"
+PrimaryValue = 10.0
+SecondaryValue = 10.0

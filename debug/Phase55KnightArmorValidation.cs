@@ -26,7 +26,7 @@ public partial class Phase55KnightArmorValidation : Node
         _combat.StartingEnemyIndex = 5;
         _combat.DebugRhythm = false;
         AddChild(_combat);
-        _enemy = _combat.GetNode<EnemyBase>("EnemyContainer/TheKnight");
+        _enemy = _combat.GetNode<EnemyBase>("EnemyContainer/KnightOfPentacles");
         _promptContainer = _combat.GetNode<Node2D>("PromptContainer");
         _timeoutAt = _rhythmManager.GetMusicPosition() + 30.0d;
     }
@@ -47,8 +47,8 @@ public partial class Phase55KnightArmorValidation : Node
         if (!_started)
         {
             _started = true;
-            Require(_enemy.IsArmored, "Knight não está Armored.");
-            Require(_enemy.IsArmorActive, "Armor do Knight não iniciou ativa.");
+            Require(_enemy.IsArmored, "Knight of Pentacles não está Armored.");
+            Require(_enemy.IsArmorActive, "Armor do Knight of Pentacles não iniciou ativa.");
         }
 
         foreach (var child in _promptContainer.GetChildren())

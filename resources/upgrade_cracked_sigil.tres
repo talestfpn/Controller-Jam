@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "cracked_sigil"
+DisplayName = "SIGILO FRATURADO"
+Description = "Todos os ataques ofensivos bem-sucedidos causam +10% de dano de Resistência."
+EffectSummary = "RESISTÊNCIA OFENSIVA +10%"
+Category = 1
+Rarity = 0
+EssenceCost = 60
+MaxStacks = 3
+SpecialEffectId = "cracked_sigil"
+PrimaryValue = 0.10

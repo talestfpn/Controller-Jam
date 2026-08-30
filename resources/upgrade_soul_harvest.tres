@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDataResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/UpgradeDataResource.cs" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+Id = "soul_harvest"
+DisplayName = "COLHEITA DE ALMAS"
+Description = "O bônus de Essence por PERFECT no resultado da batalha aumenta em 15%."
+EffectSummary = "BÔNUS DE ESSENCE PERFECT +15%"
+Category = 6
+Rarity = 1
+EssenceCost = 90
+MaxStacks = 2
+SpecialEffectId = "soul_harvest"
+PrimaryValue = 0.15

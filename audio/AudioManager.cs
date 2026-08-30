@@ -26,6 +26,8 @@ public partial class AudioManager : Node
         ComboMilestone,
         ComboBreak,
         PerfectStreak,
+        BossRegeneration,
+        BossPhaseTransition,
         Metronome,
     }
 
@@ -178,6 +180,16 @@ public partial class AudioManager : Node
         PlayCue(AudioCue.PerfectStreak, pitchScale);
     }
 
+    public void PlayBossRegeneration()
+    {
+        PlayCue(AudioCue.BossRegeneration);
+    }
+
+    public void PlayBossPhaseTransition()
+    {
+        PlayCue(AudioCue.BossPhaseTransition);
+    }
+
     public void ApplyBusVolumes()
     {
         SetBusVolume("Master", MasterVolumeDb);
@@ -269,6 +281,8 @@ public partial class AudioManager : Node
             AudioCue.ComboMilestone => FeedbackConfig.ComboMilestoneSfx,
             AudioCue.ComboBreak => FeedbackConfig.ComboBreakSfx,
             AudioCue.PerfectStreak => FeedbackConfig.PerfectStreakSfx,
+            AudioCue.BossRegeneration => FeedbackConfig.BossRegenerationSfx,
+            AudioCue.BossPhaseTransition => FeedbackConfig.BossPhaseTransitionSfx,
             AudioCue.Metronome => FeedbackConfig.MetronomeSfx,
             _ => null,
         };
@@ -293,6 +307,8 @@ public partial class AudioManager : Node
             AudioCue.ComboMilestone => "ComboMilestoneSfx",
             AudioCue.ComboBreak => "ComboBreakSfx",
             AudioCue.PerfectStreak => "PerfectStreakSfx",
+            AudioCue.BossRegeneration => "BossRegenerationSfx",
+            AudioCue.BossPhaseTransition => "BossPhaseTransitionSfx",
             AudioCue.Metronome => "MetronomeSfx",
             _ => "UnknownSfx",
         };
@@ -332,6 +348,10 @@ public partial class AudioManager : Node
                 310.0, 90.0, 145.0, 0.22, 8.5, 0.23, -1.0f, 0.12, 0.12),
             AudioCue.PerfectStreak => new CueProfile(
                 850.0, 1250.0, 1700.0, 0.13, 19.0, 0.15, -2.5f),
+            AudioCue.BossRegeneration => new CueProfile(
+                180.0, 420.0, 720.0, 0.32, 5.0, 0.2, -1.5f, 0.08, 0.12),
+            AudioCue.BossPhaseTransition => new CueProfile(
+                190.0, 980.0, 1540.0, 0.54, 3.8, 0.28, -0.5f, 0.12, 0.08),
             AudioCue.Metronome => new CueProfile(
                 1000.0, 760.0, 0.0, 0.045, 60.0, 0.10, -5.0f, 0.10, 0.25),
             _ => new CueProfile(
