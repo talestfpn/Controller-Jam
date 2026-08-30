@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://combat/RhythmPrompt.cs" id="1_rhythm_prompt"]
 [ext_resource type="Resource" path="res://resources/timing_config.tres" id="2_timing_config"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/tudo part1/reaction.png" id="4_reaction_sheet"]
 [ext_resource type="Shader" path="res://shaders/reaction_glow_burn.gdshader" id="5_reaction_glow_burn"]
 [ext_resource type="FontFile" path="res://fontes/ferrum/ferrum.otf" id="6_ferrum_font"]
+[ext_resource type="FontFile" path="res://fontes/taste_bread/Taste Bread.otf" id="7_taste_bread_font"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_perfect"]
 atlas = ExtResource("4_reaction_sheet")
@@ -277,7 +278,7 @@ offset_left = -150.0
 offset_top = -165.0
 offset_right = 150.0
 offset_bottom = -135.0
-theme_override_fonts/font = ExtResource("6_ferrum_font")
+theme_override_fonts/font = ExtResource("7_taste_bread_font")
 theme_override_colors/font_color = Color(0.84, 0.89, 1, 1)
 theme_override_font_sizes/font_size = 18
 text = "RHYTHM ACTION"

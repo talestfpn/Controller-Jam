@@ -2,12 +2,12 @@ using Godot;
 
 /// <summary>
 /// Tela final da run. A cena fornece toda a apresentação; o controller apenas
-/// lê o resultado persistido e conduz o início de uma nova run.
+/// lê o resultado persistido e conduz o retorno ao menu inicial.
 /// </summary>
 public partial class VictoryController : Control
 {
-    [Export(PropertyHint.Range, "1.0,9999.0,1.0")]
-    public float StartingPlayerMaxHealth { get; set; } = 100.0f;
+    [Export]
+    public PackedScene MainMenuScene { get; set; } = null!;
 
     private RunManager _runManager = null!;
     private SceneTransitionManager _sceneTransitionManager = null!;
@@ -83,9 +83,14 @@ public partial class VictoryController : Control
             return;
         }
 
+        if (MainMenuScene == null)
+        {
+            GD.PrintErr("VictoryController: MainMenuScene não foi configurada na cena.");
+            return;
+        }
+
         _continueButton.Disabled = true;
-        _statusLabel.Text = "NOVA RUN — o primeiro arcano aguarda.";
-        _runManager.BeginRun(Mathf.Max(1.0f, StartingPlayerMaxHealth));
-        _sceneTransitionManager.TransitionToCombat();
+        _statusLabel.Text = "RETORNANDO AO MENU...";
+        _sceneTransitionManager.TransitionToPacked(MainMenuScene);
     }
 }

@@ -12,6 +12,15 @@ public partial class UpgradeCardController : Control
     [Signal]
     public delegate void RerollRequestedEventHandler();
 
+    [Export]
+    public Texture2D? CommonFrame { get; set; }
+
+    [Export]
+    public Texture2D? RareFrame { get; set; }
+
+    [Export]
+    public Texture2D? ArcaneFrame { get; set; }
+
     private TextureRect _cardFrame = null!;
     private TextureRect _iconTexture = null!;
     private Label _iconPlaceholder = null!;
@@ -76,6 +85,7 @@ public partial class UpgradeCardController : Control
         bool canAfford)
     {
         Definition = definition;
+        _cardFrame.Texture = GetFrameForRarity(definition.Rarity);
         _categoryLabel.Text =
             $"{GetCategoryName(definition.Category)}  •  {GetRarityName(definition.Rarity)}";
         _nameLabel.Text = definition.DisplayName;
@@ -232,6 +242,17 @@ public partial class UpgradeCardController : Control
             UpgradeRarity.Rare => "RARA",
             UpgradeRarity.Arcane => "ARCANA",
             _ => "ARCANA",
+        };
+    }
+
+    private Texture2D? GetFrameForRarity(UpgradeRarity rarity)
+    {
+        return rarity switch
+        {
+            UpgradeRarity.Common => CommonFrame ?? ArcaneFrame,
+            UpgradeRarity.Rare => RareFrame ?? ArcaneFrame,
+            UpgradeRarity.Arcane => ArcaneFrame,
+            _ => ArcaneFrame,
         };
     }
 

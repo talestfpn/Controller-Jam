@@ -22,6 +22,9 @@ public partial class RunManager : Node
     public int CurrentEncounterIndex { get; private set; }
     public float PlayerCurrentHP { get; private set; } = 100.0f;
     public float BasePlayerMaxHealth { get; private set; } = 100.0f;
+    public int CurrentCombo { get; private set; }
+    public int HighestCombo { get; private set; }
+    public int PerfectStreak { get; private set; }
     public bool IsRunInitialized { get; private set; }
     public BattleResultData? LastBattleResult { get; private set; }
     public RunBuild Build { get; } = new();
@@ -70,6 +73,9 @@ public partial class RunManager : Node
         CurrentEncounterIndex = 0;
         BasePlayerMaxHealth = Mathf.Max(1.0f, initialPlayerHealth);
         PlayerCurrentHP = BasePlayerMaxHealth;
+        CurrentCombo = 0;
+        HighestCombo = 0;
+        PerfectStreak = 0;
         LastBattleResult = null;
         Build.Reset();
         ResetShopSlotRerolls(false);
@@ -117,6 +123,16 @@ public partial class RunManager : Node
     public void SetPlayerCurrentHP(float currentHealth)
     {
         PlayerCurrentHP = Mathf.Max(0.0f, currentHealth);
+    }
+
+    public void SetComboState(
+        int currentCombo,
+        int highestCombo,
+        int perfectStreak)
+    {
+        CurrentCombo = Mathf.Max(0, currentCombo);
+        HighestCombo = Mathf.Max(CurrentCombo, Mathf.Max(0, highestCombo));
+        PerfectStreak = Mathf.Max(0, perfectStreak);
     }
 
     public float GetEffectivePlayerMaxHealth()
